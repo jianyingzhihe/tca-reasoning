@@ -217,10 +217,11 @@ def prune_graph(
     # Calculate edge influence and apply threshold
     edge_scores = compute_edge_influence(pruned_matrix, logit_weights)
 
-    # Keep only meaningful non-zero edges. Using >= may include a large number of
-    # exact-zero entries when threshold resolves to 0, which can explode JSON size.
+    # Keep only meaningful non-zero edges.
+    # We keep >= cutoff (not >) so the top edge is preserved even when cutoff == max(edge_scores),
+    # and we explicitly filter out zero-weight entries to avoid JSON explosion.
     edge_cutoff = find_threshold(edge_scores.flatten(), edge_threshold)
-    edge_mask = (edge_scores > edge_cutoff) & (pruned_matrix != 0)
+    edge_mask = (edge_scores >= edge_cutoff) & (edge_scores > 0) & (pruned_matrix != 0)
 
     old_node_mask = node_mask.clone()
     # Ensure feature and error nodes have outgoing edges
