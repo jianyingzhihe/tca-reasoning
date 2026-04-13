@@ -11,15 +11,20 @@ script_path = Path(__file__).absolute()
 
 import sys
 try:
-    if "jyang28" in str(script_path):
-        sys.path.append("/work/nvme/bewu/jyang28/vlm-tracing/third_party/TransformerLens")
-        sys.path.append("/work/nvme/bewu/jyang28/vlm-tracing")
-    else:
-        sys.path.append("/work/nvme/bfga/tianhux2/vlm-tracing/third_party/TransformerLens")
-        sys.path.append("/work/nvme/bfga/tianhux2/vlm-tracing")
-    
-    import transformer_lens as lens  # Some python problem causes this to throw on the first import
-except:
+    # Prefer local vendored TransformerLens fork in this repository.
+    # This avoids machine-specific absolute paths.
+    candidate_paths = [
+        script_path.parents[2] / "third_party" / "TransformerLens",  # repo_root/third_party/TransformerLens
+        script_path.parents[1] / "third_party" / "TransformerLens",  # circuit_tracer_vlm/third_party/TransformerLens
+    ]
+    for candidate in candidate_paths:
+        if candidate.exists():
+            candidate_str = str(candidate)
+            if candidate_str not in sys.path:
+                sys.path.insert(0, candidate_str)
+
+    import transformer_lens as lens  # Some python setups throw on the first import
+except Exception:
     import transformer_lens as lens
 
 
