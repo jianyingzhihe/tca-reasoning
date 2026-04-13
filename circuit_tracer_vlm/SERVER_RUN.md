@@ -52,3 +52,27 @@ If it succeeds, you can then increase:
 - If your server disk is small, set `HF_HOME` to a large mount before downloading model/transcoder files.
 - The first run may take a long time due to model and transcoder download.
 
+## Daily use (avoid typing many commands)
+
+After each SSH login, run one command:
+
+```bash
+source scripts/server/dev.sh
+```
+
+This command will:
+- auto-create `.venv` if missing
+- activate `.venv`
+- load `.env`
+
+Then you can run:
+
+```bash
+bash scripts/server/run_gemma_smoke.sh
+```
+
+Or one command for full check + smoke:
+
+```bash
+bash scripts/server/smoke_one_command.sh
+```
