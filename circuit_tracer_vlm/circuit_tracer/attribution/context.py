@@ -197,12 +197,18 @@ class AttributionContext:
         """
 
         assert self._resid_activations[0] is not None, "Residual activations are not cached"
+        target_device = self._resid_activations[0].device
+
+        layers = layers.to(target_device)
+        positions = positions.to(target_device)
+        inject_values = inject_values.to(target_device, non_blocking=True)
+
         batch_size = self._resid_activations[0].shape[0]
         self._batch_buffer = torch.zeros(
             self._row_size,
             batch_size,
             dtype=inject_values.dtype,
-            device=inject_values.device,
+            device=target_device,
         )
 
         # Custom gradient injection (per-layer registration)

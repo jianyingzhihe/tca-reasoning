@@ -465,8 +465,6 @@ class ReplacementModel(HookedVLTransformer):
         response = requests.get(url)
         raw_image = Image.open(BytesIO(response.content)).convert("RGB")'''
 
-        print(batch.keys())
-
         if 'image' in batch:
             raw_image = batch['image']
         # If pixel_values are present (multimodal batch)
@@ -527,9 +525,6 @@ class ReplacementModel(HookedVLTransformer):
         mlp_out_cache, mlp_out_caching_hooks, _ = self.get_caching_hooks(
             lambda name: self.feature_output_hook in name
         )
-        print(inputs)
-        print(tokens)
-
         #self.assert_image_span_is_present_and_live(self, batch)
         batch = {k: v.to(self.cfg.device) for k, v in batch.items()}
         batch["image"] = raw_image
@@ -541,21 +536,11 @@ class ReplacementModel(HookedVLTransformer):
         logits = self.run_with_hooks(
             [prompt], [[raw_image]], fwd_hooks=mlp_in_caching_hooks + mlp_out_caching_hooks
         )
-        
-        #_ = self.run_with_hooks([prompt], [[raw_image]], stop_at_layer=None)
-        print("mlp_in_cache")
-        # print(len(mlp_in_cache), mlp_in_cache.keys(), mlp_in_cache["blocks.0.mlp.hook_in"])
 
         mlp_in_cache = torch.cat(list(mlp_in_cache.values()), dim=0)
         mlp_out_cache = torch.cat(list(mlp_out_cache.values()), dim=0)
 
-        print(mlp_in_cache.shape, mlp_in_cache.dtype)
-
-        print(f"r416 已分配显存: {torch.cuda.memory_allocated() / 1024**3:.2f} GB")
-
         attribution_data = self.transcoders.compute_attribution_components(mlp_in_cache)
-
-        print(f"r420 已分配显存: {torch.cuda.memory_allocated() / 1024**3:.2f} GB")
 
         # Compute error vectors
         error_vectors = mlp_out_cache - attribution_data["reconstruction"]
@@ -598,34 +583,6 @@ class ReplacementModel(HookedVLTransformer):
         )
 
         ctx.batch = batch
-
-        # --- Sanity: verify text attends to image positions ---
-        # --- Sanity: verify text can attend to image positions ---
-        with torch.no_grad():
-            tok = self.processor.tokenizer
-
-            # pick whichever image marker exists in this tokenizer
-            vocab = tok.get_vocab()
-            img_token = None
-            for candidate in ("<image_start>", "<image>", "<image_token>"):
-                if candidate in vocab:
-                    img_token = candidate
-                    break
-            if img_token is None:
-                print("[attn sanity] no image special token in vocab")
-            else:
-                img_id = tok.convert_tokens_to_ids(img_token)
-                ids = batch["input_ids"][0]
-                img_pos = (ids == img_id).nonzero(as_tuple=True)[0]
-                if len(img_pos) == 0:
-                    print("[attn sanity] no image markers in this sequence")
-                else:
-                    # last text position
-                    txt_last = (ids != img_id).nonzero(as_tuple=True)[0][-1].item()
-                    for name, pat in ctx.attn_patterns.items():  # pat: [B,H,Q,K]
-                        mass = pat[0].mean(0)[txt_last, img_pos].sum().item()
-                        print(f"[attn sanity] {name}: text→image mass = {mass:.4f}")
-
 
         return ctx
     
@@ -677,8 +634,6 @@ class ReplacementModel(HookedVLTransformer):
         Returns:
             list[tuple[str, Callable]]: The freeze hooks needed to run the desired intervention.
         """
-
-        print("88888")
 
         hookpoints_to_freeze = ["hook_pattern"]
         if constrained_layers:

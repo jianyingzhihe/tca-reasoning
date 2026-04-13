@@ -12,6 +12,11 @@ OUTPUT_PT="${2:-./outputs/gemma_demo_213.pt}"
 
 mkdir -p "$(dirname "${OUTPUT_PT}")"
 
+# Low-memory defaults for L40-class GPUs; can be overridden by env.
+export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True}"
+export CIRCUIT_TRACER_TOPK="${CIRCUIT_TRACER_TOPK:-8}"
+export CIRCUIT_TRACER_ENCODER_CPU="${CIRCUIT_TRACER_ENCODER_CPU:-1}"
+
 circuit-tracer attribute \
   --prompt "<start_of_image> What is in the image?" \
   --transcoder_set "tianhux2/gemma3-4b-it-plt" \
@@ -24,4 +29,3 @@ circuit-tracer attribute \
   --offload cpu
 
 echo "[run_gemma_smoke] Saved graph to ${OUTPUT_PT}"
-

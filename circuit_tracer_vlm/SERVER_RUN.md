@@ -41,6 +41,17 @@ You should see two `[OK]` lines for:
 bash scripts/server/run_gemma_smoke.sh demos/img/gemma/213.png ./outputs/gemma_demo_213.pt
 ```
 
+For L40-like GPUs, the smoke script defaults to low-memory mode:
+- `CIRCUIT_TRACER_TOPK=8`
+- `CIRCUIT_TRACER_ENCODER_CPU=1`
+- `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`
+
+You can override, for example:
+
+```bash
+CIRCUIT_TRACER_TOPK=16 bash scripts/server/run_gemma_smoke.sh
+```
+
 If it succeeds, you can then increase:
 - `--max_feature_nodes`
 - `--batch_size`

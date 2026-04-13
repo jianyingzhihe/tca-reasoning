@@ -33,8 +33,6 @@ from circuit_tracer.utils import get_default_device
 from circuit_tracer.utils.disk_offload import offload_modules
 
 from PIL import Image
-import requests
-from io import BytesIO
 
 
 @torch.no_grad()
@@ -189,8 +187,6 @@ def _run_attribution(
 
     batch["image"] = image
 
-    print(f"a177 已分配显存: {torch.cuda.memory_allocated() / 1024**3:.2f} GB")
-
     ctx = model.setup_attribution(input_ids, prompt, image)
     activation_matrix = ctx.activation_matrix
 
@@ -199,8 +195,6 @@ def _run_attribution(
 
     if offload:
         offload_handles += offload_modules(model.transcoders, offload)
-
-    print(f"a186 已分配显存: {torch.cuda.memory_allocated() / 1024**3:.2f} GB")
 
     # Phase 1: forward pass
     logger.info("Phase 1: Running forward pass")
@@ -254,8 +248,6 @@ def _run_attribution(
     row_to_node_index = torch.zeros(max_feature_nodes + n_logits, dtype=torch.int32)
     logger.info(f"Input vectors built in {time.time() - phase_start:.2f}s")
 
-    print(f"a232 已分配显存: {torch.cuda.memory_allocated() / 1024**3:.2f} GB")
-
     # Phase 3: logit attribution
     logger.info("Phase 3: Computing logit attributions")
     phase_start = time.time()
@@ -271,8 +263,6 @@ def _run_attribution(
             torch.arange(i, i + batch.shape[0]) + logit_offset
         )
     logger.info(f"Logit attributions completed in {time.time() - phase_start:.2f}s")
-
-    print(f"a250 已分配显存: {torch.cuda.memory_allocated() / 1024**3:.2f} GB")
 
     # Phase 4: feature attribution
     logger.info("Phase 4: Computing feature attributions")
@@ -315,8 +305,6 @@ def _run_attribution(
 
     pbar.close()
     logger.info(f"Feature attributions completed in {time.time() - phase_start:.2f}s")
-
-    print(f"a294 已分配显存: {torch.cuda.memory_allocated() / 1024**3:.2f} GB")
 
     # Phase 5: packaging graph
     selected_features = torch.where(visited)[0]

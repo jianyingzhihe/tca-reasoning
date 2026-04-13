@@ -114,7 +114,6 @@ class SingleLayerTranscoder(nn.Module):
             return f.get_slice("W_dec")[to_read].to(self.dtype)
 
     def encode(self, input_acts, apply_activation_function: bool = True):
-        print("---------------------------------www---------")
         W_enc = self.W_enc
         pre_acts = F.linear(input_acts.to(W_enc.dtype), W_enc, self.b_enc)
         if not apply_activation_function:
@@ -164,10 +163,9 @@ class SingleLayerTranscoder(nn.Module):
         if zero_first_pos:
             acts[0] = 0
 
-        print("acts", acts.shape, acts.dtype, acts.device, input_acts.shape)
-
         N, M = acts.shape
-        k = 48
+        k = int(os.getenv("CIRCUIT_TRACER_TOPK", "48"))
+        k = max(1, min(k, M))
         topk_vals, topk_idxs = torch.topk(acts, k, dim=-1, sorted=False)
         topk_acts = torch.zeros_like(acts)
         row_indices = torch.arange(N, device=acts.device).unsqueeze(1).expand(N, k)
@@ -177,11 +175,6 @@ class SingleLayerTranscoder(nn.Module):
 
         _, feat_idx = sparse_acts.indices()
         active_encoders = W_enc[feat_idx]
-
-        # print(sparse_acts.indices())
-        print(sparse_acts.indices().shape)
-        print(type(feat_idx), feat_idx.shape, feat_idx.dtype, feat_idx.device)
-        print("sparse_acts", type(sparse_acts), sparse_acts.shape, sparse_acts.dtype, sparse_acts.device)
 
         return sparse_acts, active_encoders
 
@@ -198,7 +191,6 @@ class SingleLayerTranscoder(nn.Module):
         # Get decoder vectors for active features only
         W_dec = self._get_decoder_vectors(feat_idx.cpu())
         scaled_decoders = W_dec * values[:, None]
-        print("scc", scaled_decoders.shape, W_dec.shape, values.shape)
 
         # Reconstruct using index_add
         n_pos = sparse_acts.shape[0]
@@ -327,30 +319,19 @@ class TranscoderSet(nn.Module):
                 - encoder_to_decoder_map: Mapping from encoder to decoder indices
         """
         device = mlp_inputs.device
+        keep_encoder_on_cpu = os.getenv("CIRCUIT_TRACER_ENCODER_CPU", "1") == "1"
 
         reconstruction = torch.zeros_like(mlp_inputs)
         encoder_vectors = []
         decoder_vectors = []
         sparse_acts_list = []
 
-        print(f"s316 已分配显存: {torch.cuda.memory_allocated() / 1024**3:.2f} GB")
-
         for layer, transcoder in enumerate(self.transcoders):
             sparse_acts, active_encoders = transcoder.encode_sparse(  # type: ignore
                 mlp_inputs[layer], zero_first_pos=True
             )
-            if layer == 0:
-                print("mlp_inputs[layer]", mlp_inputs[layer])
-            print(sparse_acts.dtype, sparse_acts.shape, sparse_acts.device)
-            print(sparse_acts.values().dtype, sparse_acts.values().shape, sparse_acts.values().device)
-            print(sparse_acts.values().mean())
             reconstruction[layer], active_decoders = transcoder.decode_sparse(sparse_acts)  # type: ignore
-            print(f"s323 已分配显存: {torch.cuda.memory_allocated() / 1024**3:.2f} GB", layer)
-            print(reconstruction[layer].dtype, reconstruction[layer].shape, reconstruction[layer].device)
-            print(active_decoders.dtype, active_decoders.shape, active_decoders.device)
-            print(active_encoders.shape, active_decoders.shape)
-            print("aeds")
-            encoder_vectors.append(active_encoders)
+            encoder_vectors.append(active_encoders.cpu() if keep_encoder_on_cpu else active_encoders)
             decoder_vectors.append(active_decoders)
             sparse_acts_list.append(sparse_acts)
 
@@ -396,13 +377,6 @@ class TranscoderSet(nn.Module):
         activation_matrix = stack_and_coalesce_with_padding(sparse_acts_list)
 
         encoder_to_decoder_map = torch.arange(activation_matrix._nnz(), device=device)
-
-        print(f"s331 已分配显存: {torch.cuda.memory_allocated() / 1024**3:.2f} GB")
-
-        for ee in encoder_vectors:
-            print(ee.shape)
-        print(torch.cat(encoder_vectors, dim=0).shape)
-        print("----")
 
         return {
             "activation_matrix": activation_matrix,
