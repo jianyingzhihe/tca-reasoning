@@ -9,7 +9,11 @@ import socketserver
 import threading
 from importlib.resources import files
 from pathlib import Path
-import mysql.connector # pip install mysql-connector-python
+
+try:
+    import mysql.connector as mysql_connector  # pip install mysql-connector-python
+except Exception:  # noqa: BLE001
+    mysql_connector = None
 
 logger = logging.getLogger(__name__)
 logger.propagate = False
@@ -24,7 +28,7 @@ _db_lock = threading.Lock()
 class DatabaseManager:
     def __init__(self, host, database, user, password, port=3306):
         try:
-            self.connection = mysql.connector.connect(
+            self.connection = mysql_connector.connect(
                 host=host,
                 database=database,
                 user=user,
@@ -82,6 +86,23 @@ class DatabaseManager:
         self.close()
 
 
+class InMemoryDatabaseManager:
+    """Fallback DB manager when mysql connector / server is unavailable."""
+
+    def __init__(self):
+        self._store = {}
+
+    def upsert_data(self, data_list):
+        for index_val, content_val in json.loads(data_list):
+            self._store[index_val] = content_val
+
+    def get_all_data(self):
+        return json.dumps([[k, v] for k, v in self._store.items()])
+
+    def close(self):
+        return
+
+
 def get_global_db_manager():
     """获取全局数据库管理器实例"""
     global _global_db_manager
@@ -89,12 +110,23 @@ def get_global_db_manager():
         with _db_lock:
             # 双重检查锁定模式 (Double-checked locking pattern)
             if _global_db_manager is None:
-                _global_db_manager = DatabaseManager(
-                    host='8.135.11.160',
-                    database='vlm_tracing',
-                    user='vlm_tracing',
-                    password='tnAnBcpi8aG3XHTL'
-                )
+                disable_remote_db = os.getenv("CIRCUIT_TRACER_DISABLE_REMOTE_DB", "1") == "1"
+                if disable_remote_db or mysql_connector is None:
+                    logger.warning(
+                        "Using in-memory graph annotation store (remote MySQL disabled/unavailable)."
+                    )
+                    _global_db_manager = InMemoryDatabaseManager()
+                else:
+                    try:
+                        _global_db_manager = DatabaseManager(
+                            host='8.135.11.160',
+                            database='vlm_tracing',
+                            user='vlm_tracing',
+                            password='tnAnBcpi8aG3XHTL'
+                        )
+                    except Exception:
+                        logger.exception("Falling back to in-memory store due to MySQL init failure.")
+                        _global_db_manager = InMemoryDatabaseManager()
     return _global_db_manager
 
 

@@ -75,6 +75,7 @@ This command will:
 - auto-create `.venv` if missing
 - activate `.venv`
 - load `.env`
+- use in-memory annotation DB by default (`CIRCUIT_TRACER_DISABLE_REMOTE_DB=1`)
 
 Then you can run:
 

@@ -25,6 +25,7 @@ fi
 source "${VENV_DIR}/bin/activate"
 # shellcheck source=/dev/null
 source "${ROOT_DIR}/scripts/server/load_env.sh" "${ENV_FILE}"
+export CIRCUIT_TRACER_DISABLE_REMOTE_DB="${CIRCUIT_TRACER_DISABLE_REMOTE_DB:-1}"
 
 if [[ -z "${HF_TOKEN:-}" && -z "${HUGGINGFACE_HUB_TOKEN:-}" ]]; then
   echo "[dev] Warning: HF_TOKEN/HUGGINGFACE_HUB_TOKEN is empty." >&2
@@ -34,4 +35,3 @@ echo "[dev] Ready."
 echo "[dev] Python: $(which python)"
 echo "[dev] circuit-tracer: $(which circuit-tracer)"
 echo "[dev] HF_HOME=${HF_HOME:-unset}"
-
