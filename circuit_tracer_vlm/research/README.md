@@ -54,6 +54,8 @@ python scripts/research/run_batch_attribute.py \
 
 This mode computes metrics per sample and deletes temporary `.pt` files by default.
 It supports resume and progress/ETA logs.
+If `--manifest` does not exist, the script auto-builds it from OK-VQA files under
+`~/tca-reasoning/data/okvqa` by default.
 
 ```bash
 python scripts/research/run_metrics_stream.py \
@@ -68,7 +70,9 @@ python scripts/research/run_metrics_stream.py \
   --batch-size 1 \
   --offload cpu \
   --topk 8 \
-  --log-every 10
+  --log-every 10 \
+  --okvqa-split val \
+  --okvqa-limit 1000
 ```
 
 Run in background:

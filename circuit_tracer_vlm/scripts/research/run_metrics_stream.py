@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 import os
 import shlex
 import subprocess
@@ -64,6 +65,85 @@ def _write_summary(metrics_csv: Path, summary_path: Path) -> None:
     summary_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def _build_okvqa_manifest(
+    manifest_path: Path,
+    okvqa_root: Path,
+    split: str,
+    limit: int,
+    seed: int,
+) -> None:
+    q_file = (
+        "OpenEnded_mscoco_train2014_questions.json"
+        if split == "train"
+        else "OpenEnded_mscoco_val2014_questions.json"
+    )
+    a_file = (
+        "mscoco_train2014_annotations.json" if split == "train" else "mscoco_val2014_annotations.json"
+    )
+    img_subdir = "train2014" if split == "train" else "val2014"
+    img_prefix = "COCO_train2014_" if split == "train" else "COCO_val2014_"
+
+    q_path = okvqa_root / "questions" / q_file
+    a_path = okvqa_root / "annotations" / a_file
+    img_root = okvqa_root / "images" / img_subdir
+
+    if not q_path.exists():
+        raise FileNotFoundError(f"missing questions file: {q_path}")
+    if not a_path.exists():
+        raise FileNotFoundError(f"missing annotations file: {a_path}")
+    if not img_root.exists():
+        raise FileNotFoundError(f"missing image folder: {img_root}")
+
+    with q_path.open("r", encoding="utf-8") as f:
+        q_data = json.load(f)["questions"]
+    with a_path.open("r", encoding="utf-8") as f:
+        a_data = json.load(f)["annotations"]
+
+    ans_map = {}
+    for a in a_data:
+        qid = int(a["question_id"])
+        ans = ""
+        if a.get("answers"):
+            ans = (a["answers"][0].get("answer") or "").strip()
+        ans_map[qid] = ans
+
+    rows = []
+    for item in q_data:
+        qid = int(item["question_id"])
+        iid = int(item["image_id"])
+        question = (item.get("question") or "").strip()
+        if not question:
+            continue
+        rows.append(
+            {
+                "sample_id": "",
+                "image_path": str(img_root / f"{img_prefix}{iid:012d}.jpg"),
+                "question": question,
+                "split": split,
+                "trace_source": "none",
+                "question_type": "okvqa",
+                "notes": f"qid={qid};image_id={iid};answer={ans_map.get(qid,'')}",
+            }
+        )
+
+    import random
+
+    rng = random.Random(seed)
+    rng.shuffle(rows)
+    if limit > 0:
+        rows = rows[:limit]
+    for i, row in enumerate(rows, start=1):
+        row["sample_id"] = f"okvqa_{split}_{i:05d}"
+
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    fields = ["sample_id", "image_path", "question", "split", "trace_source", "question_type", "notes"]
+    with manifest_path.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(rows)
+    print(f"[auto] built manifest: {manifest_path} rows={len(rows)}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Run attribution per manifest row, compute graph metrics, optionally delete .pt."
@@ -83,6 +163,29 @@ def main() -> int:
     parser.add_argument("--keep-pt", action="store_true", help="Keep .pt files instead of deleting")
     parser.add_argument("--resume", action="store_true", default=True, help="Skip sample_ids already in metrics CSV")
     parser.add_argument("--log-every", type=int, default=10, help="Print progress every N samples")
+    parser.add_argument(
+        "--okvqa-root",
+        default="~/tca-reasoning/data/okvqa",
+        help="Root path for OK-VQA data (used when manifest is missing).",
+    )
+    parser.add_argument(
+        "--okvqa-split",
+        choices=["train", "val"],
+        default="val",
+        help="Split for auto-generated manifest when manifest is missing.",
+    )
+    parser.add_argument(
+        "--okvqa-limit",
+        type=int,
+        default=1000,
+        help="Sample count for auto-generated manifest when manifest is missing.",
+    )
+    parser.add_argument(
+        "--okvqa-seed",
+        type=int,
+        default=42,
+        help="Random seed for auto-generated manifest when manifest is missing.",
+    )
     args = parser.parse_args()
 
     manifest = Path(args.manifest)
@@ -92,6 +195,20 @@ def main() -> int:
     temp_pt_dir.mkdir(parents=True, exist_ok=True)
     metrics_output.parent.mkdir(parents=True, exist_ok=True)
     summary_output.parent.mkdir(parents=True, exist_ok=True)
+
+    if not manifest.exists():
+        okvqa_root = Path(args.okvqa_root).expanduser().resolve()
+        print(f"[auto] manifest missing: {manifest}")
+        print(
+            f"[auto] trying to build from OK-VQA root={okvqa_root}, split={args.okvqa_split}, limit={args.okvqa_limit}"
+        )
+        _build_okvqa_manifest(
+            manifest_path=manifest,
+            okvqa_root=okvqa_root,
+            split=args.okvqa_split,
+            limit=args.okvqa_limit,
+            seed=args.okvqa_seed,
+        )
 
     with manifest.open("r", encoding="utf-8", newline="") as f:
         rows = list(csv.DictReader(f))
