@@ -1,0 +1,29 @@
+run_name: phase_ab_v1
+
+model:
+  model_name: google/gemma-3-4b-it
+  transcoder_set: tianhux2/gemma3-4b-it-plt
+  dtype: bfloat16
+  topk: 16
+  encoder_cpu: true
+
+attribution:
+  prompt_template: "<start_of_image> {question}"
+  batch_size: 1
+  max_n_logits: 2
+  max_feature_nodes: 256
+  offload: cpu
+
+pruning:
+  node_threshold: 0.95
+  edge_threshold: 0.995
+
+paths:
+  sample_manifest: research/work/sample_manifest.csv
+  trace_jsonl: research/work/dataset_with_trace.jsonl
+  raw_pt_dir: outputs/phase_ab/raw_pt
+  graph_json_dir: outputs/phase_ab/graph_json
+  metrics_dir: outputs/phase_ab/metrics
+  figures_dir: outputs/phase_ab/figures
+  logs_dir: outputs/phase_ab/logs
+

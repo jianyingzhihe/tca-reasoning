@@ -1,0 +1,4 @@
+sample_id,image_path,question,split,trace_source,question_type,notes
+sample_0001,demos/img/gemma/213.png,What is in the image?,pilot,manual,visual_grounding,starter sample
+sample_0002,demos/img/gemma/358.png,What is the main object shown?,pilot,manual,visual_grounding,starter sample
+

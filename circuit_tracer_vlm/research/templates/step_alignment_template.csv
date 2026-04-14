@@ -1,0 +1,3 @@
+sample_id,step_id,step_type,step_text,graph_slug,candidate_node_ids,candidate_edge_count,alignment_score,error_ratio,notes
+sample_0001,s1,visual_grounding,Identify the main foreground object.,gemma-213-vis,"0_30062_196|E_2_0",42,0.31,0.22,example row
+
