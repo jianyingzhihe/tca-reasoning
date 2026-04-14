@@ -9,11 +9,11 @@ import shlex
 import subprocess
 import sys
 import time
+import importlib
 from pathlib import Path
 from statistics import mean
 
 import torch
-from circuit_tracer.graph import Graph, compute_graph_scores
 
 
 def _load_done_ids(metrics_csv: Path) -> set[str]:
@@ -172,7 +172,13 @@ def _ensure_transformer_lens_with_vl() -> None:
             if candidate_str not in sys.path:
                 sys.path.insert(0, candidate_str)
 
-    import transformer_lens as lens
+    # If site-packages transformer_lens was imported earlier in this process,
+    # force a clean re-import from the updated sys.path.
+    for name in list(sys.modules.keys()):
+        if name == "transformer_lens" or name.startswith("transformer_lens."):
+            del sys.modules[name]
+
+    lens = importlib.import_module("transformer_lens")
 
     if not hasattr(lens, "HookedVLTransformer"):
         raise ImportError(
@@ -306,6 +312,8 @@ def main() -> int:
             dtype=dtype,
         )
         print("[init] model ready (reuse-model enabled)")
+
+    from circuit_tracer.graph import Graph, compute_graph_scores
 
     for i, row in enumerate(rows, start=1):
         sample_id = (row.get("sample_id") or "").strip()
