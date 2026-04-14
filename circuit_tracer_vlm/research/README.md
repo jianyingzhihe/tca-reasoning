@@ -71,6 +71,7 @@ python scripts/research/run_metrics_stream.py \
   --offload cpu \
   --topk 8 \
   --log-every 10 \
+  --reuse-model \
   --okvqa-split val \
   --okvqa-limit 1000
 ```

@@ -11,6 +11,7 @@ import time
 from pathlib import Path
 from statistics import mean
 
+import torch
 from circuit_tracer.graph import Graph, compute_graph_scores
 
 
@@ -144,6 +145,19 @@ def _build_okvqa_manifest(
     print(f"[auto] built manifest: {manifest_path} rows={len(rows)}")
 
 
+def _normalize_dtype(dtype_str: str) -> torch.dtype:
+    mapping = {
+        "fp32": "float32",
+        "bf16": "bfloat16",
+        "fp16": "float16",
+    }
+    name = mapping.get(dtype_str, dtype_str)
+    try:
+        return getattr(torch, name)
+    except AttributeError as exc:
+        raise ValueError(f"unsupported dtype: {dtype_str}") from exc
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Run attribution per manifest row, compute graph metrics, optionally delete .pt."
@@ -152,6 +166,11 @@ def main() -> int:
     parser.add_argument("--metrics-output", required=True, help="Output CSV path")
     parser.add_argument("--summary-output", default="", help="Output summary txt path")
     parser.add_argument("--temp-pt-dir", required=True, help="Temp directory for per-sample .pt files")
+    parser.add_argument(
+        "--model",
+        default="",
+        help="Optional model name (if empty, infer from transcoder config).",
+    )
     parser.add_argument("--transcoder-set", required=True, help="Transcoder set repo id")
     parser.add_argument("--dtype", default="bfloat16", help="float16/bfloat16/float32")
     parser.add_argument("--max-feature-nodes", type=int, default=96)
@@ -185,6 +204,11 @@ def main() -> int:
         type=int,
         default=42,
         help="Random seed for auto-generated manifest when manifest is missing.",
+    )
+    parser.add_argument(
+        "--reuse-model",
+        action="store_true",
+        help="Load model/transcoder once and reuse across all samples (much faster).",
     )
     args = parser.parse_args()
 
@@ -227,10 +251,37 @@ def main() -> int:
     env = os.environ.copy()
     env["CIRCUIT_TRACER_TOPK"] = str(args.topk)
     env["CIRCUIT_TRACER_ENCODER_CPU"] = "1" if args.encoder_cpu else "0"
+    os.environ["CIRCUIT_TRACER_TOPK"] = str(args.topk)
+    os.environ["CIRCUIT_TRACER_ENCODER_CPU"] = "1" if args.encoder_cpu else "0"
 
     total = len(rows)
     processed = 0
     started = time.time()
+    offload_value = None if args.offload == "none" else args.offload
+
+    model_instance = None
+    if args.reuse_model:
+        from circuit_tracer import ReplacementModel
+        from circuit_tracer.utils.hf_utils import load_transcoder_from_hub
+
+        dtype = _normalize_dtype(args.dtype)
+        print("[init] loading transcoder once...")
+        transcoder, config = load_transcoder_from_hub(
+            args.transcoder_set,
+            dtype=dtype,
+            lazy_encoder=False,
+            lazy_decoder=True,
+        )
+        model_name = args.model.strip() or config.get("model_name", "")
+        if not model_name:
+            raise ValueError("--model is required when model_name is absent in transcoder config")
+        print(f"[init] loading model once: {model_name}")
+        model_instance = ReplacementModel.from_pretrained_and_transcoders(
+            model_name,
+            transcoder,
+            dtype=dtype,
+        )
+        print("[init] model ready (reuse-model enabled)")
 
     for i, row in enumerate(rows, start=1):
         sample_id = (row.get("sample_id") or "").strip()
@@ -246,51 +297,53 @@ def main() -> int:
         output_pt = temp_pt_dir / f"{sample_id}.pt"
         output_pt.unlink(missing_ok=True)
 
-        cmd = [
-            "circuit-tracer",
-            "attribute",
-            "--prompt",
-            f"<start_of_image> {question}",
-            "--transcoder_set",
-            args.transcoder_set,
-            "--image",
-            image_path,
-            "--graph_output_path",
-            str(output_pt),
-            "--batch_size",
-            str(args.batch_size),
-            "--max_n_logits",
-            str(args.max_n_logits),
-            "--max_feature_nodes",
-            str(args.max_feature_nodes),
-            "--dtype",
-            args.dtype,
-        ]
-        if args.offload != "none":
-            cmd.extend(["--offload", args.offload])
-
-        print(f"[run] {i}/{total} sample={sample_id}")
-        proc = subprocess.run(cmd, env=env, check=False)
-        if proc.returncode != 0 or not output_pt.exists():
-            _append_row(
-                metrics_output,
-                {
-                    "sample_id": sample_id,
-                    "replacement_score": "",
-                    "completeness_score": "",
-                    "n_nodes_total": "",
-                    "n_nonzero_edges": "",
-                    "status": "failed",
-                    "error_message": f"attribute_return_code={proc.returncode}",
-                },
-                fieldnames,
-            )
-            done_ids.add(sample_id)
-            processed += 1
-            continue
-
         try:
-            g = Graph.from_pt(str(output_pt), map_location="cpu")
+            print(f"[run] {i}/{total} sample={sample_id}")
+            if args.reuse_model:
+                from circuit_tracer import attribute
+
+                assert model_instance is not None
+                g = attribute(
+                    prompt=f"<start_of_image> {question}",
+                    model=model_instance,
+                    max_n_logits=args.max_n_logits,
+                    desired_logit_prob=0.95,
+                    batch_size=args.batch_size,
+                    max_feature_nodes=args.max_feature_nodes,
+                    offload=offload_value,
+                    verbose=False,
+                    image_path=image_path,
+                )
+                if args.keep_pt:
+                    g.to_pt(str(output_pt))
+            else:
+                cmd = [
+                    "circuit-tracer",
+                    "attribute",
+                    "--prompt",
+                    f"<start_of_image> {question}",
+                    "--transcoder_set",
+                    args.transcoder_set,
+                    "--image",
+                    image_path,
+                    "--graph_output_path",
+                    str(output_pt),
+                    "--batch_size",
+                    str(args.batch_size),
+                    "--max_n_logits",
+                    str(args.max_n_logits),
+                    "--max_feature_nodes",
+                    str(args.max_feature_nodes),
+                    "--dtype",
+                    args.dtype,
+                ]
+                if args.offload != "none":
+                    cmd.extend(["--offload", args.offload])
+                proc = subprocess.run(cmd, env=env, check=False)
+                if proc.returncode != 0 or not output_pt.exists():
+                    raise RuntimeError(f"attribute_return_code={proc.returncode}")
+                g = Graph.from_pt(str(output_pt), map_location="cpu")
+
             rep, comp = compute_graph_scores(g)
             _append_row(
                 metrics_output,
@@ -315,13 +368,15 @@ def main() -> int:
                     "n_nodes_total": "",
                     "n_nonzero_edges": "",
                     "status": "failed",
-                    "error_message": f"metrics_exception={type(exc).__name__}",
+                    "error_message": f"{type(exc).__name__}:{exc}",
                 },
                 fieldnames,
             )
         finally:
             if not args.keep_pt:
                 output_pt.unlink(missing_ok=True)
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
 
         done_ids.add(sample_id)
         processed += 1
