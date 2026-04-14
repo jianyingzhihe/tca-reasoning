@@ -6,6 +6,7 @@ import csv
 import os
 import shlex
 import subprocess
+import time
 from pathlib import Path
 
 
@@ -36,17 +37,27 @@ def main() -> int:
         reader = csv.DictReader(f)
         rows = list(reader)
 
-    for row in rows:
+    total = len(rows)
+    t0 = time.time()
+    processed = 0
+    for idx, row in enumerate(rows, start=1):
         sample_id = row["sample_id"].strip()
         image_path = row["image_path"].strip()
         question = row["question"].strip()
         if not sample_id or not image_path or not question:
-            print(f"[skip] invalid row: {row}")
+            print(f"[skip] {idx}/{total} invalid row: {row}")
             continue
 
         output_pt = out_dir / f"{sample_id}.pt"
         if output_pt.exists():
-            print(f"[skip] exists: {output_pt}")
+            processed += 1
+            elapsed = max(time.time() - t0, 1e-9)
+            rate = processed / elapsed
+            eta_min = (total - processed) / rate / 60.0 if rate > 0 else float("inf")
+            print(
+                f"[skip] {idx}/{total} exists: {output_pt} | "
+                f"progress={processed}/{total} ({processed/total*100:.1f}%) eta={eta_min:.1f}m"
+            )
             continue
 
         cmd = [
@@ -72,7 +83,7 @@ def main() -> int:
         if args.offload != "none":
             cmd.extend(["--offload", args.offload])
 
-        print("[run]", " ".join(shlex.quote(x) for x in cmd))
+        print(f"[run] {idx}/{total}", " ".join(shlex.quote(x) for x in cmd))
         if args.dry_run:
             continue
 
@@ -80,6 +91,14 @@ def main() -> int:
         if proc.returncode != 0:
             print(f"[error] failed sample: {sample_id}")
             return proc.returncode
+        processed += 1
+        elapsed = max(time.time() - t0, 1e-9)
+        rate = processed / elapsed
+        eta_min = (total - processed) / rate / 60.0 if rate > 0 else float("inf")
+        print(
+            f"[progress] {processed}/{total} ({processed/total*100:.1f}%) "
+            f"rate={rate:.4f} sample/s eta={eta_min:.1f}m"
+        )
 
     print("[done] batch attribute completed.")
     return 0
@@ -87,4 +106,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
