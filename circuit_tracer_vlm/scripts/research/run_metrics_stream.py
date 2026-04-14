@@ -7,6 +7,7 @@ import json
 import os
 import shlex
 import subprocess
+import sys
 import time
 from pathlib import Path
 from statistics import mean
@@ -158,6 +159,28 @@ def _normalize_dtype(dtype_str: str) -> torch.dtype:
         raise ValueError(f"unsupported dtype: {dtype_str}") from exc
 
 
+def _ensure_transformer_lens_with_vl() -> None:
+    """Ensure we import a TransformerLens build that contains HookedVLTransformer."""
+    script_path = Path(__file__).resolve()
+    candidate_paths = [
+        script_path.parents[3] / "third_party" / "TransformerLens",  # repo_root/third_party/TransformerLens
+        script_path.parents[2] / "third_party" / "TransformerLens",  # circuit_tracer_vlm/third_party/TransformerLens
+    ]
+    for candidate in candidate_paths:
+        if candidate.exists():
+            candidate_str = str(candidate)
+            if candidate_str not in sys.path:
+                sys.path.insert(0, candidate_str)
+
+    import transformer_lens as lens
+
+    if not hasattr(lens, "HookedVLTransformer"):
+        raise ImportError(
+            "transformer_lens does not provide HookedVLTransformer. "
+            "Use the vendored third_party/TransformerLens fork or disable --reuse-model."
+        )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Run attribution per manifest row, compute graph metrics, optionally delete .pt."
@@ -261,6 +284,7 @@ def main() -> int:
 
     model_instance = None
     if args.reuse_model:
+        _ensure_transformer_lens_with_vl()
         from circuit_tracer import ReplacementModel
         from circuit_tracer.utils.hf_utils import load_transcoder_from_hub
 
