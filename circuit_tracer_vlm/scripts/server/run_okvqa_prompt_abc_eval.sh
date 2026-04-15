@@ -32,6 +32,127 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "${ROOT_DIR}"
 
+csv_done_rows() {
+  local csv_path="$1"
+  if [[ ! -f "${csv_path}" ]]; then
+    echo 0
+    return
+  fi
+  local n
+  n="$(wc -l < "${csv_path}")"
+  if [[ "${n}" -le 0 ]]; then
+    echo 0
+  else
+    echo $((n - 1))
+  fi
+}
+
+manifest_rows() {
+  local manifest="$1"
+  if [[ ! -f "${manifest}" ]]; then
+    echo 0
+    return
+  fi
+  local n
+  n="$(wc -l < "${manifest}")"
+  if [[ "${n}" -le 1 ]]; then
+    echo 0
+  else
+    echo $((n - 1))
+  fi
+}
+
+render_bar() {
+  local done="$1"
+  local total="$2"
+  local width="${3:-20}"
+  if [[ "${total}" -le 0 ]]; then
+    printf "[%${width}s]" "" | tr ' ' '.'
+    return
+  fi
+  if [[ "${done}" -gt "${total}" ]]; then
+    done="${total}"
+  fi
+  local filled=$((done * width / total))
+  local empty=$((width - filled))
+  printf "["
+  printf "%${filled}s" "" | tr ' ' '#'
+  printf "%${empty}s" "" | tr ' ' '.'
+  printf "]"
+}
+
+progress_pct() {
+  local done="$1"
+  local total="$2"
+  if [[ "${total}" -le 0 ]]; then
+    echo 0
+  else
+    echo $((done * 100 / total))
+  fi
+}
+
+monitor_parallel_progress() {
+  local pid_a="$1"
+  local pid_b="$2"
+  local csv_a="$3"
+  local csv_b="$4"
+  local total_a="$5"
+  local total_b="$6"
+
+  local start_ts
+  start_ts="$(date +%s)"
+
+  while kill -0 "${pid_a}" 2>/dev/null || kill -0 "${pid_b}" 2>/dev/null; do
+    local da db pa pb elapsed
+    da="$(csv_done_rows "${csv_a}")"
+    db="$(csv_done_rows "${csv_b}")"
+    pa="$(progress_pct "${da}" "${total_a}")"
+    pb="$(progress_pct "${db}" "${total_b}")"
+    elapsed=$(( $(date +%s) - start_ts ))
+
+    printf "\r[progress][AB] A %5d/%-5d %3d%% %s | B %5d/%-5d %3d%% %s | elapsed=%4ds" \
+      "${da}" "${total_a}" "${pa}" "$(render_bar "${da}" "${total_a}")" \
+      "${db}" "${total_b}" "${pb}" "$(render_bar "${db}" "${total_b}")" \
+      "${elapsed}"
+    sleep 5
+  done
+  local da db pa pb elapsed
+  da="$(csv_done_rows "${csv_a}")"
+  db="$(csv_done_rows "${csv_b}")"
+  pa="$(progress_pct "${da}" "${total_a}")"
+  pb="$(progress_pct "${db}" "${total_b}")"
+  elapsed=$(( $(date +%s) - start_ts ))
+  printf "\r[progress][AB] A %5d/%-5d %3d%% %s | B %5d/%-5d %3d%% %s | elapsed=%4ds\n" \
+    "${da}" "${total_a}" "${pa}" "$(render_bar "${da}" "${total_a}")" \
+    "${db}" "${total_b}" "${pb}" "$(render_bar "${db}" "${total_b}")" \
+    "${elapsed}"
+}
+
+monitor_single_progress() {
+  local pid="$1"
+  local csv_path="$2"
+  local total="$3"
+
+  local start_ts
+  start_ts="$(date +%s)"
+
+  while kill -0 "${pid}" 2>/dev/null; do
+    local d p elapsed
+    d="$(csv_done_rows "${csv_path}")"
+    p="$(progress_pct "${d}" "${total}")"
+    elapsed=$(( $(date +%s) - start_ts ))
+    printf "\r[progress][C ] C %5d/%-5d %3d%% %s | elapsed=%4ds" \
+      "${d}" "${total}" "${p}" "$(render_bar "${d}" "${total}")" "${elapsed}"
+    sleep 5
+  done
+  local d p elapsed
+  d="$(csv_done_rows "${csv_path}")"
+  p="$(progress_pct "${d}" "${total}")"
+  elapsed=$(( $(date +%s) - start_ts ))
+  printf "\r[progress][C ] C %5d/%-5d %3d%% %s | elapsed=%4ds\n" \
+    "${d}" "${total}" "${p}" "$(render_bar "${d}" "${total}")" "${elapsed}"
+}
+
 # shellcheck source=/dev/null
 source scripts/server/dev.sh "${ROOT_DIR}/.env" "${ROOT_DIR}/.venv"
 
@@ -141,6 +262,11 @@ python scripts/research/build_prompt_ab_manifests.py \
   --example-response "${EXAMPLE_RESPONSE}" \
   --copy-gold-from-notes
 
+TOTAL_A="$(manifest_rows "${MANIFEST_A}")"
+TOTAL_B="$(manifest_rows "${MANIFEST_B}")"
+TOTAL_C="$(manifest_rows "${MANIFEST_C}")"
+echo "[ok] prompt manifests rows: A=${TOTAL_A} B=${TOTAL_B} C=${TOTAL_C}"
+
 run_eval() {
   local manifest="$1"
   local out_csv="$2"
@@ -171,12 +297,16 @@ PID_A=$!
 ( run_eval "${MANIFEST_B}" "${CSV_B}" ) >"${LOG_B}" 2>&1 &
 PID_B=$!
 
+monitor_parallel_progress "${PID_A}" "${PID_B}" "${CSV_A}" "${CSV_B}" "${TOTAL_A}" "${TOTAL_B}"
 wait "${PID_A}"
 wait "${PID_B}"
 echo "[ok] A/B finished"
 
 echo "[stage] run C"
-( run_eval "${MANIFEST_C}" "${CSV_C}" ) >"${LOG_C}" 2>&1
+( run_eval "${MANIFEST_C}" "${CSV_C}" ) >"${LOG_C}" 2>&1 &
+PID_C=$!
+monitor_single_progress "${PID_C}" "${CSV_C}" "${TOTAL_C}"
+wait "${PID_C}"
 echo "[ok] C finished"
 
 echo "[stage] summary"
