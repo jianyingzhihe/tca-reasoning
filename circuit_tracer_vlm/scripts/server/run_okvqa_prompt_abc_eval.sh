@@ -24,6 +24,8 @@ set -euo pipefail
 #   LOG_EVERY=20
 #   OKVQA_ANN=~/tca-reasoning/data/okvqa/annotations/mscoco_val2014_annotations.json
 #   CORRECT_RULE=vqa_0.3
+#   OKVQA_ROOT=~/tca-reasoning/data/okvqa
+#   OKVQA_LIMIT=1000  # 0 means full split
 #   EXAMPLE_INSTRUCTION="What color is the bus?"
 #   EXAMPLE_RESPONSE="The answer is yellow."
 
@@ -35,10 +37,6 @@ source scripts/server/dev.sh "${ROOT_DIR}/.env" "${ROOT_DIR}/.venv"
 
 BASE_MANIFEST="${1:-research/work/sample_manifest_okvqa_val1000.csv}"
 BASE_MANIFEST="$(python -c 'import os,sys;print(os.path.abspath(os.path.expanduser(sys.argv[1])))' "${BASE_MANIFEST}")"
-if [[ ! -f "${BASE_MANIFEST}" ]]; then
-  echo "[err] base manifest not found: ${BASE_MANIFEST}" >&2
-  exit 1
-fi
 
 OUT_ROOT="${OUT_ROOT:-outputs/phase_ab/eval_abc}"
 RUN_TAG="${RUN_TAG:-$(date +%Y%m%d_%H%M%S)}"
@@ -66,7 +64,16 @@ fi
 EXAMPLE_INSTRUCTION="${EXAMPLE_INSTRUCTION:-What color is the bus?}"
 EXAMPLE_RESPONSE="${EXAMPLE_RESPONSE:-The answer is yellow.}"
 
+OKVQA_ROOT="${OKVQA_ROOT:-$HOME/tca-reasoning/data/okvqa}"
+OKVQA_LIMIT="${OKVQA_LIMIT:-1000}"
+OKVQA_SEED="${OKVQA_SEED:-42}"
+OKVQA_SPLIT="${OKVQA_SPLIT:-val}"
+OKVQA_QUESTIONS="${OKVQA_QUESTIONS:-$OKVQA_ROOT/questions/OpenEnded_mscoco_val2014_questions.json}"
+OKVQA_ANNOTATIONS="${OKVQA_ANNOTATIONS:-$OKVQA_ROOT/annotations/mscoco_val2014_annotations.json}"
+OKVQA_IMAGE_ROOT="${OKVQA_IMAGE_ROOT:-$OKVQA_ROOT/images}"
+
 mkdir -p "${WORK_DIR}" "${LOG_DIR}" "${EVAL_DIR}"
+mkdir -p "$(dirname "${BASE_MANIFEST}")"
 
 MANIFEST_A="${WORK_DIR}/manifest_promptA.csv"
 MANIFEST_B="${WORK_DIR}/manifest_promptB.csv"
@@ -93,6 +100,34 @@ echo "[stage] build A/B/C manifests"
   echo "[err] missing scripts/research/run_batch_eval.py" >&2
   exit 1
 }
+[[ -f "scripts/research/okvqa_to_manifest.py" ]] || {
+  echo "[err] missing scripts/research/okvqa_to_manifest.py" >&2
+  exit 1
+}
+
+MANIFEST_LINES=0
+if [[ -f "${BASE_MANIFEST}" ]]; then
+  MANIFEST_LINES="$(wc -l < "${BASE_MANIFEST}")"
+fi
+if [[ ! -f "${BASE_MANIFEST}" || "${MANIFEST_LINES}" -le 1 ]]; then
+  echo "[stage] base manifest missing/empty -> auto-build from OKVQA"
+  python scripts/research/okvqa_to_manifest.py \
+    --questions "${OKVQA_QUESTIONS}" \
+    --annotations "${OKVQA_ANNOTATIONS}" \
+    --image-root "${OKVQA_IMAGE_ROOT}" \
+    --split "${OKVQA_SPLIT}" \
+    --output "${BASE_MANIFEST}" \
+    --limit "${OKVQA_LIMIT}" \
+    --seed "${OKVQA_SEED}" \
+    --id-prefix okvqa
+fi
+
+MANIFEST_LINES="$(wc -l < "${BASE_MANIFEST}")"
+if [[ "${MANIFEST_LINES}" -le 1 ]]; then
+  echo "[err] base manifest still empty: ${BASE_MANIFEST}" >&2
+  exit 1
+fi
+echo "[ok] base manifest: ${BASE_MANIFEST} rows=$((MANIFEST_LINES-1))"
 
 python scripts/research/build_prompt_ab_manifests.py \
   --base-manifest "${BASE_MANIFEST}" \
