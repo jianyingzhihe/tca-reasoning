@@ -138,6 +138,35 @@ def _infer_model_name_from_transcoder_set(repo_id: str) -> str:
     return model_name
 
 
+def _build_multimodal_inputs(processor, image, question: str):
+    # Preferred path for newer processor APIs.
+    try:
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "image", "image": image},
+                    {"type": "text", "text": question},
+                ],
+            }
+        ]
+        inputs = processor.apply_chat_template(
+            messages,
+            add_generation_prompt=True,
+            tokenize=True,
+            return_dict=True,
+            return_tensors="pt",
+        )
+        if isinstance(inputs, dict) and "input_ids" in inputs:
+            return inputs
+    except Exception:
+        pass
+
+    # Fallback path for setups where chat template is unavailable/incompatible.
+    prompt = f"<start_of_image> {question}".strip()
+    return processor(text=prompt, images=image, return_tensors="pt")
+
+
 def _load_okvqa_ann_map(annotations_json: str) -> dict[str, list[str]]:
     if not annotations_json:
         return {}
@@ -293,6 +322,7 @@ def main() -> int:
     skipped_resume = 0
     invalid_rows = 0
     newly_written = 0
+    empty_generated = 0
     for i, row in enumerate(rows, start=1):
         sid = (row.get("sample_id") or "").strip()
         question = (row.get("question") or "").strip()
@@ -332,7 +362,7 @@ def main() -> int:
 
         try:
             image = Image.open(image_path).convert("RGB")
-            inputs = processor(text=question, images=image, return_tensors="pt")
+            inputs = _build_multimodal_inputs(processor, image, question)
             inputs = {k: v.to(device) if torch.is_tensor(v) else v for k, v in inputs.items()}
             with torch.no_grad():
                 gen_ids = model.generate(
@@ -346,8 +376,14 @@ def main() -> int:
                     pad_token_id=processor.tokenizer.eos_token_id,
                 )
             in_len = int(inputs["input_ids"].shape[1])
-            new_ids = gen_ids[0, in_len:]
+            if gen_ids.shape[1] > in_len:
+                new_ids = gen_ids[0, in_len:]
+            else:
+                # Some processor/model combos may already return only newly generated ids.
+                new_ids = gen_ids[0]
             generated = processor.tokenizer.decode(new_ids, skip_special_tokens=True).strip()
+            if not generated:
+                empty_generated += 1
             pred = _extract_answer(generated)
 
             pred_norm = _vqa_normalize(pred)
@@ -387,12 +423,14 @@ def main() -> int:
             print(
                 f"[progress] {processed}/{total} ({processed/total*100:.1f}%) "
                 f"rate={rate:.4f} sample/s eta={eta_min:.1f}m "
-                f"new={newly_written} resumed_skip={skipped_resume} invalid_skip={invalid_rows}",
+                f"new={newly_written} resumed_skip={skipped_resume} invalid_skip={invalid_rows} "
+                f"empty_gen={empty_generated}",
                 flush=True,
             )
 
     print(
-        f"[done] eval csv: {output_csv} | new={newly_written} resumed_skip={skipped_resume} invalid_skip={invalid_rows}",
+        f"[done] eval csv: {output_csv} | new={newly_written} resumed_skip={skipped_resume} "
+        f"invalid_skip={invalid_rows} empty_gen={empty_generated}",
         flush=True,
     )
     return 0
