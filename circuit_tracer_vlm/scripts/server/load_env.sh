@@ -12,10 +12,20 @@ if [[ ! -f "${ENV_FILE}" ]]; then
 fi
 
 while IFS='=' read -r key value; do
+  # Normalize potential CRLF files.
+  key="${key//$'\r'/}"
+  value="${value//$'\r'/}"
+
   [[ -z "${key}" ]] && continue
   [[ "${key}" =~ ^[[:space:]]*# ]] && continue
+  # Ignore malformed lines without KEY=VALUE.
+  [[ "${key}" == *" "* ]] && continue
+  [[ "${key}" == *","* ]] && continue
 
   key="$(echo "${key}" | xargs)"
+  # Only allow valid environment variable names.
+  [[ "${key}" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] || continue
+
   value="${value:-}"
   value="$(echo "${value}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
   value="${value%\"}"
@@ -41,4 +51,3 @@ export HUGGINGFACE_HUB_CACHE="${HUGGINGFACE_HUB_CACHE:-$HF_HOME/hub}"
 
 mkdir -p "${HF_HOME}" "${HUGGINGFACE_HUB_CACHE}"
 echo "[load_env] Loaded env from ${ENV_FILE}"
-
