@@ -201,7 +201,19 @@ def main() -> int:
     parser.add_argument("--device", default="cuda", help="cuda/cpu")
     parser.add_argument("--max-new-tokens", type=int, default=16)
     parser.add_argument("--limit", type=int, default=0, help="Optional row limit")
-    parser.add_argument("--resume", action="store_true", default=True)
+    parser.add_argument(
+        "--resume",
+        dest="resume",
+        action="store_true",
+        default=False,
+        help="Resume from existing output csv if present (default: off).",
+    )
+    parser.add_argument(
+        "--no-resume",
+        dest="resume",
+        action="store_false",
+        help="Disable resume; ignore existing output csv done ids.",
+    )
     parser.add_argument("--log-every", type=int, default=20)
     args = parser.parse_args()
 
@@ -237,9 +249,20 @@ def main() -> int:
         device = "cpu"
     dtype = torch.bfloat16 if device.startswith("cuda") else torch.float32
 
-    print(f"[init] model={model_name}")
-    print(f"[init] device={device} dtype={dtype}")
-    print(f"[init] annotations={'on' if ann_map else 'off'} correct_rule={args.correct_rule}")
+    print(f"[init] model={model_name}", flush=True)
+    print(f"[init] device={device} dtype={dtype}", flush=True)
+    print(
+        f"[init] annotations={'on' if ann_map else 'off'} correct_rule={args.correct_rule} resume={args.resume}",
+        flush=True,
+    )
+    print(f"[init] manifest_rows={total} existing_done_ids={len(done_ids)}", flush=True)
+    if args.resume and len(done_ids) >= total:
+        print(
+            "[resume] all sample_ids already present in output csv; nothing to do. "
+            "Use --no-resume or delete the output csv for a fresh run.",
+            flush=True,
+        )
+        return 0
 
     model = Gemma3ForConditionalGeneration.from_pretrained(model_name, torch_dtype=dtype).to(device)
     model.eval()
@@ -267,6 +290,9 @@ def main() -> int:
 
     started = time.time()
     processed = 0
+    skipped_resume = 0
+    invalid_rows = 0
+    newly_written = 0
     for i, row in enumerate(rows, start=1):
         sid = (row.get("sample_id") or "").strip()
         question = (row.get("question") or "").strip()
@@ -277,9 +303,11 @@ def main() -> int:
         image_id = (row.get("image_id") or iid_note or "").strip()
         gold = (row.get("gold_answer") or "").strip() or _parse_gold_answer(notes)
         if not sid or not question or not image_path:
+            invalid_rows += 1
             continue
         if sid in done_ids:
             processed += 1
+            skipped_resume += 1
             continue
 
         out = {
@@ -350,6 +378,7 @@ def main() -> int:
         _append_row(output_csv, out, fieldnames)
         done_ids.add(sid)
         processed += 1
+        newly_written += 1
 
         if processed % max(1, args.log_every) == 0 or processed == total:
             elapsed = max(time.time() - started, 1e-9)
@@ -357,10 +386,15 @@ def main() -> int:
             eta_min = (total - processed) / rate / 60.0 if rate > 0 else float("inf")
             print(
                 f"[progress] {processed}/{total} ({processed/total*100:.1f}%) "
-                f"rate={rate:.4f} sample/s eta={eta_min:.1f}m"
+                f"rate={rate:.4f} sample/s eta={eta_min:.1f}m "
+                f"new={newly_written} resumed_skip={skipped_resume} invalid_skip={invalid_rows}",
+                flush=True,
             )
 
-    print(f"[done] eval csv: {output_csv}")
+    print(
+        f"[done] eval csv: {output_csv} | new={newly_written} resumed_skip={skipped_resume} invalid_skip={invalid_rows}",
+        flush=True,
+    )
     return 0
 
 

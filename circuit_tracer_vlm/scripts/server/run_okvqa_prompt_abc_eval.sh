@@ -34,32 +34,28 @@ cd "${ROOT_DIR}"
 
 csv_done_rows() {
   local csv_path="$1"
-  if [[ ! -f "${csv_path}" ]]; then
-    echo 0
-    return
-  fi
-  local n
-  n="$(wc -l < "${csv_path}")"
-  if [[ "${n}" -le 0 ]]; then
-    echo 0
-  else
-    echo $((n - 1))
-  fi
+  python - <<'PY' "${csv_path}"
+import csv, os, sys
+p = sys.argv[1]
+if not os.path.exists(p):
+    print(0)
+    raise SystemExit(0)
+with open(p, "r", encoding="utf-8", newline="") as f:
+    print(sum(1 for _ in csv.DictReader(f)))
+PY
 }
 
 manifest_rows() {
   local manifest="$1"
-  if [[ ! -f "${manifest}" ]]; then
-    echo 0
-    return
-  fi
-  local n
-  n="$(wc -l < "${manifest}")"
-  if [[ "${n}" -le 1 ]]; then
-    echo 0
-  else
-    echo $((n - 1))
-  fi
+  python - <<'PY' "${manifest}"
+import csv, os, sys
+p = sys.argv[1]
+if not os.path.exists(p):
+    print(0)
+    raise SystemExit(0)
+with open(p, "r", encoding="utf-8", newline="") as f:
+    print(sum(1 for _ in csv.DictReader(f)))
+PY
 }
 
 render_bar() {
@@ -169,7 +165,7 @@ DEVICE="${DEVICE:-cuda}"
 MODEL="${MODEL:-}"
 TRANSCODER_SET="${TRANSCODER_SET:-tianhux2/gemma3-4b-it-plt}"
 MAX_NEW_TOKENS="${MAX_NEW_TOKENS:-16}"
-LOG_EVERY="${LOG_EVERY:-20}"
+LOG_EVERY="${LOG_EVERY:-1}"
 OKVQA_ANN="${OKVQA_ANN:-$HOME/tca-reasoning/data/okvqa/annotations/mscoco_val2014_annotations.json}"
 CORRECT_RULE="${CORRECT_RULE:-vqa_0.3}"
 OKVQA_ANN="$(python -c 'import os,sys;print(os.path.abspath(os.path.expanduser(sys.argv[1])))' "${OKVQA_ANN}")"
@@ -271,14 +267,17 @@ run_eval() {
   local manifest="$1"
   local out_csv="$2"
 
+  rm -f "${out_csv}"
+
   local cmd=(
-    python scripts/research/run_batch_eval.py
+    python -u scripts/research/run_batch_eval.py
     --manifest "${manifest}"
     --output-csv "${out_csv}"
     --correct-rule "${CORRECT_RULE}"
     --device "${DEVICE}"
     --max-new-tokens "${MAX_NEW_TOKENS}"
     --log-every "${LOG_EVERY}"
+    --no-resume
   )
   if [[ -f "${OKVQA_ANN}" ]]; then
     cmd+=(--annotations-json "${OKVQA_ANN}")
@@ -292,6 +291,7 @@ run_eval() {
 }
 
 echo "[stage] run A and B in parallel"
+rm -f "${LOG_A}" "${LOG_B}" "${LOG_C}"
 ( run_eval "${MANIFEST_A}" "${CSV_A}" ) >"${LOG_A}" 2>&1 &
 PID_A=$!
 ( run_eval "${MANIFEST_B}" "${CSV_B}" ) >"${LOG_B}" 2>&1 &

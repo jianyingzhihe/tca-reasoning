@@ -41,7 +41,7 @@ DEVICE="${DEVICE:-cuda}"
 MODEL="${MODEL:-}"
 TRANSCODER_SET="${TRANSCODER_SET:-tianhux2/gemma3-4b-it-plt}"
 MAX_NEW_TOKENS="${MAX_NEW_TOKENS:-16}"
-LOG_EVERY="${LOG_EVERY:-20}"
+LOG_EVERY="${LOG_EVERY:-1}"
 CORRECT_RULE="${CORRECT_RULE:-vqa_0.3}"
 
 OKVQA_ROOT="${OKVQA_ROOT:-$HOME/tca-reasoning/data/okvqa}"
@@ -111,13 +111,14 @@ run_one() {
   echo "[stage] run ${name} rows=${n_rows}"
   rm -f "${out_csv}" "${out_log}"
   local cmd=(
-    python scripts/research/run_batch_eval.py
+    python -u scripts/research/run_batch_eval.py
     --manifest "${manifest}"
     --output-csv "${out_csv}"
     --correct-rule "${CORRECT_RULE}"
     --device "${DEVICE}"
     --max-new-tokens "${MAX_NEW_TOKENS}"
     --log-every "${LOG_EVERY}"
+    --no-resume
   )
   if [[ -n "${MODEL}" ]]; then
     cmd+=(--model "${MODEL}")
@@ -148,4 +149,3 @@ PY
 echo "[done] manifests=${WORK_DIR}"
 echo "[done] eval_csv=${EVAL_DIR}"
 echo "[done] logs=${LOG_DIR}"
-

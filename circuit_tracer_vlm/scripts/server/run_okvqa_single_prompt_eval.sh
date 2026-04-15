@@ -30,7 +30,7 @@ Optional:
   --model MODEL_ID                    e.g. google/gemma-3-4b-it
   --transcoder-set REPO_ID            default: tianhux2/gemma3-4b-it-plt
   --max-new-tokens N                  default: 16
-  --log-every N                       default: 20
+  --log-every N                       default: 1
   --correct-rule RULE                 strict_gold|majority|vqa_0.3|vqa_0.6|vqa_1.0 (default: vqa_0.3)
   --force-fresh 0|1                   delete old csv/log before run (default: 1)
   --example-instruction TEXT          default: What color is the bus?
@@ -63,7 +63,7 @@ DEVICE="cuda"
 MODEL=""
 TRANSCODER_SET="tianhux2/gemma3-4b-it-plt"
 MAX_NEW_TOKENS="16"
-LOG_EVERY="20"
+LOG_EVERY="1"
 CORRECT_RULE="vqa_0.3"
 FORCE_FRESH="1"
 EXAMPLE_INSTRUCTION="What color is the bus?"
@@ -207,13 +207,14 @@ if [[ "${FORCE_FRESH}" == "1" ]]; then
 fi
 
 CMD=(
-  python scripts/research/run_batch_eval.py
+  python -u scripts/research/run_batch_eval.py
   --manifest "${OUT_MANIFEST}"
   --output-csv "${OUT_CSV}"
   --correct-rule "${CORRECT_RULE}"
   --device "${DEVICE}"
   --max-new-tokens "${MAX_NEW_TOKENS}"
   --log-every "${LOG_EVERY}"
+  --no-resume
 )
 if [[ -n "${MODEL}" ]]; then
   CMD+=(--model "${MODEL}")
@@ -240,4 +241,3 @@ PY
 echo "[done] manifest=${OUT_MANIFEST}"
 echo "[done] eval_csv=${OUT_CSV}"
 echo "[done] log=${OUT_LOG}"
-
