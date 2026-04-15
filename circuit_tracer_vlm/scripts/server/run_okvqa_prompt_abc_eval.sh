@@ -31,7 +31,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "${ROOT_DIR}"
 
 # shellcheck source=/dev/null
-source scripts/server/dev.sh
+source scripts/server/dev.sh "${ROOT_DIR}/.env" "${ROOT_DIR}/.venv"
 
 BASE_MANIFEST="${1:-research/work/sample_manifest_okvqa_val1000.csv}"
 BASE_MANIFEST="$(python -c 'import os,sys;print(os.path.abspath(os.path.expanduser(sys.argv[1])))' "${BASE_MANIFEST}")"
@@ -85,6 +85,15 @@ LOG_B="${LOG_DIR}/promptB_eval.log"
 LOG_C="${LOG_DIR}/promptC_eval.log"
 
 echo "[stage] build A/B/C manifests"
+[[ -f "scripts/research/build_prompt_ab_manifests.py" ]] || {
+  echo "[err] missing scripts/research/build_prompt_ab_manifests.py" >&2
+  exit 1
+}
+[[ -f "scripts/research/run_batch_eval.py" ]] || {
+  echo "[err] missing scripts/research/run_batch_eval.py" >&2
+  exit 1
+}
+
 python scripts/research/build_prompt_ab_manifests.py \
   --base-manifest "${BASE_MANIFEST}" \
   --out-manifest-a "${MANIFEST_A}" \
