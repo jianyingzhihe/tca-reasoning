@@ -253,6 +253,9 @@ def main() -> int:
     manifest = Path(args.manifest).expanduser().resolve()
     output_csv = Path(args.output_csv).expanduser().resolve()
     output_csv.parent.mkdir(parents=True, exist_ok=True)
+    if not args.resume and output_csv.exists():
+        output_csv.unlink()
+        print(f"[init] --no-resume removed existing output: {output_csv}", flush=True)
 
     if args.model.strip():
         model_name = args.model.strip()
