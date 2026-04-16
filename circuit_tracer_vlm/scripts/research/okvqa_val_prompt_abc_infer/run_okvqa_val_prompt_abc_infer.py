@@ -17,7 +17,6 @@ PROMPT_A_TEMPLATE = (
 
 PROMPT_B_TEMPLATE = "{question} Reply exactly in the format: The answer is <short answer>."
 
-
 PROMPT_C_TEMPLATE = (
     "Below are an instruction that describes a task along with a reference answer. "
     "Using the reference answer as a guide, write your own response.\n"
