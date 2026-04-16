@@ -31,7 +31,6 @@ PROMPT_C_TEMPLATE = (
 )
 
 PROMPT_VARIANTS = ("A", "B", "C")
-
 _NUM_MAP = {
     "none": "0",
     "zero": "0",
