@@ -33,6 +33,7 @@ set -euo pipefail
 #   MAX_DEPTH=40
 #   MIN_ABS_WEIGHT=0.0
 #   LOG_EVERY=10
+#   CLEAN_PT_AFTER=0  # 1 to delete pt_a/pt_b after trace export
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "${ROOT_DIR}"
@@ -61,6 +62,7 @@ COVERAGE="${COVERAGE:-0.95}"
 MAX_DEPTH="${MAX_DEPTH:-40}"
 MIN_ABS_WEIGHT="${MIN_ABS_WEIGHT:-0.0}"
 LOG_EVERY="${LOG_EVERY:-10}"
+CLEAN_PT_AFTER="${CLEAN_PT_AFTER:-0}"
 
 if [[ ! -f "${BUCKET_SOURCE_CSV}" ]]; then
   echo "[err] BUCKET_SOURCE_CSV not found: ${BUCKET_SOURCE_CSV}" >&2
@@ -218,3 +220,9 @@ echo "[done] selected=${SELECTED_CSV}"
 echo "[done] pt_a=${PT_DIR_A}"
 echo "[done] pt_b=${PT_DIR_B}"
 echo "[done] trace_out=${OUT_ROOT}/${RUN_TAG}"
+
+if [[ "${CLEAN_PT_AFTER}" == "1" ]]; then
+  echo "[cleanup] removing pt dirs to save disk..."
+  rm -rf "${PT_DIR_A}" "${PT_DIR_B}"
+  echo "[cleanup] done"
+fi
