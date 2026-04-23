@@ -70,6 +70,22 @@ def main():
     )
     attr_parser.add_argument("-p", "--prompt", required=True, help="Input prompt text to analyze.")
     attr_parser.add_argument(
+        "--assistant-prefix",
+        default="",
+        help=(
+            "Optional already-generated assistant text prefix. "
+            "When provided, attribution targets the next token after this prefix."
+        ),
+    )
+    attr_parser.add_argument(
+        "--target-logit-ids",
+        default="",
+        help=(
+            "Optional comma-separated vocabulary ids to attribute from exactly. "
+            "If provided, these ids are used instead of the default top-probability logits."
+        ),
+    )
+    attr_parser.add_argument(
         "-o",
         "--graph_output_path",
         help=(
@@ -254,6 +270,17 @@ def run_attribution(args, parser):
     )
 
     logging.info("Running attribution...")
+    target_logit_ids = None
+    if args.target_logit_ids:
+        try:
+            target_logit_ids = [
+                int(x.strip()) for x in str(args.target_logit_ids).split(",") if x.strip()
+            ]
+        except ValueError as exc:
+            parser.error(f"invalid --target-logit-ids: {exc}")
+        if not target_logit_ids:
+            parser.error("--target-logit-ids was provided but empty after parsing")
+
     graph = attribute(
         prompt=args.prompt,
         model=model_instance,
@@ -263,7 +290,9 @@ def run_attribution(args, parser):
         verbose=args.verbose,
         offload=args.offload,
         max_feature_nodes=args.max_feature_nodes,
-        image_path=args.image
+        image_path=args.image,
+        assistant_prefix=args.assistant_prefix,
+        target_logit_ids=target_logit_ids,
     )
 
     # Save to file if output path specified

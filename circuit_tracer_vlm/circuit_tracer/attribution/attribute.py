@@ -42,6 +42,7 @@ def compute_salient_logits(
     *,
     max_n_logits: int = 10,
     desired_logit_prob: float = 0.95,
+    target_logit_ids: torch.Tensor | list[int] | None = None,
 ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     """Pick the smallest logit set whose cumulative prob >= *desired_logit_prob*.
 
@@ -59,13 +60,82 @@ def compute_salient_logits(
     """
 
     probs = torch.softmax(logits, dim=-1)
-    top_p, top_idx = torch.topk(probs, max_n_logits)
-    cutoff = int(torch.searchsorted(torch.cumsum(top_p, 0), desired_logit_prob)) + 1
-    top_p, top_idx = top_p[:cutoff], top_idx[:cutoff]
+
+    if target_logit_ids is not None:
+        if isinstance(target_logit_ids, torch.Tensor):
+            raw_ids = [int(x) for x in target_logit_ids.detach().cpu().flatten().tolist()]
+        else:
+            raw_ids = [int(x) for x in target_logit_ids]
+        seen = set()
+        ordered_ids = []
+        for idx in raw_ids:
+            if idx not in seen:
+                ordered_ids.append(idx)
+                seen.add(idx)
+        if not ordered_ids:
+            raise ValueError("target_logit_ids was provided but empty after deduplication")
+        top_idx = torch.tensor(ordered_ids, device=logits.device, dtype=torch.long)
+        top_p = probs[top_idx]
+    else:
+        top_p, top_idx = torch.topk(probs, max_n_logits)
+        cutoff = int(torch.searchsorted(torch.cumsum(top_p, 0), desired_logit_prob)) + 1
+        top_p, top_idx = top_p[:cutoff], top_idx[:cutoff]
 
     cols = unembed_proj[:, top_idx]
     demeaned = cols - unembed_proj.mean(dim=-1, keepdim=True)
     return top_idx, top_p, demeaned.T
+
+
+def _build_multimodal_batch(processor, image, prompt: str, assistant_prefix: str = ""):
+    prompt = (prompt or "").strip()
+    assistant_prefix = assistant_prefix or ""
+
+    # Preserve legacy behavior for prompts that already manually include image placeholders.
+    if "<start_of_image>" in prompt:
+        if assistant_prefix:
+            text = f"{prompt.rstrip()} {assistant_prefix.lstrip()}".strip()
+        else:
+            text = prompt
+        return processor(text=text, images=image, return_tensors="pt")
+
+    try:
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "image", "image": image},
+                    {"type": "text", "text": prompt},
+                ],
+            }
+        ]
+        if assistant_prefix:
+            messages.append(
+                {
+                    "role": "assistant",
+                    "content": [{"type": "text", "text": assistant_prefix}],
+                }
+            )
+            add_generation_prompt = False
+        else:
+            add_generation_prompt = True
+
+        inputs = processor.apply_chat_template(
+            messages,
+            add_generation_prompt=add_generation_prompt,
+            tokenize=True,
+            return_dict=True,
+            return_tensors="pt",
+        )
+        if isinstance(inputs, dict) and "input_ids" in inputs:
+            return inputs
+    except Exception:
+        pass
+
+    if assistant_prefix:
+        text = f"<start_of_image> {prompt}\n\n{assistant_prefix}".strip()
+    else:
+        text = f"<start_of_image> {prompt}".strip()
+    return processor(text=text, images=image, return_tensors="pt")
 
 
 def compute_partial_influences(edge_matrix, logit_p, row_to_node_index, max_iter=128, device=None):
@@ -102,7 +172,9 @@ def attribute(
     offload: Literal["cpu", "disk", None] = None,
     verbose: bool = False,
     update_interval: int = 4,
-    image_path = ""
+    image_path = "",
+    assistant_prefix: str = "",
+    target_logit_ids: torch.Tensor | list[int] | None = None,
 ) -> Graph:
     """Compute an attribution graph for *prompt*.
 
@@ -149,7 +221,9 @@ def attribute(
             offload_handles=offload_handles,
             update_interval=update_interval,
             logger=logger,
-            image_path=image_path
+            image_path=image_path,
+            assistant_prefix=assistant_prefix,
+            target_logit_ids=target_logit_ids,
         )
     finally:
         for reload_handle in offload_handles:
@@ -171,7 +245,9 @@ def _run_attribution(
     offload_handles,
     logger,
     update_interval=4,
-    image_path=""
+    image_path="",
+    assistant_prefix="",
+    target_logit_ids=None,
 ):
     start_time = time.time()
     # Phase 0: precompute
@@ -182,7 +258,7 @@ def _run_attribution(
     image = Image.open(image_path)
 
     # Use *multimodal* processor to get input_ids so token positions match the residual stream
-    batch = model.processor(text=prompt, images=image, return_tensors="pt")
+    batch = _build_multimodal_batch(model.processor, image, prompt, assistant_prefix=assistant_prefix)
     input_ids = batch["input_ids"].squeeze(0).to(model.cfg.device)
 
     batch["image"] = image
@@ -227,6 +303,7 @@ def _run_attribution(
         model.unembed.W_U,
         max_n_logits=max_n_logits,
         desired_logit_prob=desired_logit_prob,
+        target_logit_ids=target_logit_ids,
     )
     logger.info(
         f"Selected {len(logit_idx)} logits with cumulative probability {logit_p.sum().item():.4f}"
