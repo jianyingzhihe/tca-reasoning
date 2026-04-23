@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -euo pipefail
 
 # Load KEY=VALUE lines from .env into current shell.
 # Usage: source scripts/server/load_env.sh [path_to_env]
