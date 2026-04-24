@@ -3,9 +3,9 @@ from __future__ import annotations
 
 import argparse
 import csv
+import gc
 import os
 import shlex
-import subprocess
 import sys
 import time
 from pathlib import Path
@@ -80,6 +80,51 @@ def _first_answer_token_id(tokenizer, assistant_prefix: str, answer_text: str) -
     return token_id, token_text
 
 
+def _dtype_from_name(name: str):
+    import torch
+
+    mapping = {
+        "float16": torch.float16,
+        "fp16": torch.float16,
+        "bfloat16": torch.bfloat16,
+        "bf16": torch.bfloat16,
+        "float32": torch.float32,
+        "fp32": torch.float32,
+    }
+    if name not in mapping:
+        raise ValueError(f"unsupported dtype: {name}")
+    return mapping[name]
+
+
+def _retry_feature_limits(base: int, retry_spec: str) -> list[int]:
+    values = [base]
+    for raw in (retry_spec or "").split(","):
+        raw = raw.strip()
+        if not raw:
+            continue
+        val = int(raw)
+        if val > 0:
+            values.append(val)
+    dedup = []
+    seen = set()
+    for v in values:
+        if v not in seen:
+            dedup.append(v)
+            seen.add(v)
+    return dedup
+
+
+def _cleanup_cuda():
+    try:
+        import torch
+
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+    except Exception:
+        gc.collect()
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
@@ -104,10 +149,17 @@ def main() -> int:
     parser.add_argument("--batch-size", type=int, default=1)
     parser.add_argument("--offload", default="cpu", choices=["cpu", "disk", "none"])
     parser.add_argument("--topk", type=int, default=16)
+    parser.add_argument(
+        "--retry-feature-nodes",
+        default="64,48,32",
+        help="Fallback max_feature_nodes values to try after the primary setting.",
+    )
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
+    import torch
     from transformers import AutoProcessor
+    from circuit_tracer import ReplacementModel, attribute
 
     eval_csv = Path(args.eval_csv).expanduser().resolve()
     out_dir = Path(args.output_dir).expanduser().resolve()
@@ -126,13 +178,13 @@ def main() -> int:
     processor = AutoProcessor.from_pretrained(model_name)
     tokenizer = processor.tokenizer
 
-    env = os.environ.copy()
-    env["CIRCUIT_TRACER_TOPK"] = str(args.topk)
-    env["CIRCUIT_TRACER_ENCODER_CPU"] = env.get("CIRCUIT_TRACER_ENCODER_CPU", "1")
-    env["PYTORCH_CUDA_ALLOC_CONF"] = env.get("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
-    repo_root = Path(__file__).resolve().parents[2]
-    venv_python = repo_root / ".venv" / "bin" / "python"
-    runner_python = env.get("TCA_PYTHON") or (str(venv_python) if venv_python.exists() else sys.executable)
+    os.environ["CIRCUIT_TRACER_TOPK"] = str(args.topk)
+    os.environ["CIRCUIT_TRACER_ENCODER_CPU"] = os.environ.get("CIRCUIT_TRACER_ENCODER_CPU", "1")
+    os.environ["PYTORCH_CUDA_ALLOC_CONF"] = os.environ.get(
+        "PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True"
+    )
+    dtype = _dtype_from_name(args.dtype)
+    retry_limits = _retry_feature_limits(args.max_feature_nodes, args.retry_feature_nodes)
 
     with eval_csv.open("r", encoding="utf-8", newline="") as f:
         rows = list(csv.DictReader(f))
@@ -166,6 +218,7 @@ def main() -> int:
         assistant_prefix = ""
         target_token_id = ""
         target_token_text = ""
+        used_max_feature_nodes = ""
 
         output_pt = out_dir / f"{sample_id}.pt"
         if output_pt.exists():
@@ -180,6 +233,7 @@ def main() -> int:
                     "assistant_prefix": "",
                     "target_token_id": "",
                     "target_token_text": "",
+                    "used_max_feature_nodes": "",
                     "graph_output_path": str(output_pt),
                     "status": "exists",
                     "error_message": "",
@@ -196,55 +250,92 @@ def main() -> int:
             token_id, token_text = _first_answer_token_id(tokenizer, assistant_prefix, answer_text)
             target_token_id = str(token_id)
             target_token_text = token_text
+            last_exc = None
+            for attempt_idx, feature_limit in enumerate(retry_limits, start=1):
+                cmd_preview = [
+                    sys.executable,
+                    "-m",
+                    "circuit_tracer",
+                    "attribute",
+                    "--prompt",
+                    f"<start_of_image> {question}",
+                    "--assistant-prefix",
+                    assistant_prefix,
+                    "--target-logit-ids",
+                    target_token_id,
+                    "--transcoder_set",
+                    args.transcoder_set,
+                    "--image",
+                    image_path,
+                    "--graph_output_path",
+                    str(output_pt),
+                    "--batch_size",
+                    str(args.batch_size),
+                    "--max_n_logits",
+                    "1",
+                    "--max_feature_nodes",
+                    str(feature_limit),
+                    "--dtype",
+                    args.dtype,
+                ]
+                if args.offload != "none":
+                    cmd_preview.extend(["--offload", args.offload])
 
-            cmd_preview = [
-                runner_python,
-                "-m",
-                "circuit_tracer",
-                "attribute",
-                "--prompt",
-                f"<start_of_image> {question}",
-                "--assistant-prefix",
-                assistant_prefix,
-                "--target-logit-ids",
-                target_token_id,
-                "--transcoder_set",
-                args.transcoder_set,
-                "--image",
-                image_path,
-                "--graph_output_path",
-                str(output_pt),
-                "--batch_size",
-                str(args.batch_size),
-                "--max_n_logits",
-                "1",
-                "--max_feature_nodes",
-                str(args.max_feature_nodes),
-                "--dtype",
-                args.dtype,
-            ]
-            if args.offload != "none":
-                cmd_preview.extend(["--offload", args.offload])
-
-            print(f"[run] {idx}/{total}", " ".join(shlex.quote(x) for x in cmd_preview))
-            if not args.dry_run:
-                proc = subprocess.run(
-                    cmd_preview,
-                    env=env,
-                    check=False,
-                    text=True,
-                    capture_output=True,
+                print(
+                    f"[run] {idx}/{total} attempt={attempt_idx}/{len(retry_limits)} "
+                    + " ".join(shlex.quote(x) for x in cmd_preview)
                 )
-                if proc.returncode != 0:
-                    stderr = (proc.stderr or "").strip()
-                    stdout = (proc.stdout or "").strip()
-                    detail = stderr or stdout
-                    if detail:
-                        detail = detail.replace("\n", " | ")
-                        raise RuntimeError(
-                            f"attribute command failed with exit code {proc.returncode}: {detail[-800:]}"
-                        )
-                    raise RuntimeError(f"attribute command failed with exit code {proc.returncode}")
+                if args.dry_run:
+                    used_max_feature_nodes = str(feature_limit)
+                    last_exc = None
+                    break
+
+                model_instance = None
+                graph = None
+                try:
+                    _cleanup_cuda()
+                    model_instance = ReplacementModel.from_pretrained(
+                        model_name,
+                        args.transcoder_set,
+                        dtype=dtype,
+                    )
+                    graph = attribute(
+                        prompt=f"<start_of_image> {question}",
+                        model=model_instance,
+                        max_n_logits=1,
+                        desired_logit_prob=0.95,
+                        batch_size=args.batch_size,
+                        max_feature_nodes=feature_limit,
+                        offload=None if args.offload == "none" else args.offload,
+                        verbose=False,
+                        image_path=image_path,
+                        assistant_prefix=assistant_prefix,
+                        target_logit_ids=[token_id],
+                    )
+                    graph.to_pt(str(output_pt))
+                    used_max_feature_nodes = str(feature_limit)
+                    last_exc = None
+                    break
+                except Exception as exc:  # noqa: BLE001
+                    last_exc = exc
+                    if output_pt.exists():
+                        try:
+                            output_pt.unlink()
+                        except OSError:
+                            pass
+                finally:
+                    if graph is not None:
+                        del graph
+                    if model_instance is not None:
+                        try:
+                            model_instance.to("cpu")
+                        except Exception:
+                            pass
+                        del model_instance
+                    _cleanup_cuda()
+
+            if last_exc is not None:
+                raise last_exc
             status = "ok"
             processed += 1
         except Exception as exc:  # noqa: BLE001
@@ -261,6 +352,7 @@ def main() -> int:
                 "assistant_prefix": assistant_prefix,
                 "target_token_id": target_token_id,
                 "target_token_text": target_token_text,
+                "used_max_feature_nodes": used_max_feature_nodes,
                 "graph_output_path": str(output_pt),
                 "status": status,
                 "error_message": error_message,
@@ -285,6 +377,7 @@ def main() -> int:
         "assistant_prefix",
         "target_token_id",
         "target_token_text",
+        "used_max_feature_nodes",
         "graph_output_path",
         "status",
         "error_message",
