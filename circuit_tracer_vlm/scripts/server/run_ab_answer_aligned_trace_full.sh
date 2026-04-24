@@ -28,6 +28,12 @@ if [[ -f "${ROOT_DIR}/scripts/server/load_env.sh" && -f "${ROOT_DIR}/.env" ]]; t
   source "${ROOT_DIR}/scripts/server/load_env.sh" "${ROOT_DIR}/.env"
 fi
 
+PYTHON_BIN="${PYTHON_BIN:-${ROOT_DIR}/.venv/bin/python}"
+if [[ ! -x "${PYTHON_BIN}" ]]; then
+  PYTHON_BIN="$(command -v python)"
+fi
+export TCA_PYTHON="${PYTHON_BIN}"
+
 RUN_TAG="${RUN_TAG:-ab_answer_aligned_4x60_$(date +%Y%m%d_%H%M%S)}"
 EVAL_CSV_A="${EVAL_CSV_A:-research/work/promptA_eval_final.csv}"
 EVAL_CSV_B="${EVAL_CSV_B:-research/work/promptB_eval.csv}"
@@ -62,7 +68,7 @@ META_A="${OUT_ROOT}/answer_aligned_meta_a.csv"
 META_B="${OUT_ROOT}/answer_aligned_meta_b.csv"
 
 echo "[stage] sample ${PER_BUCKET} per bucket from ${BUCKET_SOURCE_CSV}"
-python - <<'PY' "${BUCKET_SOURCE_CSV}" "${SELECTED_CSV}" "${BUCKETS}" "${PER_BUCKET}"
+"${PYTHON_BIN}" - <<'PY' "${BUCKET_SOURCE_CSV}" "${SELECTED_CSV}" "${BUCKETS}" "${PER_BUCKET}"
 import csv, sys
 from collections import defaultdict
 from pathlib import Path
@@ -105,7 +111,7 @@ print(f"[ok] selected rows={len(selected)} -> {dst}")
 PY
 
 echo "[stage] answer-aligned attribution A"
-python scripts/research/run_batch_answer_aligned_attribute.py \
+"${PYTHON_BIN}" scripts/research/run_batch_answer_aligned_attribute.py \
   --eval-csv "${EVAL_CSV_A}" \
   --selected-csv "${SELECTED_CSV}" \
   --output-dir "${PT_DIR_A}" \
@@ -119,7 +125,7 @@ python scripts/research/run_batch_answer_aligned_attribute.py \
   --answer-source "${ANSWER_SOURCE}"
 
 echo "[stage] answer-aligned attribution B"
-python scripts/research/run_batch_answer_aligned_attribute.py \
+"${PYTHON_BIN}" scripts/research/run_batch_answer_aligned_attribute.py \
   --eval-csv "${EVAL_CSV_B}" \
   --selected-csv "${SELECTED_CSV}" \
   --output-dir "${PT_DIR_B}" \
@@ -133,7 +139,7 @@ python scripts/research/run_batch_answer_aligned_attribute.py \
   --answer-source "${ANSWER_SOURCE}"
 
 echo "[stage] controlled trace compare"
-python scripts/research/trace_compare_ab_controlled.py \
+"${PYTHON_BIN}" scripts/research/trace_compare_ab_controlled.py \
   --pt-dir-a "${PT_DIR_A}" \
   --pt-dir-b "${PT_DIR_B}" \
   --bucket-csv "${SELECTED_CSV}" \

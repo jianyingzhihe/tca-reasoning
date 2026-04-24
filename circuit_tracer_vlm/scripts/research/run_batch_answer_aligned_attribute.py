@@ -124,6 +124,9 @@ def main() -> int:
     env = os.environ.copy()
     env["CIRCUIT_TRACER_TOPK"] = str(args.topk)
     env["CIRCUIT_TRACER_ENCODER_CPU"] = env.get("CIRCUIT_TRACER_ENCODER_CPU", "1")
+    repo_root = Path(__file__).resolve().parents[2]
+    venv_python = repo_root / ".venv" / "bin" / "python"
+    runner_python = env.get("TCA_PYTHON") or (str(venv_python) if venv_python.exists() else sys.executable)
 
     with eval_csv.open("r", encoding="utf-8", newline="") as f:
         rows = list(csv.DictReader(f))
@@ -189,7 +192,7 @@ def main() -> int:
             target_token_text = token_text
 
             cmd = [
-                sys.executable,
+                runner_python,
                 "-m",
                 "circuit_tracer",
                 "attribute",
