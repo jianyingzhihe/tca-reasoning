@@ -149,6 +149,9 @@ def main() -> int:
     parser.add_argument("--batch-size", type=int, default=1)
     parser.add_argument("--offload", default="cpu", choices=["cpu", "disk", "none"])
     parser.add_argument("--topk", type=int, default=16)
+    parser.add_argument("--no-lazy-encoder", action="store_false", dest="lazy_encoder")
+    parser.add_argument("--no-lazy-decoder", action="store_false", dest="lazy_decoder")
+    parser.set_defaults(lazy_encoder=True, lazy_decoder=True)
     parser.add_argument(
         "--retry-feature-nodes",
         default="64,48,32",
@@ -298,6 +301,8 @@ def main() -> int:
                         model_name,
                         args.transcoder_set,
                         dtype=dtype,
+                        lazy_encoder=args.lazy_encoder,
+                        lazy_decoder=args.lazy_decoder,
                     )
                     graph = attribute(
                         prompt=f"<start_of_image> {question}",

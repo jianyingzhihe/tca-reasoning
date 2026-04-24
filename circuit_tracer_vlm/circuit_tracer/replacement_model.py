@@ -137,6 +137,8 @@ class ReplacementModel(HookedVLTransformer):
         transcoder_set: str,
         device: torch.device | None = None,
         dtype: torch.dtype = torch.float32,
+        lazy_encoder: bool = False,
+        lazy_decoder: bool = True,
         **kwargs,
     ) -> "ReplacementModel":
         """Create a ReplacementModel from model name and transcoder config
@@ -151,7 +153,13 @@ class ReplacementModel(HookedVLTransformer):
         if device is None:
             device = get_default_device()
 
-        transcoders, _ = load_transcoder_from_hub(transcoder_set, device=device, dtype=dtype)
+        transcoders, _ = load_transcoder_from_hub(
+            transcoder_set,
+            device=device,
+            dtype=dtype,
+            lazy_encoder=lazy_encoder,
+            lazy_decoder=lazy_decoder,
+        )
 
         return cls.from_pretrained_and_transcoders(
             model_name,
