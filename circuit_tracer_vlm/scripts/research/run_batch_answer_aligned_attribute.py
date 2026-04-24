@@ -87,12 +87,27 @@ def _first_answer_token_id(tokenizer, assistant_prefix: str, answer_text: str) -
 
     prefix_ids = tokenizer(prefix, add_special_tokens=False)["input_ids"]
     full_ids = tokenizer(prefix + answer, add_special_tokens=False)["input_ids"]
-    if len(full_ids) <= len(prefix_ids):
-        raise ValueError("tokenization produced no answer token after prefix")
+    if len(full_ids) > len(prefix_ids):
+        token_id = int(full_ids[len(prefix_ids)])
+        token_text = tokenizer.convert_ids_to_tokens([token_id])[0]
+        return token_id, token_text
 
-    token_id = int(full_ids[len(prefix_ids)])
-    token_text = tokenizer.convert_ids_to_tokens([token_id])[0]
-    return token_id, token_text
+    # Some tokenizers are not prefix-stable across word boundaries, especially when the
+    # answer's first token absorbs a leading space that was present at the end of the
+    # assistant prefix. In that case, emulate the next-token continuation directly.
+    continuation = answer
+    if prefix.endswith((" ", "\t", "\n")):
+        continuation = " " + continuation
+
+    continuation_ids = tokenizer(continuation, add_special_tokens=False)["input_ids"]
+    if continuation_ids:
+        token_id = int(continuation_ids[0])
+        token_text = tokenizer.convert_ids_to_tokens([token_id])[0]
+        return token_id, token_text
+
+    raise ValueError(
+        "tokenization produced no answer token after prefix or continuation fallback"
+    )
 
 
 def _dtype_from_name(name: str):
