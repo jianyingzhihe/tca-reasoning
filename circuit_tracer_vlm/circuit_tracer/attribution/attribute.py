@@ -294,7 +294,7 @@ def _run_attribution(
 
     batch["image"] = image
 
-    ctx = model.setup_attribution(input_ids, prompt, image)
+    ctx = model.setup_attribution(input_ids, prompt, image, assistant_prefix=assistant_prefix)
     activation_matrix = ctx.activation_matrix
 
     logger.info(f"Precomputation completed in {time.time() - phase_start:.2f}s")

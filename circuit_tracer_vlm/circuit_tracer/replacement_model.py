@@ -547,7 +547,13 @@ class ReplacementModel(HookedVLTransformer):
         )
 
     @torch.no_grad()
-    def setup_attribution(self, inputs: str | torch.Tensor, prompt, image=None):
+    def setup_attribution(
+        self,
+        inputs: str | torch.Tensor,
+        prompt,
+        image=None,
+        assistant_prefix: str = "",
+    ):
         """Precomputes the transcoder activations and error vectors, saving them and the
         token embeddings.
 
@@ -561,8 +567,14 @@ class ReplacementModel(HookedVLTransformer):
         raw_image = Image.open(BytesIO(response.content)).convert("RGB")'''
 
         raw_image = image
+        assistant_prefix = assistant_prefix or ""
+        full_prompt = prompt
+        if assistant_prefix:
+            full_prompt = f"{prompt.rstrip()} {assistant_prefix.lstrip()}".strip()
 
-        batch = self.processor(text=prompt, images=raw_image, return_tensors="pt").to(self.cfg.device)
+        batch = self.processor(text=full_prompt, images=raw_image, return_tensors="pt").to(
+            self.cfg.device
+        )
 
         if isinstance(inputs, str):
             # When caller gives a string, ignore ensure_tokenized and use the real multimodal batch
@@ -589,7 +601,7 @@ class ReplacementModel(HookedVLTransformer):
         )'''
 
         logits = self.run_with_hooks(
-            [prompt], [[raw_image]], fwd_hooks=mlp_in_caching_hooks + mlp_out_caching_hooks
+            [full_prompt], [[raw_image]], fwd_hooks=mlp_in_caching_hooks + mlp_out_caching_hooks
         )
 
         mlp_in_cache = torch.cat(list(mlp_in_cache.values()), dim=0)
@@ -617,13 +629,13 @@ class ReplacementModel(HookedVLTransformer):
         self.blocks[0].hook_resid_pre.add_hook(_cap_post_image, is_permanent=False)
 
         # IMPORTANT: same forward used for caches/logits
-        _ = self.run_with_hooks([prompt], [[raw_image]])
+        _ = self.run_with_hooks([full_prompt], [[raw_image]])
 
         self.reset_hooks()
         token_vectors = stream_in["x"].squeeze(0)   # [T, d_model]
         # --- end drop-in ---
 
-        batch = self.processor(text=prompt, images=raw_image, return_tensors="pt")
+        batch = self.processor(text=full_prompt, images=raw_image, return_tensors="pt")
         batch = {k: v.to(self.cfg.device) for k, v in batch.items()}
 
         ctx = AttributionContext(
