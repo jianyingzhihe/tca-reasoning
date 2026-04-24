@@ -191,7 +191,7 @@ def main() -> int:
                 "circuit-tracer",
                 "attribute",
                 "--prompt",
-                question,
+                f"<start_of_image> {question}",
                 "--assistant-prefix",
                 assistant_prefix,
                 "--target-logit-ids",
