@@ -79,30 +79,41 @@ def _load_pt(path: Path) -> dict:
 
 
 def _build_index(d: dict, target_logit_rank: int) -> dict:
+    cfg = d["cfg"]
     input_tokens = d["input_tokens"].cpu()
     active_features = d["active_features"].cpu()
     selected_features = d["selected_features"].cpu()
     logit_tokens = d["logit_tokens"].cpu()
     adjacency_matrix = d["adjacency_matrix"]
 
-    n_pos = int(len(input_tokens))
+    cfg_layers = int(getattr(cfg, "n_layers"))
     n_features = int(len(selected_features))
-    n_tokens = n_pos
     n_logits = int(len(logit_tokens))
     total_nodes = int(adjacency_matrix.shape[0])
-    n_errors = total_nodes - n_features - n_tokens - n_logits
-    if n_errors < 0:
+    if cfg_layers <= 0:
+        raise ValueError(f"invalid cfg.n_layers: {cfg_layers}")
+
+    non_feature_nodes = total_nodes - n_features - n_logits
+    if non_feature_nodes < 0:
         raise ValueError(
             f"invalid graph layout: total_nodes={total_nodes} n_features={n_features} "
-            f"n_tokens={n_tokens} n_logits={n_logits}"
+            f"n_logits={n_logits}"
         )
-    if n_pos <= 0:
-        raise ValueError("graph has no input tokens")
-    if n_errors % n_pos != 0:
+
+    # In the multimodal path, len(input_tokens) can include extra processor-side special
+    # tokens that do not correspond 1:1 to the graph's residual positions. Infer the true
+    # sequence length from the saved adjacency matrix and model depth instead.
+    if non_feature_nodes % (cfg_layers + 1) != 0:
         raise ValueError(
-            f"cannot infer error layout: n_errors={n_errors} is not divisible by n_pos={n_pos}"
+            f"cannot infer n_pos from graph layout: non_feature_nodes={non_feature_nodes} "
+            f"cfg.n_layers={cfg_layers}"
         )
-    n_layers = n_errors // n_pos
+    n_pos = non_feature_nodes // (cfg_layers + 1)
+    if n_pos <= 0:
+        raise ValueError(f"inferred invalid n_pos={n_pos}")
+    n_layers = cfg_layers
+    n_errors = n_layers * n_pos
+    n_tokens = n_pos
 
     if target_logit_rank < 0 or target_logit_rank >= n_logits:
         raise ValueError(f"target_logit_rank out of range: {target_logit_rank}")
@@ -147,7 +158,7 @@ def _build_index(d: dict, target_logit_rank: int) -> dict:
 
     for pos in range(n_tokens):
         idx = token_start + pos
-        tok_id = int(input_tokens[pos])
+        tok_id = int(input_tokens[pos]) if pos < len(input_tokens) else -1
         node_ids[idx] = f"T:P{pos}:ID{tok_id}"
         stage[idx] = -1
         node_meta[idx] = {
