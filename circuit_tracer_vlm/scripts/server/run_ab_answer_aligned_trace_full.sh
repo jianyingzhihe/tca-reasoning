@@ -42,6 +42,7 @@ WORK_DIR="${WORK_DIR:-research/work/ab_answer_aligned/${RUN_TAG}}"
 OUT_ROOT="${OUT_ROOT:-outputs/phase_ab/ab_answer_aligned/${RUN_TAG}}"
 BUCKETS="${BUCKETS:-A0_B1,A1_B1,A0_B0,A1_B0}"
 PER_BUCKET="${PER_BUCKET:-60}"
+MAX_SELECTED_ROWS="${MAX_SELECTED_ROWS:-0}"
 
 TRANSCODER_SET="${TRANSCODER_SET:-tianhux2/gemma3-4b-it-plt}"
 DTYPE="${DTYPE:-bfloat16}"
@@ -62,6 +63,7 @@ MAX_DEPTH="${MAX_DEPTH:-40}"
 MIN_ABS_WEIGHT="${MIN_ABS_WEIGHT:-0.0}"
 LOG_EVERY="${LOG_EVERY:-10}"
 CLEAN_PT_AFTER="${CLEAN_PT_AFTER:-0}"
+SKIP_COMPARE="${SKIP_COMPARE:-0}"
 
 mkdir -p "${WORK_DIR}" "${OUT_ROOT}"
 
@@ -81,7 +83,7 @@ if [[ "${STOP_ON_ATTR_ERROR}" == "1" ]]; then
 fi
 
 echo "[stage] sample ${PER_BUCKET} per bucket from ${BUCKET_SOURCE_CSV}"
-"${PYTHON_BIN}" - <<'PY' "${BUCKET_SOURCE_CSV}" "${SELECTED_CSV}" "${BUCKETS}" "${PER_BUCKET}"
+"${PYTHON_BIN}" - <<'PY' "${BUCKET_SOURCE_CSV}" "${SELECTED_CSV}" "${BUCKETS}" "${PER_BUCKET}" "${MAX_SELECTED_ROWS}"
 import csv, sys
 from collections import defaultdict
 from pathlib import Path
@@ -90,6 +92,7 @@ src = Path(sys.argv[1]).expanduser().resolve()
 dst = Path(sys.argv[2]).expanduser().resolve()
 buckets = [x.strip() for x in sys.argv[3].split(",") if x.strip()]
 per_bucket = int(sys.argv[4])
+max_selected_rows = int(sys.argv[5])
 
 rows = list(csv.DictReader(open(src, "r", encoding="utf-8", newline="")))
 if not rows:
@@ -114,6 +117,11 @@ for b in buckets:
 
 if not selected:
     raise ValueError("no selected rows")
+
+if max_selected_rows > 0:
+    selected = selected[:max_selected_rows]
+    if not selected:
+        raise ValueError("selection became empty after MAX_SELECTED_ROWS cap")
 
 dst.parent.mkdir(parents=True, exist_ok=True)
 with open(dst, "w", encoding="utf-8", newline="") as f:
@@ -160,18 +168,22 @@ echo "[stage] answer-aligned attribution B"
   "${ATTR_EXTRA_ARGS[@]}"
 
 echo "[stage] controlled trace compare"
-"${PYTHON_BIN}" scripts/research/trace_compare_ab_controlled.py \
-  --pt-dir-a "${PT_DIR_A}" \
-  --pt-dir-b "${PT_DIR_B}" \
-  --bucket-csv "${SELECTED_CSV}" \
-  --out-dir "${OUT_ROOT}/${RUN_TAG}" \
-  --target-logit-rank 0 \
-  --topk-per-node "${TOPK_PER_NODE}" \
-  --beam-per-depth "${BEAM_PER_DEPTH}" \
-  --coverage "${COVERAGE}" \
-  --max-depth "${MAX_DEPTH}" \
-  --min-abs-weight "${MIN_ABS_WEIGHT}" \
-  --log-every "${LOG_EVERY}"
+if [[ "${SKIP_COMPARE}" != "1" ]]; then
+  "${PYTHON_BIN}" scripts/research/trace_compare_ab_controlled.py \
+    --pt-dir-a "${PT_DIR_A}" \
+    --pt-dir-b "${PT_DIR_B}" \
+    --bucket-csv "${SELECTED_CSV}" \
+    --out-dir "${OUT_ROOT}/${RUN_TAG}" \
+    --target-logit-rank 0 \
+    --topk-per-node "${TOPK_PER_NODE}" \
+    --beam-per-depth "${BEAM_PER_DEPTH}" \
+    --coverage "${COVERAGE}" \
+    --max-depth "${MAX_DEPTH}" \
+    --min-abs-weight "${MIN_ABS_WEIGHT}" \
+    --log-every "${LOG_EVERY}"
+else
+  echo "[skip] controlled trace compare skipped (SKIP_COMPARE=1)"
+fi
 
 echo "[done] run_tag=${RUN_TAG}"
 echo "[done] selected=${SELECTED_CSV}"
@@ -179,7 +191,9 @@ echo "[done] meta_a=${META_A}"
 echo "[done] meta_b=${META_B}"
 echo "[done] pt_a=${PT_DIR_A}"
 echo "[done] pt_b=${PT_DIR_B}"
-echo "[done] compare_out=${OUT_ROOT}/${RUN_TAG}"
+if [[ "${SKIP_COMPARE}" != "1" ]]; then
+  echo "[done] compare_out=${OUT_ROOT}/${RUN_TAG}"
+fi
 
 if [[ "${CLEAN_PT_AFTER}" == "1" ]]; then
   echo "[cleanup] removing pt dirs to save disk..."

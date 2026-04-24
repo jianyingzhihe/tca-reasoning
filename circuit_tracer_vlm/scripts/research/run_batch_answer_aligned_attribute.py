@@ -270,7 +270,12 @@ def main() -> int:
     )
     parser.add_argument("--metadata-csv", default="", help="Optional output csv with prefix/token metadata")
     parser.add_argument("--dtype", default="bfloat16", help="float16/bfloat16/float32")
-    parser.add_argument("--max-feature-nodes", type=int, default=112)
+    parser.add_argument(
+        "--max-feature-nodes",
+        type=int,
+        default=112,
+        help="Max feature nodes per graph; use 0 to include all active features.",
+    )
     parser.add_argument("--batch-size", type=int, default=1)
     parser.add_argument("--offload", default="cpu", choices=["cpu", "disk", "none"])
     parser.add_argument("--topk", type=int, default=16)
