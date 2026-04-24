@@ -145,7 +145,7 @@ def main() -> int:
         args.transcoder_set,
         dtype=dtype,
         lazy_encoder=False,
-        lazy_decoder=False,
+        lazy_decoder=True,
     )
     model_name = config.get("model_name", model_name)
     model_instance = ReplacementModel.from_pretrained_and_transcoders(
