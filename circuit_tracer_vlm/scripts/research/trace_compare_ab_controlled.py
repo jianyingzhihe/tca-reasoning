@@ -79,18 +79,30 @@ def _load_pt(path: Path) -> dict:
 
 
 def _build_index(d: dict, target_logit_rank: int) -> dict:
-    cfg = d["cfg"]
     input_tokens = d["input_tokens"].cpu()
     active_features = d["active_features"].cpu()
     selected_features = d["selected_features"].cpu()
     logit_tokens = d["logit_tokens"].cpu()
+    adjacency_matrix = d["adjacency_matrix"]
 
-    n_layers = int(cfg.n_layers)
     n_pos = int(len(input_tokens))
     n_features = int(len(selected_features))
-    n_errors = n_layers * n_pos
     n_tokens = n_pos
     n_logits = int(len(logit_tokens))
+    total_nodes = int(adjacency_matrix.shape[0])
+    n_errors = total_nodes - n_features - n_tokens - n_logits
+    if n_errors < 0:
+        raise ValueError(
+            f"invalid graph layout: total_nodes={total_nodes} n_features={n_features} "
+            f"n_tokens={n_tokens} n_logits={n_logits}"
+        )
+    if n_pos <= 0:
+        raise ValueError("graph has no input tokens")
+    if n_errors % n_pos != 0:
+        raise ValueError(
+            f"cannot infer error layout: n_errors={n_errors} is not divisible by n_pos={n_pos}"
+        )
+    n_layers = n_errors // n_pos
 
     if target_logit_rank < 0 or target_logit_rank >= n_logits:
         raise ValueError(f"target_logit_rank out of range: {target_logit_rank}")
@@ -102,9 +114,9 @@ def _build_index(d: dict, target_logit_rank: int) -> dict:
     logit_start = token_end
     target_row = logit_start + target_logit_rank
 
-    node_ids: list[str] = [""] * (logit_start + n_logits)
-    stage: list[int] = [0] * (logit_start + n_logits)
-    node_meta: list[dict] = [None] * (logit_start + n_logits)  # type: ignore
+    node_ids: list[str] = [""] * total_nodes
+    stage: list[int] = [0] * total_nodes
+    node_meta: list[dict] = [None] * total_nodes  # type: ignore
 
     for local_idx in range(n_features):
         active_idx = int(selected_features[local_idx])
@@ -646,4 +658,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
