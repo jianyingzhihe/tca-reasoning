@@ -50,6 +50,9 @@ BATCH_SIZE="${BATCH_SIZE:-1}"
 OFFLOAD="${OFFLOAD:-cpu}"
 TOPK="${TOPK:-16}"
 ANSWER_SOURCE="${ANSWER_SOURCE:-predicted}"
+ANSWER_ATTR_EXEC_MODE="${ANSWER_ATTR_EXEC_MODE:-subprocess}"
+ANSWER_ATTR_VERBOSE_ATTRIBUTION="${ANSWER_ATTR_VERBOSE_ATTRIBUTION:-1}"
+STOP_ON_ATTR_ERROR="${STOP_ON_ATTR_ERROR:-0}"
 
 TOPK_PER_NODE="${TOPK_PER_NODE:-3}"
 BEAM_PER_DEPTH="${BEAM_PER_DEPTH:-96}"
@@ -66,6 +69,15 @@ PT_DIR_A="${OUT_ROOT}/pt_a"
 PT_DIR_B="${OUT_ROOT}/pt_b"
 META_A="${OUT_ROOT}/answer_aligned_meta_a.csv"
 META_B="${OUT_ROOT}/answer_aligned_meta_b.csv"
+ATTEMPT_LOG_DIR_A="${OUT_ROOT}/logs_a"
+ATTEMPT_LOG_DIR_B="${OUT_ROOT}/logs_b"
+ATTR_EXTRA_ARGS=()
+if [[ "${ANSWER_ATTR_VERBOSE_ATTRIBUTION}" == "1" ]]; then
+  ATTR_EXTRA_ARGS+=(--verbose-attribution)
+fi
+if [[ "${STOP_ON_ATTR_ERROR}" == "1" ]]; then
+  ATTR_EXTRA_ARGS+=(--stop-on-error)
+fi
 
 echo "[stage] sample ${PER_BUCKET} per bucket from ${BUCKET_SOURCE_CSV}"
 "${PYTHON_BIN}" - <<'PY' "${BUCKET_SOURCE_CSV}" "${SELECTED_CSV}" "${BUCKETS}" "${PER_BUCKET}"
@@ -122,7 +134,10 @@ echo "[stage] answer-aligned attribution A"
   --batch-size "${BATCH_SIZE}" \
   --offload "${OFFLOAD}" \
   --topk "${TOPK}" \
-  --answer-source "${ANSWER_SOURCE}"
+  --answer-source "${ANSWER_SOURCE}" \
+  --exec-mode "${ANSWER_ATTR_EXEC_MODE}" \
+  --attempt-log-dir "${ATTEMPT_LOG_DIR_A}" \
+  "${ATTR_EXTRA_ARGS[@]}"
 
 echo "[stage] answer-aligned attribution B"
 "${PYTHON_BIN}" scripts/research/run_batch_answer_aligned_attribute.py \
@@ -136,7 +151,10 @@ echo "[stage] answer-aligned attribution B"
   --batch-size "${BATCH_SIZE}" \
   --offload "${OFFLOAD}" \
   --topk "${TOPK}" \
-  --answer-source "${ANSWER_SOURCE}"
+  --answer-source "${ANSWER_SOURCE}" \
+  --exec-mode "${ANSWER_ATTR_EXEC_MODE}" \
+  --attempt-log-dir "${ATTEMPT_LOG_DIR_B}" \
+  "${ATTR_EXTRA_ARGS[@]}"
 
 echo "[stage] controlled trace compare"
 "${PYTHON_BIN}" scripts/research/trace_compare_ab_controlled.py \

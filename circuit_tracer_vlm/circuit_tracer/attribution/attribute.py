@@ -35,6 +35,36 @@ from circuit_tracer.utils.disk_offload import offload_modules
 from PIL import Image
 
 
+def _memory_snapshot() -> str:
+    parts: list[str] = []
+    try:
+        import psutil
+
+        rss_gib = psutil.Process().memory_info().rss / (1024**3)
+        parts.append(f"rss={rss_gib:.2f}GiB")
+    except Exception:
+        pass
+
+    if torch.cuda.is_available():
+        try:
+            dev = torch.cuda.current_device()
+            alloc_gib = torch.cuda.memory_allocated(dev) / (1024**3)
+            reserved_gib = torch.cuda.memory_reserved(dev) / (1024**3)
+            parts.append(
+                f"cuda[{dev}] alloc={alloc_gib:.2f}GiB reserved={reserved_gib:.2f}GiB"
+            )
+        except Exception:
+            pass
+
+    return ", ".join(parts)
+
+
+def _log_memory(logger: logging.Logger, label: str) -> None:
+    snapshot = _memory_snapshot()
+    if snapshot:
+        logger.info("%s | %s", label, snapshot)
+
+
 @torch.no_grad()
 def compute_salient_logits(
     logits: torch.Tensor,
@@ -252,6 +282,7 @@ def _run_attribution(
     start_time = time.time()
     # Phase 0: precompute
     logger.info("Phase 0: Precomputing activations and vectors")
+    _log_memory(logger, "Phase 0 start")
     phase_start = time.time()
     #input_ids = model.ensure_tokenized(prompt)
 
@@ -268,12 +299,14 @@ def _run_attribution(
 
     logger.info(f"Precomputation completed in {time.time() - phase_start:.2f}s")
     logger.info(f"Found {ctx.activation_matrix._nnz()} active features")
+    _log_memory(logger, "After setup_attribution")
 
     if offload:
         offload_handles += offload_modules(model.transcoders, offload)
 
     # Phase 1: forward pass
     logger.info("Phase 1: Running forward pass")
+    _log_memory(logger, "Phase 1 start")
     phase_start = time.time()
     '''with ctx.install_hooks(model):
         residual = model.forward([prompt] * batch_size, [[image]] * batch_size, stop_at_layer=model.cfg.n_layers)
@@ -287,12 +320,14 @@ def _run_attribution(
         ctx._resid_activations[-1] = model.ln_final(residual)
 
     logger.info(f"Forward pass completed in {time.time() - phase_start:.2f}s")
+    _log_memory(logger, "After forward pass")
 
     if offload:
         offload_handles += offload_modules([block.mlp for block in model.blocks], offload)
 
     # Phase 2: build input vector list
     logger.info("Phase 2: Building input vectors")
+    _log_memory(logger, "Phase 2 start")
     phase_start = time.time()
     feat_layers, feat_pos, _ = activation_matrix.indices()
     n_layers, n_pos, _ = activation_matrix.shape
@@ -324,9 +359,11 @@ def _run_attribution(
     # First populated with logit node IDs, then feature IDs in attribution order
     row_to_node_index = torch.zeros(max_feature_nodes + n_logits, dtype=torch.int32)
     logger.info(f"Input vectors built in {time.time() - phase_start:.2f}s")
+    _log_memory(logger, "After edge matrix allocation")
 
     # Phase 3: logit attribution
     logger.info("Phase 3: Computing logit attributions")
+    _log_memory(logger, "Phase 3 start")
     phase_start = time.time()
     for i in range(0, len(logit_idx), batch_size):
         batch = logit_vecs[i : i + batch_size]
@@ -340,9 +377,11 @@ def _run_attribution(
             torch.arange(i, i + batch.shape[0]) + logit_offset
         )
     logger.info(f"Logit attributions completed in {time.time() - phase_start:.2f}s")
+    _log_memory(logger, "After logit attributions")
 
     # Phase 4: feature attribution
     logger.info("Phase 4: Computing feature attributions")
+    _log_memory(logger, "Phase 4 start")
     phase_start = time.time()
     st = n_logits
     visited = torch.zeros(total_active_feats, dtype=torch.bool)
@@ -382,6 +421,7 @@ def _run_attribution(
 
     pbar.close()
     logger.info(f"Feature attributions completed in {time.time() - phase_start:.2f}s")
+    _log_memory(logger, "After feature attributions")
 
     # Phase 5: packaging graph
     selected_features = torch.where(visited)[0]
@@ -412,5 +452,6 @@ def _run_attribution(
 
     total_time = time.time() - start_time
     logger.info(f"Attribution completed in {total_time:.2f}s")
+    _log_memory(logger, "Attribution finished")
 
     return graph

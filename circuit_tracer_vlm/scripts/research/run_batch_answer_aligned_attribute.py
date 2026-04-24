@@ -6,6 +6,7 @@ import csv
 import gc
 import os
 import shlex
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -125,6 +126,101 @@ def _cleanup_cuda():
         gc.collect()
 
 
+def _bool_env(name: str, default: bool = False) -> bool:
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _log(message: str) -> None:
+    print(message, flush=True)
+
+
+def _memory_snapshot() -> str:
+    parts: list[str] = []
+    try:
+        import psutil
+
+        rss_gib = psutil.Process().memory_info().rss / (1024**3)
+        parts.append(f"rss={rss_gib:.2f}GiB")
+    except Exception:
+        pass
+
+    try:
+        import torch
+
+        if torch.cuda.is_available():
+            dev = torch.cuda.current_device()
+            alloc_gib = torch.cuda.memory_allocated(dev) / (1024**3)
+            reserved_gib = torch.cuda.memory_reserved(dev) / (1024**3)
+            parts.append(f"cuda[{dev}] alloc={alloc_gib:.2f}GiB reserved={reserved_gib:.2f}GiB")
+    except Exception:
+        pass
+
+    return ", ".join(parts)
+
+
+def _log_memory(prefix: str) -> None:
+    snapshot = _memory_snapshot()
+    if snapshot:
+        _log(f"{prefix} | {snapshot}")
+    else:
+        _log(prefix)
+
+
+def _write_metadata_rows(metadata_csv: Path, meta_rows: list[dict], fieldnames: list[str]) -> None:
+    metadata_csv.parent.mkdir(parents=True, exist_ok=True)
+    with metadata_csv.open("w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=fieldnames)
+        w.writeheader()
+        w.writerows(meta_rows)
+
+
+def _stream_subprocess(
+    cmd: list[str],
+    *,
+    log_path: Path,
+    env: dict[str, str],
+) -> tuple[int, bool]:
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    saw_stage_log = False
+
+    with log_path.open("w", encoding="utf-8") as log_f:
+        proc = subprocess.Popen(
+            cmd,
+            cwd=str(REPO_ROOT),
+            env=env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+        )
+        assert proc.stdout is not None
+        for line in proc.stdout:
+            log_f.write(line)
+            log_f.flush()
+            text = line.rstrip()
+            if any(
+                marker in text
+                for marker in (
+                    "Loading HF model",
+                    "HF model loaded",
+                    "HookedVLTransformer ready",
+                    "Replacement model configured",
+                    "Phase 0:",
+                    "Phase 1:",
+                    "Phase 2:",
+                    "Phase 3:",
+                    "Phase 4:",
+                )
+            ):
+                saw_stage_log = True
+            _log(f"[child] {text}")
+
+        return proc.wait(), saw_stage_log
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
@@ -157,16 +253,42 @@ def main() -> int:
         default="64,48,32",
         help="Fallback max_feature_nodes values to try after the primary setting.",
     )
+    parser.add_argument(
+        "--exec-mode",
+        default=os.environ.get("ANSWER_ATTR_EXEC_MODE", "subprocess"),
+        choices=["inproc", "subprocess"],
+        help="Run each attempt in-process or in a subprocess. Subprocess mode survives SIGKILL/OOM better.",
+    )
+    parser.add_argument(
+        "--attempt-log-dir",
+        default=os.environ.get("ANSWER_ATTR_ATTEMPT_LOG_DIR", ""),
+        help="Optional directory for per-attempt logs. Defaults to <output-dir>/_attempt_logs.",
+    )
+    parser.add_argument(
+        "--verbose-attribution",
+        action="store_true",
+        default=_bool_env("ANSWER_ATTR_VERBOSE_ATTRIBUTION", False),
+        help="Emit detailed model-loading and attribution phase logs.",
+    )
+    parser.add_argument(
+        "--stop-on-error",
+        action="store_true",
+        help="Stop immediately after the first sample error.",
+    )
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
-    import torch
     from transformers import AutoProcessor
-    from circuit_tracer import ReplacementModel, attribute
 
     eval_csv = Path(args.eval_csv).expanduser().resolve()
     out_dir = Path(args.output_dir).expanduser().resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
+    attempt_log_dir = (
+        Path(args.attempt_log_dir).expanduser().resolve()
+        if args.attempt_log_dir
+        else out_dir / "_attempt_logs"
+    )
+    attempt_log_dir.mkdir(parents=True, exist_ok=True)
     metadata_csv = (
         Path(args.metadata_csv).expanduser().resolve()
         if args.metadata_csv
@@ -178,8 +300,11 @@ def main() -> int:
         selected_ids = _read_selected_ids(Path(args.selected_csv).expanduser().resolve(), args.sample_id_col)
 
     model_name = _infer_model_name_from_transcoder_set(args.transcoder_set)
+    _log(f"[init] inferred model_name={model_name}")
+    _log_memory("[init] before processor load")
     processor = AutoProcessor.from_pretrained(model_name)
     tokenizer = processor.tokenizer
+    _log_memory("[init] after processor load")
 
     os.environ["CIRCUIT_TRACER_TOPK"] = str(args.topk)
     os.environ["CIRCUIT_TRACER_ENCODER_CPU"] = os.environ.get("CIRCUIT_TRACER_ENCODER_CPU", "1")
@@ -197,12 +322,30 @@ def main() -> int:
     processed = 0
     skipped = 0
     meta_rows: list[dict] = []
+    fieldnames = [
+        "sample_id",
+        "question",
+        "image_path",
+        "generated_text",
+        "answer_text",
+        "assistant_prefix",
+        "target_token_id",
+        "target_token_text",
+        "used_max_feature_nodes",
+        "graph_output_path",
+        "attempt_log_path",
+        "status",
+        "error_message",
+    ]
 
     answer_col = {
         "predicted": "predicted_answer",
         "gold": "gold_answer",
         "majority": "majority_answer",
     }[args.answer_source]
+
+    if args.exec_mode == "inproc":
+        from circuit_tracer import ReplacementModel, attribute
 
     for idx, row in enumerate(rows, start=1):
         sample_id = (row.get("sample_id") or "").strip()
@@ -222,6 +365,7 @@ def main() -> int:
         target_token_id = ""
         target_token_text = ""
         used_max_feature_nodes = ""
+        attempt_log_path = ""
 
         output_pt = out_dir / f"{sample_id}.pt"
         if output_pt.exists():
@@ -238,10 +382,12 @@ def main() -> int:
                     "target_token_text": "",
                     "used_max_feature_nodes": "",
                     "graph_output_path": str(output_pt),
+                    "attempt_log_path": "",
                     "status": "exists",
                     "error_message": "",
                 }
             )
+            _write_metadata_rows(metadata_csv, meta_rows, fieldnames)
             continue
 
         try:
@@ -283,8 +429,10 @@ def main() -> int:
                 ]
                 if args.offload != "none":
                     cmd_preview.extend(["--offload", args.offload])
+                if args.verbose_attribution:
+                    cmd_preview.append("--verbose")
 
-                print(
+                _log(
                     f"[run] {idx}/{total} attempt={attempt_idx}/{len(retry_limits)} "
                     + " ".join(shlex.quote(x) for x in cmd_preview)
                 )
@@ -297,27 +445,54 @@ def main() -> int:
                 graph = None
                 try:
                     _cleanup_cuda()
-                    model_instance = ReplacementModel.from_pretrained(
-                        model_name,
-                        args.transcoder_set,
-                        dtype=dtype,
-                        lazy_encoder=args.lazy_encoder,
-                        lazy_decoder=args.lazy_decoder,
-                    )
-                    graph = attribute(
-                        prompt=f"<start_of_image> {question}",
-                        model=model_instance,
-                        max_n_logits=1,
-                        desired_logit_prob=0.95,
-                        batch_size=args.batch_size,
-                        max_feature_nodes=feature_limit,
-                        offload=None if args.offload == "none" else args.offload,
-                        verbose=False,
-                        image_path=image_path,
-                        assistant_prefix=assistant_prefix,
-                        target_logit_ids=[token_id],
-                    )
-                    graph.to_pt(str(output_pt))
+                    _log_memory(f"[attempt] sample={sample_id} attempt={attempt_idx} before execution")
+
+                    if args.exec_mode == "subprocess":
+                        attempt_log = attempt_log_dir / f"{sample_id}.attempt{attempt_idx}.log"
+                        attempt_log_path = str(attempt_log)
+                        child_env = os.environ.copy()
+                        child_env["PYTHONUNBUFFERED"] = "1"
+                        returncode, saw_stage_log = _stream_subprocess(
+                            cmd_preview,
+                            log_path=attempt_log,
+                            env=child_env,
+                        )
+                        if returncode != 0:
+                            oom_hint = ""
+                            if returncode in {-9, 137}:
+                                oom_hint = " possible_oom_or_sigkill=1"
+                            if returncode in {-9, 137} and not saw_stage_log:
+                                oom_hint += " likely_died_during_model_load=1"
+                            raise RuntimeError(
+                                f"attribute_subprocess_failed returncode={returncode}.{oom_hint}".strip()
+                            )
+                        if not output_pt.exists():
+                            raise RuntimeError(
+                                f"attribute_subprocess_succeeded_but_graph_missing log={attempt_log}"
+                            )
+                    else:
+                        model_instance = ReplacementModel.from_pretrained(
+                            model_name,
+                            args.transcoder_set,
+                            dtype=dtype,
+                            lazy_encoder=args.lazy_encoder,
+                            lazy_decoder=args.lazy_decoder,
+                        )
+                        graph = attribute(
+                            prompt=f"<start_of_image> {question}",
+                            model=model_instance,
+                            max_n_logits=1,
+                            desired_logit_prob=0.95,
+                            batch_size=args.batch_size,
+                            max_feature_nodes=feature_limit,
+                            offload=None if args.offload == "none" else args.offload,
+                            verbose=args.verbose_attribution,
+                            image_path=image_path,
+                            assistant_prefix=assistant_prefix,
+                            target_logit_ids=[token_id],
+                        )
+                        graph.to_pt(str(output_pt))
+
                     used_max_feature_nodes = str(feature_limit)
                     last_exc = None
                     break
@@ -338,6 +513,7 @@ def main() -> int:
                             pass
                         del model_instance
                     _cleanup_cuda()
+                    _log_memory(f"[attempt] sample={sample_id} attempt={attempt_idx} after execution")
 
             if last_exc is not None:
                 raise last_exc
@@ -359,42 +535,28 @@ def main() -> int:
                 "target_token_text": target_token_text,
                 "used_max_feature_nodes": used_max_feature_nodes,
                 "graph_output_path": str(output_pt),
+                "attempt_log_path": attempt_log_path,
                 "status": status,
                 "error_message": error_message,
             }
         )
+        _write_metadata_rows(metadata_csv, meta_rows, fieldnames)
 
         elapsed = max(time.time() - t0, 1e-9)
         done = processed + skipped
         rate = done / elapsed
         eta_min = (total - done) / rate / 60.0 if rate > 0 else float("inf")
-        print(
+        _log(
             f"[progress] done={done}/{total} processed={processed} skipped={skipped} "
             f"rate={rate:.4f} item/s eta={eta_min:.1f}m"
         )
+        if status == "error" and args.stop_on_error:
+            break
 
-    fieldnames = [
-        "sample_id",
-        "question",
-        "image_path",
-        "generated_text",
-        "answer_text",
-        "assistant_prefix",
-        "target_token_id",
-        "target_token_text",
-        "used_max_feature_nodes",
-        "graph_output_path",
-        "status",
-        "error_message",
-    ]
-    metadata_csv.parent.mkdir(parents=True, exist_ok=True)
-    with metadata_csv.open("w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=fieldnames)
-        w.writeheader()
-        w.writerows(meta_rows)
+    _write_metadata_rows(metadata_csv, meta_rows, fieldnames)
 
-    print(f"[done] metadata -> {metadata_csv}")
-    print(f"[done] graphs dir -> {out_dir}")
+    _log(f"[done] metadata -> {metadata_csv}")
+    _log(f"[done] graphs dir -> {out_dir}")
     return 0
 
 

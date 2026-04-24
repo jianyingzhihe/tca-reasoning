@@ -1,3 +1,4 @@
+import logging
 import warnings
 from collections import defaultdict
 from contextlib import contextmanager
@@ -27,6 +28,33 @@ from io import BytesIO
 Intervention = tuple[
     int | torch.Tensor, int | slice | torch.Tensor, int | torch.Tensor, int | torch.Tensor
 ]
+
+
+logger = logging.getLogger(__name__)
+
+
+def _memory_snapshot() -> str:
+    parts: list[str] = []
+    try:
+        import psutil
+
+        rss_gib = psutil.Process().memory_info().rss / (1024**3)
+        parts.append(f"rss={rss_gib:.2f}GiB")
+    except Exception:
+        pass
+
+    if torch.cuda.is_available():
+        try:
+            dev = torch.cuda.current_device()
+            alloc_gib = torch.cuda.memory_allocated(dev) / (1024**3)
+            reserved_gib = torch.cuda.memory_reserved(dev) / (1024**3)
+            parts.append(
+                f"cuda[{dev}] alloc={alloc_gib:.2f}GiB reserved={reserved_gib:.2f}GiB"
+            )
+        except Exception:
+            pass
+
+    return ", ".join(parts)
 
 
 class ReplacementMLP(nn.Module):
@@ -111,11 +139,27 @@ class ReplacementModel(HookedVLTransformer):
         Returns:
             ReplacementModel: The loaded ReplacementModel
         """
+        requested_dtype = kwargs.get("dtype", None)
+        load_kwargs = {
+            "low_cpu_mem_usage": True,
+        }
+        if isinstance(requested_dtype, torch.dtype):
+            load_kwargs["torch_dtype"] = requested_dtype
+
+        logger.info(
+            "Loading HF model %s with kwargs=%s (%s)",
+            model_name,
+            load_kwargs,
+            _memory_snapshot(),
+        )
         inner_model = Gemma3ForConditionalGeneration.from_pretrained(
             model_name,
+            **load_kwargs,
         )
+        logger.info("HF model loaded (%s)", _memory_snapshot())
         processor = AutoProcessor.from_pretrained(model_name)
         inner_model.vision_model = inner_model.vision_tower
+        logger.info("Processor loaded; constructing HookedVLTransformer (%s)", _memory_snapshot())
         model = super().from_pretrained(
             model_name,
             hf_model=inner_model,
@@ -126,8 +170,10 @@ class ReplacementModel(HookedVLTransformer):
             **kwargs,
         )
         model.set_use_hook_mlp_in(True)
+        logger.info("HookedVLTransformer ready (%s)", _memory_snapshot())
 
         model._configure_replacement_model(transcoders)
+        logger.info("Replacement model configured (%s)", _memory_snapshot())
         return model
 
     @classmethod
@@ -152,6 +198,7 @@ class ReplacementModel(HookedVLTransformer):
         """
         if device is None:
             device = get_default_device()
+        logger.info("ReplacementModel.from_pretrained using device=%s dtype=%s", device, dtype)
 
         transcoders, _ = load_transcoder_from_hub(
             transcoder_set,
