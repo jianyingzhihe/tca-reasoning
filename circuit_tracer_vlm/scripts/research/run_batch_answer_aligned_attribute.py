@@ -3,9 +3,9 @@ from __future__ import annotations
 
 import argparse
 import csv
-import gc
 import os
 import shlex
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -107,10 +107,7 @@ def main() -> int:
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
-    import torch
     from transformers import AutoProcessor
-    from circuit_tracer import ReplacementModel, attribute
-    from circuit_tracer.utils.hf_utils import load_transcoder_from_hub
 
     eval_csv = Path(args.eval_csv).expanduser().resolve()
     out_dir = Path(args.output_dir).expanduser().resolve()
@@ -129,28 +126,13 @@ def main() -> int:
     processor = AutoProcessor.from_pretrained(model_name)
     tokenizer = processor.tokenizer
 
-    os.environ["CIRCUIT_TRACER_TOPK"] = str(args.topk)
-    os.environ["CIRCUIT_TRACER_ENCODER_CPU"] = os.environ.get("CIRCUIT_TRACER_ENCODER_CPU", "1")
-
-    dtype_map = {
-        "float16": torch.float16,
-        "bfloat16": torch.bfloat16,
-        "float32": torch.float32,
-    }
-    dtype = dtype_map.get(args.dtype)
-    if dtype is None:
-        raise ValueError(f"unsupported dtype: {args.dtype}")
-
-    transcoder, config = load_transcoder_from_hub(
-        args.transcoder_set,
-        dtype=dtype,
-        lazy_encoder=False,
-        lazy_decoder=True,
-    )
-    model_name = config.get("model_name", model_name)
-    model_instance = ReplacementModel.from_pretrained_and_transcoders(
-        model_name, transcoder, dtype=dtype
-    )
+    env = os.environ.copy()
+    env["CIRCUIT_TRACER_TOPK"] = str(args.topk)
+    env["CIRCUIT_TRACER_ENCODER_CPU"] = env.get("CIRCUIT_TRACER_ENCODER_CPU", "1")
+    env["PYTORCH_CUDA_ALLOC_CONF"] = env.get("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
+    repo_root = Path(__file__).resolve().parents[2]
+    venv_python = repo_root / ".venv" / "bin" / "python"
+    runner_python = env.get("TCA_PYTHON") or (str(venv_python) if venv_python.exists() else sys.executable)
 
     with eval_csv.open("r", encoding="utf-8", newline="") as f:
         rows = list(csv.DictReader(f))
@@ -216,7 +198,7 @@ def main() -> int:
             target_token_text = token_text
 
             cmd_preview = [
-                sys.executable,
+                runner_python,
                 "-m",
                 "circuit_tracer",
                 "attribute",
@@ -246,24 +228,23 @@ def main() -> int:
 
             print(f"[run] {idx}/{total}", " ".join(shlex.quote(x) for x in cmd_preview))
             if not args.dry_run:
-                graph = attribute(
-                    prompt=f"<start_of_image> {question}",
-                    model=model_instance,
-                    max_n_logits=1,
-                    desired_logit_prob=0.95,
-                    batch_size=args.batch_size,
-                    verbose=False,
-                    offload=args.offload,
-                    max_feature_nodes=args.max_feature_nodes,
-                    image_path=image_path,
-                    assistant_prefix=assistant_prefix,
-                    target_logit_ids=[int(target_token_id)],
+                proc = subprocess.run(
+                    cmd_preview,
+                    env=env,
+                    check=False,
+                    text=True,
+                    capture_output=True,
                 )
-                graph.to_pt(str(output_pt))
-                del graph
-                gc.collect()
-                if torch.cuda.is_available():
-                    torch.cuda.empty_cache()
+                if proc.returncode != 0:
+                    stderr = (proc.stderr or "").strip()
+                    stdout = (proc.stdout or "").strip()
+                    detail = stderr or stdout
+                    if detail:
+                        detail = detail.replace("\n", " | ")
+                        raise RuntimeError(
+                            f"attribute command failed with exit code {proc.returncode}: {detail[-800:]}"
+                        )
+                    raise RuntimeError(f"attribute command failed with exit code {proc.returncode}")
             status = "ok"
             processed += 1
         except Exception as exc:  # noqa: BLE001
