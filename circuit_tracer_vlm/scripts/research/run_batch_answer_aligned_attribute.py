@@ -6,6 +6,7 @@ import csv
 import os
 import shlex
 import subprocess
+import sys
 import time
 from pathlib import Path
 import re
@@ -188,7 +189,9 @@ def main() -> int:
             target_token_text = token_text
 
             cmd = [
-                "circuit-tracer",
+                sys.executable,
+                "-m",
+                "circuit_tracer",
                 "attribute",
                 "--prompt",
                 f"<start_of_image> {question}",
