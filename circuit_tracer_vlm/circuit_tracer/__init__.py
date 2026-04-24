@@ -1,4 +1,18 @@
+import sys
+from pathlib import Path
 from typing import TYPE_CHECKING
+
+
+def _prefer_vendored_transformer_lens() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    candidate = repo_root / "third_party" / "TransformerLens"
+    if candidate.exists():
+        candidate_str = str(candidate)
+        if candidate_str not in sys.path:
+            sys.path.insert(0, candidate_str)
+
+
+_prefer_vendored_transformer_lens()
 
 if TYPE_CHECKING:
     from circuit_tracer.attribution.attribute import attribute
