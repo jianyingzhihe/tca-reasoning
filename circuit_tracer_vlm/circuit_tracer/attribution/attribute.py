@@ -302,7 +302,10 @@ def _run_attribution(
     _log_memory(logger, "After setup_attribution")
 
     if offload:
+        logger.info("Offloading transcoders via %s", offload)
+        _log_memory(logger, "Before transcoder offload")
         offload_handles += offload_modules(model.transcoders, offload)
+        _log_memory(logger, "After transcoder offload")
 
     # Phase 1: forward pass
     logger.info("Phase 1: Running forward pass")
@@ -323,7 +326,10 @@ def _run_attribution(
     _log_memory(logger, "After forward pass")
 
     if offload:
+        logger.info("Offloading block MLPs via %s", offload)
+        _log_memory(logger, "Before MLP offload")
         offload_handles += offload_modules([block.mlp for block in model.blocks], offload)
+        _log_memory(logger, "After MLP offload")
 
     # Phase 2: build input vector list
     logger.info("Phase 2: Building input vectors")
@@ -345,7 +351,10 @@ def _run_attribution(
     )
 
     if offload:
+        logger.info("Offloading embed/unembed via %s", offload)
+        _log_memory(logger, "Before embed/unembed offload")
         offload_handles += offload_modules([model.unembed, model.embed], offload)
+        _log_memory(logger, "After embed/unembed offload")
 
     logit_offset = len(feat_layers) + (n_layers + 1) * n_pos
     n_logits = len(logit_idx)

@@ -321,6 +321,7 @@ def main() -> int:
     t0 = time.time()
     processed = 0
     skipped = 0
+    errors = 0
     meta_rows: list[dict] = []
     fieldnames = [
         "sample_id",
@@ -522,6 +523,10 @@ def main() -> int:
         except Exception as exc:  # noqa: BLE001
             status = "error"
             error_message = f"{type(exc).__name__}: {exc}"
+            errors += 1
+            _log(f"[error] sample={sample_id} {error_message}")
+            if attempt_log_path:
+                _log(f"[error] attempt_log={attempt_log_path}")
 
         meta_rows.append(
             {
@@ -557,7 +562,11 @@ def main() -> int:
 
     _log(f"[done] metadata -> {metadata_csv}")
     _log(f"[done] graphs dir -> {out_dir}")
-    return 0
+    _log(f"[summary] processed={processed} skipped={skipped} errors={errors}")
+    if processed == 0 and errors > 0:
+        _log("[fatal] no graphs were produced")
+        return 2
+    return 0 if errors == 0 else 1
 
 
 if __name__ == "__main__":
