@@ -53,6 +53,7 @@ ANSWER_SOURCE="${ANSWER_SOURCE:-predicted}"
 ANSWER_ATTR_EXEC_MODE="${ANSWER_ATTR_EXEC_MODE:-subprocess}"
 ANSWER_ATTR_VERBOSE_ATTRIBUTION="${ANSWER_ATTR_VERBOSE_ATTRIBUTION:-1}"
 STOP_ON_ATTR_ERROR="${STOP_ON_ATTR_ERROR:-0}"
+RETRY_FEATURE_NODES="${RETRY_FEATURE_NODES:-64,48,32}"
 
 TOPK_PER_NODE="${TOPK_PER_NODE:-3}"
 BEAM_PER_DEPTH="${BEAM_PER_DEPTH:-96}"
@@ -137,6 +138,7 @@ echo "[stage] answer-aligned attribution A"
   --answer-source "${ANSWER_SOURCE}" \
   --exec-mode "${ANSWER_ATTR_EXEC_MODE}" \
   --attempt-log-dir "${ATTEMPT_LOG_DIR_A}" \
+  --retry-feature-nodes "${RETRY_FEATURE_NODES}" \
   "${ATTR_EXTRA_ARGS[@]}"
 
 echo "[stage] answer-aligned attribution B"
@@ -154,6 +156,7 @@ echo "[stage] answer-aligned attribution B"
   --answer-source "${ANSWER_SOURCE}" \
   --exec-mode "${ANSWER_ATTR_EXEC_MODE}" \
   --attempt-log-dir "${ATTEMPT_LOG_DIR_B}" \
+  --retry-feature-nodes "${RETRY_FEATURE_NODES}" \
   "${ATTR_EXTRA_ARGS[@]}"
 
 echo "[stage] controlled trace compare"

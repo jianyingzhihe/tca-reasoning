@@ -41,6 +41,20 @@ def _read_selected_ids(selected_csv: Path, sample_id_col: str) -> set[str]:
     }
 
 
+def _iter_target_rows(
+    rows: list[dict[str, str]],
+    selected_ids: set[str] | None,
+    sample_id_col: str,
+):
+    for row in rows:
+        sample_id = (row.get(sample_id_col) or "").strip()
+        if not sample_id:
+            continue
+        if selected_ids is not None and sample_id not in selected_ids:
+            continue
+        yield row
+
+
 def _extract_answer_prefix(generated_text: str, answer_text: str) -> str:
     txt = (generated_text or "").strip()
     ans = (answer_text or "").strip()
@@ -317,7 +331,8 @@ def main() -> int:
     with eval_csv.open("r", encoding="utf-8", newline="") as f:
         rows = list(csv.DictReader(f))
 
-    total = len(rows)
+    target_rows = list(_iter_target_rows(rows, selected_ids, args.sample_id_col))
+    total = len(target_rows)
     t0 = time.time()
     processed = 0
     skipped = 0
@@ -348,14 +363,8 @@ def main() -> int:
     if args.exec_mode == "inproc":
         from circuit_tracer import ReplacementModel, attribute
 
-    for idx, row in enumerate(rows, start=1):
+    for idx, row in enumerate(target_rows, start=1):
         sample_id = (row.get("sample_id") or "").strip()
-        if not sample_id:
-            skipped += 1
-            continue
-        if selected_ids is not None and sample_id not in selected_ids:
-            skipped += 1
-            continue
 
         image_path = (row.get("image_path") or "").strip()
         question = (row.get("question") or "").strip()
