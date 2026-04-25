@@ -43,6 +43,8 @@ OUT_ROOT="${OUT_ROOT:-outputs/phase_ab/ab_answer_aligned/${RUN_TAG}}"
 BUCKETS="${BUCKETS:-A0_B1,A1_B1,A0_B0,A1_B0}"
 PER_BUCKET="${PER_BUCKET:-60}"
 MAX_SELECTED_ROWS="${MAX_SELECTED_ROWS:-0}"
+SELECTION_MODE="${SELECTION_MODE:-first}"
+SELECTION_SEED="${SELECTION_SEED:-42501}"
 
 TRANSCODER_SET="${TRANSCODER_SET:-tianhux2/gemma3-4b-it-plt}"
 DTYPE="${DTYPE:-bfloat16}"
@@ -83,8 +85,9 @@ if [[ "${STOP_ON_ATTR_ERROR}" == "1" ]]; then
 fi
 
 echo "[stage] sample ${PER_BUCKET} per bucket from ${BUCKET_SOURCE_CSV}"
-"${PYTHON_BIN}" - <<'PY' "${BUCKET_SOURCE_CSV}" "${SELECTED_CSV}" "${BUCKETS}" "${PER_BUCKET}" "${MAX_SELECTED_ROWS}"
-import csv, sys
+echo "[stage] selection_mode=${SELECTION_MODE} selection_seed=${SELECTION_SEED}"
+"${PYTHON_BIN}" - <<'PY' "${BUCKET_SOURCE_CSV}" "${SELECTED_CSV}" "${BUCKETS}" "${PER_BUCKET}" "${MAX_SELECTED_ROWS}" "${SELECTION_MODE}" "${SELECTION_SEED}"
+import csv, hashlib, random, sys
 from collections import defaultdict
 from pathlib import Path
 
@@ -93,6 +96,10 @@ dst = Path(sys.argv[2]).expanduser().resolve()
 buckets = [x.strip() for x in sys.argv[3].split(",") if x.strip()]
 per_bucket = int(sys.argv[4])
 max_selected_rows = int(sys.argv[5])
+selection_mode = sys.argv[6].strip().lower()
+selection_seed = int(sys.argv[7])
+if selection_mode not in {"first", "random"}:
+    raise ValueError(f"unsupported SELECTION_MODE={selection_mode!r}; use first or random")
 
 rows = list(csv.DictReader(open(src, "r", encoding="utf-8", newline="")))
 if not rows:
@@ -113,6 +120,10 @@ for r in rows:
 selected = []
 for b in buckets:
     part = sorted(by_bucket.get(b, []), key=lambda x: x["sample_id"])
+    if selection_mode == "random":
+        seed_bytes = hashlib.sha256(f"{selection_seed}:{b}".encode("utf-8")).digest()[:8]
+        bucket_seed = int.from_bytes(seed_bytes, "big")
+        random.Random(bucket_seed).shuffle(part)
     selected.extend(part[:max(0, per_bucket)])
 
 if not selected:

@@ -34,6 +34,8 @@ QUEUE_SKIP_COMPARE="${QUEUE_SKIP_COMPARE:-1}"
 QUEUE_CONTINUE_ON_ERROR="${QUEUE_CONTINUE_ON_ERROR:-1}"
 QUEUE_OFFLOAD="${QUEUE_OFFLOAD:-disk}"
 QUEUE_TMPDIR="${QUEUE_TMPDIR:-${TMPDIR:-/root/autodl-tmp/tmp}}"
+QUEUE_SELECTION_MODE="${QUEUE_SELECTION_MODE:-first}"
+QUEUE_SELECTION_SEED="${QUEUE_SELECTION_SEED:-42501}"
 QUEUE_LOG_DIR="${QUEUE_LOG_DIR:-${ROOT_DIR}/outputs/phase_ab/ab_answer_aligned/${QUEUE_RUN_TAG_BASE}_queue_logs}"
 
 mkdir -p "${QUEUE_TMPDIR}" "${QUEUE_LOG_DIR}"
@@ -52,6 +54,8 @@ echo "[queue] retry_feature_nodes=${QUEUE_RETRY_FEATURE_NODES:-<empty>}"
 echo "[queue] skip_compare=${QUEUE_SKIP_COMPARE}"
 echo "[queue] offload=${QUEUE_OFFLOAD}"
 echo "[queue] tmpdir=${TMPDIR}"
+echo "[queue] selection_mode=${QUEUE_SELECTION_MODE}"
+echo "[queue] selection_seed=${QUEUE_SELECTION_SEED}"
 echo "[queue] log_dir=${QUEUE_LOG_DIR}"
 
 for bucket in "${BUCKET_ARRAY[@]}"; do
@@ -72,6 +76,8 @@ for bucket in "${BUCKET_ARRAY[@]}"; do
     MAX_SELECTED_ROWS="${QUEUE_MAX_SELECTED_ROWS}" \
     MAX_FEATURE_NODES="${QUEUE_MAX_FEATURE_NODES}" \
     RETRY_FEATURE_NODES="${QUEUE_RETRY_FEATURE_NODES}" \
+    SELECTION_MODE="${QUEUE_SELECTION_MODE}" \
+    SELECTION_SEED="${QUEUE_SELECTION_SEED}" \
     ANSWER_ATTR_EXEC_MODE="${ANSWER_ATTR_EXEC_MODE:-subprocess}" \
     ANSWER_ATTR_VERBOSE_ATTRIBUTION="${ANSWER_ATTR_VERBOSE_ATTRIBUTION:-1}" \
     OFFLOAD="${QUEUE_OFFLOAD}" \
