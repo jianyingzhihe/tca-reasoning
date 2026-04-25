@@ -11,8 +11,9 @@ SUCCESS_STATUSES = {"ok", "exists"}
 
 
 def _read_csv(path: Path) -> list[dict[str, str]]:
+    delimiter = "\t" if path.suffix.lower() == ".tsv" else ","
     with path.open("r", encoding="utf-8", newline="") as f:
-        return list(csv.DictReader(f))
+        return list(csv.DictReader(f, delimiter=delimiter))
 
 
 def _dir_size_bytes(path: Path) -> int:
