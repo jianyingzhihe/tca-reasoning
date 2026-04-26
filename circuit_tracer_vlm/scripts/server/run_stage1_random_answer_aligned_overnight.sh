@@ -37,6 +37,7 @@ STAGE1_BUCKETS="${STAGE1_BUCKETS:-A0_B1,A1_B0,A1_B1,A0_B0}"
 STAGE1_PER_BUCKET="${STAGE1_PER_BUCKET:-20}"
 STAGE1_MAX_FEATURE_NODES="${STAGE1_MAX_FEATURE_NODES:-1024}"
 STAGE1_SELECTION_SEED="${STAGE1_SELECTION_SEED:-42501}"
+STAGE1_ANSWER_SOURCE="${STAGE1_ANSWER_SOURCE:-predicted}"
 STAGE1_OUTPUTS_ROOT="${STAGE1_OUTPUTS_ROOT:-outputs/phase_ab/ab_answer_aligned}"
 STAGE1_WORK_ROOT="${STAGE1_WORK_ROOT:-research/work/ab_answer_aligned}"
 STAGE1_TMPDIR="${STAGE1_TMPDIR:-${TMPDIR:-/root/autodl-tmp/tmp}}"
@@ -71,6 +72,7 @@ echo "[stage1] buckets=${STAGE1_BUCKETS}"
 echo "[stage1] per_bucket=${STAGE1_PER_BUCKET}"
 echo "[stage1] max_feature_nodes=${STAGE1_MAX_FEATURE_NODES}"
 echo "[stage1] selection_seed=${STAGE1_SELECTION_SEED}"
+echo "[stage1] answer_source=${STAGE1_ANSWER_SOURCE}"
 echo "[stage1] offload=${STAGE1_OFFLOAD}"
 echo "[stage1] tmpdir=${TMPDIR}"
 echo "[stage1] disk_budget_gb=${STAGE1_DISK_BUDGET_GB}"
@@ -147,6 +149,7 @@ QUEUE_OFFLOAD="${STAGE1_OFFLOAD}" \
 QUEUE_TMPDIR="${TMPDIR}" \
 QUEUE_SELECTION_MODE="random" \
 QUEUE_SELECTION_SEED="${STAGE1_SELECTION_SEED}" \
+QUEUE_ANSWER_SOURCE="${STAGE1_ANSWER_SOURCE}" \
 QUEUE_LOG_DIR="${QUEUE_LOG_DIR}" \
 bash scripts/server/run_ab_answer_aligned_trace_bucket_queue.sh
 
