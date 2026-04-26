@@ -88,6 +88,15 @@ def _fmt(value: float) -> str:
     return f"{value:.10g}"
 
 
+def _jaccard_tuples(a: set[tuple[str, str, str, str]], b: set[tuple[str, str, str, str]]) -> float:
+    if not a and not b:
+        return 1.0
+    union = len(a | b)
+    if union == 0:
+        return 1.0
+    return len(a & b) / union
+
+
 def _infer_bucket(path: Path) -> str:
     match = re.search(r"(A[01]_B[01])$", path.name)
     if match:
@@ -189,6 +198,86 @@ def _build_repeated_nodes(compare_dirs: list[Path]) -> list[dict[str, str]]:
             }
         )
     return rows
+
+
+def _node_key(row: dict[str, str]) -> tuple[str, str, str, str]:
+    return (
+        row.get("node_type", ""),
+        row.get("layer", ""),
+        row.get("pos", ""),
+        row.get("feature_id", "") or row.get("token_id", ""),
+    )
+
+
+def _load_nodes_by_sample(compare_dirs: list[Path]) -> dict[tuple[str, str, str], set[tuple[str, str, str, str]]]:
+    out: dict[tuple[str, str, str], set[tuple[str, str, str, str]]] = defaultdict(set)
+    for compare_dir in compare_dirs:
+        nodes_csv = compare_dir / "nodes_detailed_controlled.csv"
+        if not nodes_csv.exists():
+            continue
+        for row in _read_csv(nodes_csv):
+            sample_id = row.get("sample_id", "")
+            bucket = row.get("bucket", "") or _infer_bucket(compare_dir)
+            run = row.get("run", "")
+            if sample_id and run:
+                out[(bucket, sample_id, run)].add(_node_key(row))
+    return out
+
+
+def _build_generic_filtered_overlap(
+    sample_rows: list[dict[str, str]],
+    compare_dirs: list[Path],
+    *,
+    generic_sample_threshold: int,
+) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
+    nodes_by_sample = _load_nodes_by_sample(compare_dirs)
+    node_sample_counter: Counter[tuple[str, str, str, str]] = Counter()
+    for nodes in nodes_by_sample.values():
+        for key in nodes:
+            node_sample_counter[key] += 1
+
+    generic_nodes = {
+        key for key, count in node_sample_counter.items() if count >= generic_sample_threshold
+    }
+
+    generic_rows = [
+        {
+            "node_type": key[0],
+            "layer": key[1],
+            "pos": key[2],
+            "feature_or_token_id": key[3],
+            "sample_count": str(count),
+            "is_generic": str(key in generic_nodes),
+        }
+        for key, count in node_sample_counter.most_common()
+    ]
+
+    filtered_rows: list[dict[str, str]] = []
+    for row in sample_rows:
+        bucket = row["bucket"]
+        sample_id = row["sample_id"]
+        nodes_a = nodes_by_sample.get((bucket, sample_id, "A"), set())
+        nodes_b = nodes_by_sample.get((bucket, sample_id, "B"), set())
+        nodes_a_filtered = nodes_a - generic_nodes
+        nodes_b_filtered = nodes_b - generic_nodes
+        filtered_rows.append(
+            {
+                "sample_id": sample_id,
+                "bucket": bucket,
+                "same_target_token": row.get("same_target_token", ""),
+                "raw_node_overlap_jaccard": row.get("node_overlap_jaccard", ""),
+                "generic_filtered_node_overlap_jaccard": _fmt(
+                    _jaccard_tuples(nodes_a_filtered, nodes_b_filtered)
+                ),
+                "a_nodes_raw": str(len(nodes_a)),
+                "b_nodes_raw": str(len(nodes_b)),
+                "a_nodes_filtered": str(len(nodes_a_filtered)),
+                "b_nodes_filtered": str(len(nodes_b_filtered)),
+                "generic_nodes_removed_a": str(len(nodes_a & generic_nodes)),
+                "generic_nodes_removed_b": str(len(nodes_b & generic_nodes)),
+            }
+        )
+    return filtered_rows, generic_rows
 
 
 def _build_divergent_cases(sample_rows: list[dict[str, str]], top_n: int) -> list[dict[str, str]]:
@@ -328,6 +417,15 @@ def main() -> int:
         default="",
         help="Optional substring filter for recursively discovered compare dirs.",
     )
+    parser.add_argument(
+        "--generic-sample-threshold",
+        type=int,
+        default=30,
+        help=(
+            "Mark a node as generic if it appears in at least this many "
+            "sample-run graphs across the summarized run."
+        ),
+    )
     args = parser.parse_args()
 
     compare_root = Path(args.compare_root).expanduser().resolve()
@@ -357,6 +455,11 @@ def main() -> int:
 
     metric_rows = _build_metric_summary(sample_rows)
     repeated_rows = _build_repeated_nodes(compare_dirs)
+    filtered_overlap_rows, generic_node_rows = _build_generic_filtered_overlap(
+        sample_rows,
+        compare_dirs,
+        generic_sample_threshold=args.generic_sample_threshold,
+    )
     divergent_rows = _build_divergent_cases(sample_rows, args.top_n)
 
     _write_csv(out_dir / "stage1_combined_samples.csv", sample_rows, combined_fields)
@@ -369,6 +472,28 @@ def main() -> int:
         out_dir / "stage1_repeated_nodes.csv",
         repeated_rows,
         ["bucket", "run", "node_type", "layer", "pos", "feature_or_token_id", "node_count", "sample_count"],
+    )
+    _write_csv(
+        out_dir / "stage1_generic_nodes.csv",
+        generic_node_rows,
+        ["node_type", "layer", "pos", "feature_or_token_id", "sample_count", "is_generic"],
+    )
+    _write_csv(
+        out_dir / "stage1_generic_filtered_overlap.csv",
+        filtered_overlap_rows,
+        [
+            "sample_id",
+            "bucket",
+            "same_target_token",
+            "raw_node_overlap_jaccard",
+            "generic_filtered_node_overlap_jaccard",
+            "a_nodes_raw",
+            "b_nodes_raw",
+            "a_nodes_filtered",
+            "b_nodes_filtered",
+            "generic_nodes_removed_a",
+            "generic_nodes_removed_b",
+        ],
     )
     _write_csv(
         out_dir / "stage1_divergent_cases.csv",
