@@ -143,6 +143,9 @@ See:
 This is the recommended pipeline for your current research question:
 "same model + same dataset + different prompts => how circuits differ".
 
+Follow-up tests after Stage 1 summaries live in:
+- `research/STAGE1_NEXT_TESTS.md`
+
 ### 1) Build paired A/B manifests
 
 ```bash
