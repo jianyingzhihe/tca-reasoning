@@ -64,6 +64,16 @@ def _load_generic_features(path: Path | None) -> set[tuple[str, str, str]]:
     return out
 
 
+def _load_selected_sample_ids(path: Path, sample_id_col: str) -> list[str]:
+    rows = _read_csv(path)
+    out = []
+    for row in rows:
+        sample_id = (row.get(sample_id_col) or "").strip()
+        if sample_id:
+            out.append(sample_id)
+    return out
+
+
 def _select_samples(
     compare_rows: list[dict[str, str]],
     *,
@@ -94,6 +104,9 @@ def main() -> int:
     parser.add_argument("--sample-rank-metric", default="edge_overlap_jaccard")
     parser.add_argument("--sample-rank-desc", action="store_true")
     parser.add_argument("--max-samples", type=int, default=4)
+    parser.add_argument("--sample-ids-csv", default="", help="Optional CSV listing sample_id values to use directly.")
+    parser.add_argument("--sample-id-col", default="sample_id")
+    parser.add_argument("--require-same-target", action="store_true")
     parser.add_argument("--top-features-per-sample", type=int, default=2)
     parser.add_argument("--generic-nodes-csv", default="")
     parser.add_argument("--out-csv", required=True)
@@ -109,12 +122,27 @@ def main() -> int:
         Path(args.generic_nodes_csv).expanduser().resolve() if args.generic_nodes_csv else None
     )
 
-    selected_samples = _select_samples(
-        sample_compare,
-        rank_metric=args.sample_rank_metric,
-        descending=args.sample_rank_desc,
-        max_samples=args.max_samples,
-    )
+    filtered_compare = sample_compare
+    if args.require_same_target:
+        filtered_compare = [
+            row
+            for row in filtered_compare
+            if (row.get("a_target_token_id", "") == row.get("b_target_token_id", ""))
+        ]
+    if args.sample_ids_csv:
+        selected_samples = _load_selected_sample_ids(
+            Path(args.sample_ids_csv).expanduser().resolve(),
+            args.sample_id_col,
+        )
+        if args.max_samples > 0:
+            selected_samples = selected_samples[: args.max_samples]
+    else:
+        selected_samples = _select_samples(
+            filtered_compare,
+            rank_metric=args.sample_rank_metric,
+            descending=args.sample_rank_desc,
+            max_samples=args.max_samples,
+        )
     selected_set = set(selected_samples)
 
     candidate_rows = []

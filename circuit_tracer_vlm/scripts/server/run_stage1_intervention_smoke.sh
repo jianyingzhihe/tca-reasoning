@@ -38,6 +38,8 @@ MAX_SAMPLES="${MAX_SAMPLES:-4}"
 SAMPLE_RANK_METRIC="${SAMPLE_RANK_METRIC:-edge_overlap_jaccard}"
 SAMPLE_RANK_DESC="${SAMPLE_RANK_DESC:-0}"
 TRANS_SET="${TRANS_SET:-tianhux2/gemma3-4b-it-plt}"
+SAMPLE_IDS_DIR="${SAMPLE_IDS_DIR:-}"
+REQUIRE_SAME_TARGET="${REQUIRE_SAME_TARGET:-0}"
 
 IFS=',' read -r -a BUCKET_ARRAY <<< "${RUNS_GLOB}"
 produced_csvs=()
@@ -61,8 +63,14 @@ for bucket in "${BUCKET_ARRAY[@]}"; do
   if [[ -n "${GENERIC_NODES_CSV}" ]]; then
     extra_args+=(--generic-nodes-csv "${GENERIC_NODES_CSV}")
   fi
+  if [[ -n "${SAMPLE_IDS_DIR}" && -f "${SAMPLE_IDS_DIR}/${bucket}.csv" ]]; then
+    extra_args+=(--sample-ids-csv "${SAMPLE_IDS_DIR}/${bucket}.csv")
+  fi
   if [[ "${SAMPLE_RANK_DESC}" == "1" ]]; then
     extra_args+=(--sample-rank-desc)
+  fi
+  if [[ "${REQUIRE_SAME_TARGET}" == "1" ]]; then
+    extra_args+=(--require-same-target)
   fi
 
   echo "[run] bucket=${bucket} run_root=${run_root}"

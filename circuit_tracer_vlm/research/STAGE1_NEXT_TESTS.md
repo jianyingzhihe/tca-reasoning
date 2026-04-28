@@ -62,3 +62,38 @@ python scripts/research/summarize_intervention_smoke.py \
     outputs/phase_ab/ab_answer_aligned/<run_tag>_A1_B1/intervention_smoke_A1_B1.csv \
   --out-dir outputs/phase_ab/ab_answer_aligned/<run_tag>_intervention_smoke_summary
 ```
+
+## 3. Focused Intervention Planning
+
+After the gold-target run, build a focused shortlist of same-target, low-overlap, feature-down /
+token-up samples and export exact per-bucket sample lists for the smoke run:
+
+```bash
+python scripts/research/plan_stage1_interventions.py \
+  --run-tag-base stage1_goldtarget20_1024_seed42501_<timestamp> \
+  --summary-dir outputs/phase_ab/ab_answer_aligned/stage1_goldtarget20_1024_seed42501_<timestamp>_stage1_summary \
+  --generic-nodes-csv outputs/phase_ab/ab_answer_aligned/stage1_goldtarget20_1024_seed42501_<timestamp>_stage1_summary/stage1_generic_nodes.csv \
+  --out-dir outputs/phase_ab/ab_answer_aligned/stage1_goldtarget20_1024_seed42501_<timestamp>_intervention_plan \
+  --same-target-only \
+  --max-samples-per-bucket 2 \
+  --top-features-per-run 2
+```
+
+This writes:
+
+- `candidate_samples.csv`
+- `candidate_features.csv`
+- `bucket_sample_ids/<bucket>.csv`
+- `intervention_plan.md`
+
+Then run the smoke test only on those selected samples:
+
+```bash
+RUN_TAG_BASE=stage1_goldtarget20_1024_seed42501_<timestamp> \
+SAMPLE_IDS_DIR=outputs/phase_ab/ab_answer_aligned/stage1_goldtarget20_1024_seed42501_<timestamp>_intervention_plan/bucket_sample_ids \
+GENERIC_NODES_CSV=outputs/phase_ab/ab_answer_aligned/stage1_goldtarget20_1024_seed42501_<timestamp>_stage1_summary/stage1_generic_nodes.csv \
+REQUIRE_SAME_TARGET=1 \
+TOP_FEATURES_PER_SAMPLE=2 \
+MAX_SAMPLES=2 \
+bash scripts/server/run_stage1_intervention_smoke.sh
+```
