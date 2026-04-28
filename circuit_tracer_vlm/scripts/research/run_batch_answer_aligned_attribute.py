@@ -79,6 +79,13 @@ def _extract_answer_prefix(generated_text: str, answer_text: str) -> str:
     raise ValueError("unable to locate answer prefix inside generated_text")
 
 
+def _choose_prefix_anchor_text(row: dict[str, str], answer_text: str) -> str:
+    predicted = (row.get("predicted_answer") or "").strip()
+    if predicted:
+        return predicted
+    return answer_text
+
+
 def _first_answer_token_id(tokenizer, assistant_prefix: str, answer_text: str) -> tuple[int, str]:
     prefix = assistant_prefix or ""
     answer = (answer_text or "").strip()
@@ -425,7 +432,8 @@ def main() -> int:
                 raise ValueError("missing image_path or question")
             if not answer_text:
                 raise ValueError(f"missing {answer_col}")
-            assistant_prefix = _extract_answer_prefix(generated_text, answer_text)
+            prefix_anchor_text = _choose_prefix_anchor_text(row, answer_text)
+            assistant_prefix = _extract_answer_prefix(generated_text, prefix_anchor_text)
             token_id, token_text = _first_answer_token_id(tokenizer, assistant_prefix, answer_text)
             target_token_id = str(token_id)
             target_token_text = token_text
