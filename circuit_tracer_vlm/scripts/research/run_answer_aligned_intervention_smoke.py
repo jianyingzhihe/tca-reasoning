@@ -38,6 +38,12 @@ def _safe_float(value: str | None) -> float:
         return math.nan
 
 
+def _same_nonempty_target(row: dict[str, str]) -> bool:
+    a = (row.get("a_target_token_id") or "").strip()
+    b = (row.get("b_target_token_id") or "").strip()
+    return bool(a) and a == b
+
+
 def _infer_model_name_from_transcoder_set(repo_id: str) -> str:
     from huggingface_hub import hf_hub_download
     import yaml
@@ -127,7 +133,7 @@ def main() -> int:
         filtered_compare = [
             row
             for row in filtered_compare
-            if (row.get("a_target_token_id", "") == row.get("b_target_token_id", ""))
+            if _same_nonempty_target(row)
         ]
     if args.sample_ids_csv:
         selected_samples = _load_selected_sample_ids(
@@ -209,7 +215,11 @@ def main() -> int:
         meta = meta_a[sample_id] if run == "A" else meta_b[sample_id]
         question = meta["question"]
         assistant_prefix = meta["assistant_prefix"]
-        target_token_id = int(meta["target_token_id"])
+        target_token_id_str = (meta.get("target_token_id") or "").strip()
+        if not target_token_id_str:
+            print(f"[skip] sample={sample_id} run={run} missing target_token_id in meta")
+            continue
+        target_token_id = int(target_token_id_str)
         image_path = meta["image_path"]
         image = Image.open(image_path).convert("RGB")
         batch = _build_multimodal_batch(

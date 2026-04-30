@@ -39,6 +39,12 @@ def _fmt(value: float) -> str:
     return f"{value:.10g}"
 
 
+def _same_nonempty_target(row: dict[str, str], overlap_row: dict[str, str]) -> bool:
+    a = (row.get("a_target_token_id") or overlap_row.get("a_target_token_id") or "").strip()
+    b = (row.get("b_target_token_id") or overlap_row.get("b_target_token_id") or "").strip()
+    return bool(a) and a == b
+
+
 def _load_generic_features(path: Path | None) -> set[tuple[str, str, str]]:
     if path is None or not path.exists():
         return set()
@@ -109,7 +115,7 @@ def main() -> int:
             sample_id = row.get("sample_id", "")
             overlap_row = filtered_overlap_map.get((bucket, sample_id), {})
             same_target = overlap_row.get("same_target_token", "")
-            if args.same_target_only and same_target != "True":
+            if args.same_target_only and (same_target != "True" or not _same_nonempty_target(row, overlap_row)):
                 continue
             filtered_overlap = _safe_float(overlap_row.get("generic_filtered_node_overlap_jaccard"))
             score = _sample_score(row, filtered_overlap)
