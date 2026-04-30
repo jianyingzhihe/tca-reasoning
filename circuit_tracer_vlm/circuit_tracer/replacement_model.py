@@ -662,19 +662,14 @@ class ReplacementModel(HookedVLTransformer):
     def _run_once_with_inputs(self, inputs, *, fwd_hooks):
         """
         Normalize inputs and run a single forward with hooks:
-        - processor batch dict  -> pass via (input_ids, pixel_values, media_locations)
+        - processor batch dict  -> pass via run_with_hooks(batch=...)
         - (prompt, image) tuple -> pass via [prompt], [[image]]
         - text-only             -> pass as-is
         """
         # Processor batch (VLM-safe)
         if isinstance(inputs, dict) and "input_ids" in inputs:
-            b = self._to_device_batch(inputs) if hasattr(self, "_to_device_batch") else self._to_device_batch(inputs)
-            return self.run_with_hooks(
-                fwd_hooks=fwd_hooks,
-                input_ids=b["input_ids"],
-                pixel_values=b.get("pixel_values", None),
-                media_locations=b.get("media_locations", None),
-            )
+            b = self._to_device_batch(inputs)
+            return self.run_with_hooks(batch=b, fwd_hooks=fwd_hooks)
 
         # (prompt, image) tuple (VLM)
         if isinstance(inputs, tuple) and len(inputs) == 2:
@@ -1144,19 +1139,15 @@ class ReplacementModel(HookedVLTransformer):
 
         Works with either:
             1. (prompts, images) as args
-            2. A HuggingFace processor batch providing pixel_values/media_locations
+            2. plain text args
         """
-        # Case 1: user passed a processor batch (from AutoProcessor)
         if len(args) == 0 and pixel_values is not None:
-            return super().forward(
-                kwargs["input_ids"],
-                attention_mask=attention_mask,
-                pixel_values=pixel_values,
-                media_locations=media_locations,
-                stop_at_layer=stop_at_layer,
+            raise TypeError(
+                "ReplacementModel.forward does not accept processor pixel_values batches directly. "
+                "Use forward_from_batch(batch) or run_with_hooks(batch=batch) instead."
             )
 
-        # Case 2: the usual HookedVLTransformer convention: [prompts], [[images]]
+        # Case 1: the usual HookedVLTransformer convention: [prompts], [[images]]
         if len(args) == 2 and isinstance(args[1], list):
             text, images = args  # images is List[List[PIL.Image]] or List[PIL.Image] depending on batch
             return super().forward(
@@ -1167,7 +1158,7 @@ class ReplacementModel(HookedVLTransformer):
             )
 
 
-        # Fallback to plain text
+        # Case 2: plain text fallback
         return super().forward(*args, attention_mask=attention_mask, stop_at_layer=stop_at_layer)
 
 
