@@ -142,3 +142,106 @@ That should answer two narrower questions:
 1. how often do top traced nodes act as positive supports versus suppressors;
 2. whether the strongest support nodes cluster differently across `A0_B1` / `A1_B0` versus
    agreement buckets.
+
+## 6. Refocused Roadmap
+
+Based on the current results, the Stage 1 roadmap should now narrow from
+"show that A/B graphs differ" to "explain what signed causal mechanism produces the
+difference."
+
+### Phase A: Clean Signed-Intervention Pass
+
+Goal:
+
+- estimate the balance of supportive vs suppressive traced features under clean
+  same-target conditions
+
+Required settings:
+
+- same-target only
+- generic-feature filtered
+- meta-complete samples only
+- moderate breadth rather than another full Stage 1 sweep
+
+Recommended scale:
+
+- `8-12` samples per bucket
+- `4` features per sample per run
+- `run=both`
+
+Main outputs to track:
+
+- fraction with `delta_target_logit < 0`
+- strongest negative-`delta_target_logit` nodes
+- per-bucket supportive vs suppressive mix
+
+### Phase B: Required Controls
+
+Before making stronger mechanistic claims, add these controls:
+
+1. random matched-node control:
+   - sample features matched on layer / position and rough scale, then compare their
+     ablation effect against traced features
+2. non-target token control:
+   - test whether ablations are target-specific or just produce broad logit movement
+3. prompt paraphrase control:
+   - use several Prompt A and Prompt B paraphrases to separate prompt style from
+     template-specific artifacts
+4. prompt length / formatting control:
+   - distinguish style effects from answer-format or prompt-length effects
+5. image-side control:
+   - no-image, mismatched-image, or degraded-image variants to test whether candidate
+     support nodes depend on visual evidence
+
+### Phase C: From Zeroing To Patching
+
+Single-feature zeroing is a good smoke test, but it is not yet a full circuit claim.
+
+The next causal upgrade should include:
+
+- A->B activation patching
+- B->A activation patching
+- corrupt-and-restore style tests
+- multi-node ablations
+- small-circuit sufficiency tests
+
+Goal:
+
+- move from "this node matters" to "this small set of nodes can reproduce or explain
+  the A/B behavior difference"
+
+### Phase D: Feature Semantics
+
+The current analysis is strong at the graph/composition level, but still weak at the
+semantic level.
+
+We should assign human-interpretable labels to strong support and suppressor features
+using:
+
+- top activating examples
+- token-position analysis
+- image occlusion / corruption responses
+- question perturbations
+- limited LLM-assisted labeling followed by manual checks
+
+The target taxonomy should at least distinguish:
+
+- visual evidence features
+- text / question-type features
+- answer-prior features
+- prompt-format / instruction-following features
+- suppressor / competitor features
+
+## 7. Updated Main Question
+
+At the beginning of Stage 1, the key question was:
+
+- do Prompt A and Prompt B produce different answer-target circuits?
+
+That is now mostly established.
+
+The updated question is:
+
+- which traced nodes are supportive vs suppressive,
+- whether those signed node groups differ across buckets,
+- and whether they correspond to visual evidence, answer priors, or prompt-format effects.
