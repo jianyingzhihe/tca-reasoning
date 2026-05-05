@@ -245,3 +245,101 @@ The updated question is:
 - which traced nodes are supportive vs suppressive,
 - whether those signed node groups differ across buckets,
 - and whether they correspond to visual evidence, answer priors, or prompt-format effects.
+
+## 8. Multimodal Refocus
+
+To avoid making this look like a text-only circuit workflow copied onto a VLM,
+the next phase should explicitly center a multimodal question:
+
+- does prompt style change **modality routing** inside the VLM?
+
+That means moving from:
+
+- prompt A/B changes attribution graphs
+
+to:
+
+- prompt A/B changes the causal allocation of answer generation across
+  visual evidence, language prior, and cross-modal binding routes.
+
+### Core Reframing
+
+The main Stage 1 follow-up should now be framed as:
+
+- **Prompt-Induced Modality Routing in Vision-Language Models**
+
+Concretely:
+
+- under the same image, question, and answer target,
+- does Prompt A increase or decrease reliance on visual evidence nodes,
+- language-prior nodes,
+- or image-question binding nodes?
+
+### Modality-Counterfactual Conditions
+
+The next intervention stage should include more than clean-image ablations.
+
+For a small, carefully selected set of samples, add:
+
+1. clean image + original question
+2. no-image / blank-image + original question
+3. wrong-image + original question
+4. object-masked image + original question
+
+Optional later extension:
+
+5. image-question mismatch or object-swapped question
+
+These conditions should be used for both tracing and intervention analysis.
+
+### Node Taxonomy We Need
+
+We should no longer stop at feature/token/error categories.
+
+Strong candidate nodes should be classified into:
+
+- visual-evidence features
+- text-question features
+- answer-prior features
+- cross-modal binding features
+- prompt-format / instruction-following features
+- suppressor / competitor features
+
+### Multimodal-Specific Metrics
+
+The current `delta_target_logit` metric remains useful, but it should be paired with
+modality-sensitive metrics such as:
+
+1. visual dependence score:
+   - target-logit drop from clean image to no-image / wrong-image / masked-image
+2. visual restoration effect:
+   - effect of restoring clean visual nodes under a corrupted-image condition
+3. language prior leakage:
+   - target strength under no-image or mismatched-image settings
+4. cross-modal binding sensitivity:
+   - difference between matched and mismatched image-question conditions
+
+### Bucket-Level Multimodal Questions
+
+The bucket split is especially useful once the project is framed as modality routing:
+
+- `A1_B1`:
+  - both prompts succeed; do they rely on different visual/prior/binding routes?
+- `A1_B0`:
+  - does Prompt A succeed by strengthening visual evidence or by suppressing a wrong prior?
+- `A0_B1`:
+  - does Prompt B succeed by preserving a more direct visual route?
+- `A0_B0`:
+  - when both fail, do they collapse toward answer-prior or format-driven routes?
+
+### Immediate Experimental Implication
+
+The next small, focused study should ideally be:
+
+- same-target only
+- selected buckets: `A1_B1`, `A1_B0`, `A0_B1`
+- modality counterfactual conditions
+- signed interventions on top support and suppressor candidates
+
+This is the cleanest way to make the project specifically about VLM mechanism,
+not just prompt-conditioned graph overlap.
