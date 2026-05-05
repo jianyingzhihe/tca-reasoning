@@ -45,6 +45,26 @@ def _same_nonempty_target(row: dict[str, str], overlap_row: dict[str, str]) -> b
     return bool(a) and a == b
 
 
+def _read_meta_map(path: Path) -> dict[str, dict[str, str]]:
+    if not path.exists():
+        return {}
+    return {row.get("sample_id", ""): row for row in _read_csv(path)}
+
+
+def _has_complete_target_meta(
+    sample_id: str,
+    meta_a: dict[str, dict[str, str]],
+    meta_b: dict[str, dict[str, str]],
+) -> bool:
+    if not meta_a or not meta_b:
+        return True
+    row_a = meta_a.get(sample_id, {})
+    row_b = meta_b.get(sample_id, {})
+    target_a = (row_a.get("target_token_id") or "").strip()
+    target_b = (row_b.get("target_token_id") or "").strip()
+    return bool(target_a) and bool(target_b)
+
+
 def _load_generic_features(path: Path | None) -> set[tuple[str, str, str]]:
     if path is None or not path.exists():
         return set()
@@ -103,6 +123,8 @@ def main() -> int:
     for bucket in BUCKETS:
         run_tag = f"{args.run_tag_base}_{bucket}"
         compare_dir = outputs_root / run_tag / run_tag
+        meta_a = _read_meta_map(outputs_root / run_tag / "answer_aligned_meta_a.csv")
+        meta_b = _read_meta_map(outputs_root / run_tag / "answer_aligned_meta_b.csv")
         sample_compare_path = compare_dir / "sample_compare_controlled.csv"
         nodes_path = compare_dir / "nodes_detailed_controlled.csv"
         sample_rows = _read_csv(sample_compare_path) if sample_compare_path.exists() else combined_by_bucket.get(bucket, [])
@@ -116,6 +138,8 @@ def main() -> int:
             overlap_row = filtered_overlap_map.get((bucket, sample_id), {})
             same_target = overlap_row.get("same_target_token", "")
             if args.same_target_only and (same_target != "True" or not _same_nonempty_target(row, overlap_row)):
+                continue
+            if not _has_complete_target_meta(sample_id, meta_a, meta_b):
                 continue
             filtered_overlap = _safe_float(overlap_row.get("generic_filtered_node_overlap_jaccard"))
             score = _sample_score(row, filtered_overlap)

@@ -94,6 +94,51 @@ SAMPLE_IDS_DIR=outputs/phase_ab/ab_answer_aligned/stage1_goldtarget20_1024_seed4
 GENERIC_NODES_CSV=outputs/phase_ab/ab_answer_aligned/stage1_goldtarget20_1024_seed42501_<timestamp>_stage1_summary/stage1_generic_nodes.csv \
 REQUIRE_SAME_TARGET=1 \
 TOP_FEATURES_PER_SAMPLE=2 \
-MAX_SAMPLES=2 \
+MAX_SAMPLES=999 \
 bash scripts/server/run_stage1_intervention_smoke.sh
 ```
+
+Notes:
+
+- when `SAMPLE_IDS_DIR` is provided, `MAX_SAMPLES` should be set high enough that it does not
+  silently truncate the per-bucket CSV lists;
+- the planner now filters out samples whose `answer_aligned_meta_a.csv` or
+  `answer_aligned_meta_b.csv` rows are missing `target_token_id`, so the resulting
+  shortlist should not waste overnight slots on known-invalid samples.
+
+## 4. Current Status (2026-05-05)
+
+Completed stages so far:
+
+1. predicted-target random20 summary:
+   - stable feature-down / token-up composition shift
+   - only `31/80` same-target cases
+2. gold-target control summary:
+   - same-target rate improved to `73/80`
+   - overlap confound reduced substantially
+   - feature-down / token-up shift survived control
+3. focused + overnight intervention smoke:
+   - pipeline runs end to end after multimodal batch-forwarding fix
+   - `88` valid single-feature interventions completed in the overnight run
+   - `64.8%` of interventions produced `delta_target_logit < 0`
+   - overall mean `delta_target_logit` stayed slightly positive (`+0.073`)
+
+Interpretation:
+
+- traced feature nodes are not all equivalent;
+- many high-path-mass feature nodes do causally support the answer token;
+- a substantial minority appear suppressive or competitive, so path mass alone is not a signed
+  causal score.
+
+## 5. Recommended Next Step
+
+The next best experiment is not another large Stage 1 attribution sweep.
+
+The next best step is a cleaner same-target intervention pass using the repaired planner, followed
+by prioritizing the strongest negative-`delta_target_logit` nodes for more targeted follow-up.
+
+That should answer two narrower questions:
+
+1. how often do top traced nodes act as positive supports versus suppressors;
+2. whether the strongest support nodes cluster differently across `A0_B1` / `A1_B0` versus
+   agreement buckets.
