@@ -1,0 +1,2 @@
+pack,mode,layer,raw_file,raw_rows,candidate_count,ok_rows,source_rows,route_first_234_count,route_first_gold_count,route_first_evidence_gold_count
+primary,smoke,14,stage4_qwen_route_first_primary_smoke_L14_stage6mask_erode_mask16_defensive_v1_raw.csv,5280,132,5280,1320,14,13,10

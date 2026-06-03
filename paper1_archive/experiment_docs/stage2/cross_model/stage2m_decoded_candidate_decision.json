@@ -1,0 +1,14 @@
+{
+  "status": "pass",
+  "prompt_rows": 14,
+  "unique_samples": 10,
+  "model_prompt_rows": {
+    "qwen": 8,
+    "llava": 6
+  },
+  "model_unique_samples": {
+    "qwen": 8,
+    "llava": 6
+  },
+  "claim_boundary": "This manifest only selects passing cases for decoded bridge smoke. It does not establish generation-level replication by itself."
+}

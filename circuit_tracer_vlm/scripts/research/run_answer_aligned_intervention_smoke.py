@@ -5,6 +5,7 @@ import argparse
 import csv
 import math
 import sys
+from collections import defaultdict
 from pathlib import Path
 
 import torch
@@ -85,9 +86,11 @@ def _select_samples(
     *,
     rank_metric: str,
     descending: bool,
-    max_samples: int,
+    max_samples: int | None,
 ) -> list[str]:
     ranked = sorted(compare_rows, key=lambda r: _safe_float(r.get(rank_metric)), reverse=descending)
+    if max_samples is None or max_samples <= 0:
+        return [r["sample_id"] for r in ranked]
     return [r["sample_id"] for r in ranked[:max_samples]]
 
 
@@ -106,14 +109,37 @@ def main() -> int:
     parser.add_argument("--run", choices=["A", "B", "both"], default="both")
     parser.add_argument("--transcoder-set", default="tianhux2/gemma3-4b-it-plt")
     parser.add_argument("--model-name", default="")
+    parser.add_argument(
+        "--device",
+        default="",
+        help="Optional torch device override, e.g. cpu or cuda. Defaults to circuit_tracer auto device.",
+    )
     parser.add_argument("--dtype", default="bfloat16", choices=["float32", "bfloat16", "float16", "fp32", "bf16", "fp16"])
     parser.add_argument("--sample-rank-metric", default="edge_overlap_jaccard")
     parser.add_argument("--sample-rank-desc", action="store_true")
-    parser.add_argument("--max-samples", type=int, default=4)
+    parser.add_argument(
+        "--max-samples",
+        type=int,
+        default=None,
+        help=(
+            "Optional cap on the number of samples to process. "
+            "When sample_ids_csv is provided, omit this flag to use the full listed subset."
+        ),
+    )
     parser.add_argument("--sample-ids-csv", default="", help="Optional CSV listing sample_id values to use directly.")
     parser.add_argument("--sample-id-col", default="sample_id")
     parser.add_argument("--require-same-target", action="store_true")
     parser.add_argument("--top-features-per-sample", type=int, default=2)
+    parser.add_argument(
+        "--max-pos-buffer",
+        type=int,
+        default=0,
+        help=(
+            "Optional safety buffer from the sequence end. "
+            "When > 0, skip candidate features with feature_pos > (seq_len - 1 - max_pos_buffer). "
+            "Useful when preparing nodes for cross-condition reruns whose tokenized length may shrink slightly."
+        ),
+    )
     parser.add_argument("--generic-nodes-csv", default="")
     parser.add_argument("--out-csv", required=True)
     args = parser.parse_args()
@@ -140,8 +166,16 @@ def main() -> int:
             Path(args.sample_ids_csv).expanduser().resolve(),
             args.sample_id_col,
         )
-        if args.max_samples > 0:
+        if args.max_samples is not None and args.max_samples > 0:
             selected_samples = selected_samples[: args.max_samples]
+        print(
+            f"[info] using sample_ids_csv with {len(selected_samples)} selected samples"
+            + (
+                f" (capped to {args.max_samples})"
+                if args.max_samples is not None and args.max_samples > 0
+                else ""
+            )
+        )
     else:
         selected_samples = _select_samples(
             filtered_compare,
@@ -149,9 +183,13 @@ def main() -> int:
             descending=args.sample_rank_desc,
             max_samples=args.max_samples,
         )
+        print(
+            f"[info] selected {len(selected_samples)} samples by rank metric={args.sample_rank_metric} "
+            f"descending={args.sample_rank_desc}"
+        )
     selected_set = set(selected_samples)
 
-    candidate_rows = []
+    candidate_rows_by_key: dict[tuple[str, str], list[dict[str, str]]] = defaultdict(list)
     runs = ["A", "B"] if args.run == "both" else [args.run]
     for run in runs:
         for row in nodes:
@@ -165,25 +203,11 @@ def main() -> int:
             key = (row.get("layer", ""), row.get("pos", ""), row.get("feature_id", ""))
             if key in generic_features:
                 continue
-            candidate_rows.append(row)
+            sample_run_key = (sample_id, run)
+            candidate_rows_by_key[sample_run_key].append(row)
 
-    candidate_rows.sort(
-        key=lambda r: (
-            r.get("sample_id", ""),
-            r.get("run", ""),
-            -_safe_float(r.get("path_mass_best")),
-        )
-    )
-
-    top_candidates: list[dict[str, str]] = []
-    per_sample_run_count: dict[tuple[str, str], int] = {}
-    for row in candidate_rows:
-        key = (row["sample_id"], row["run"])
-        count = per_sample_run_count.get(key, 0)
-        if count >= args.top_features_per_sample:
-            continue
-        top_candidates.append(row)
-        per_sample_run_count[key] = count + 1
+    for rows in candidate_rows_by_key.values():
+        rows.sort(key=lambda r: -_safe_float(r.get("path_mass_best")))
 
     dtype_map = {
         "float32": torch.float32,
@@ -197,97 +221,147 @@ def main() -> int:
 
     from circuit_tracer import ReplacementModel
     from circuit_tracer.attribution.attribute import _build_multimodal_batch
+    from circuit_tracer.utils.hf_utils import load_transcoder_from_hub
 
-    model_name = args.model_name or _infer_model_name_from_transcoder_set(args.transcoder_set)
-    print(f"[info] loading model={model_name} transcoder_set={args.transcoder_set} dtype={dtype}")
-    model = ReplacementModel.from_pretrained(
-        model_name,
+    transcoders, config = load_transcoder_from_hub(
         args.transcoder_set,
         dtype=dtype,
         lazy_encoder=True,
         lazy_decoder=True,
     )
+    model_name = args.model_name or config.get("model_name") or _infer_model_name_from_transcoder_set(args.transcoder_set)
+    print(f"[info] loading model={model_name} transcoder_set={args.transcoder_set} dtype={dtype}")
+    model = ReplacementModel.from_pretrained_and_transcoders(
+        model_name,
+        transcoders,
+        device=torch.device(args.device) if args.device else None,
+        dtype=dtype,
+    )
 
     results: list[dict[str, str]] = []
-    for row in top_candidates:
-        sample_id = row["sample_id"]
-        run = row["run"]
-        meta = meta_a[sample_id] if run == "A" else meta_b[sample_id]
-        question = meta["question"]
-        assistant_prefix = meta["assistant_prefix"]
-        target_token_id_str = (meta.get("target_token_id") or "").strip()
-        if not target_token_id_str:
-            print(f"[skip] sample={sample_id} run={run} missing target_token_id in meta")
-            continue
-        target_token_id = int(target_token_id_str)
-        image_path = meta["image_path"]
-        image = Image.open(image_path).convert("RGB")
-        batch = _build_multimodal_batch(
-            model.processor,
-            image,
-            f"<start_of_image> {question}",
-            assistant_prefix=assistant_prefix,
-        )
-        batch["image"] = image
-        batch = _device_batch(model, batch)
+    skipped_missing_target = 0
+    skipped_out_of_range = 0
+    skipped_pos_buffer = 0
+    skipped_missing_candidates = 0
+    successful_feature_rows = 0
+    exhausted_sample_runs = 0
 
-        layer = int(row["layer"])
-        pos = int(row["pos"])
-        feature_id = int(row["feature_id"])
-        path_mass_best = _safe_float(row.get("path_mass_best"))
+    for sample_id in selected_samples:
+        for run in runs:
+            sample_run_key = (sample_id, run)
+            rows_for_sample_run = candidate_rows_by_key.get(sample_run_key, [])
+            if not rows_for_sample_run:
+                skipped_missing_candidates += 1
+                continue
 
-        with torch.inference_mode():
-            original_logits = model.forward_from_batch(batch)
-            intervened_logits, _ = model.feature_intervention(
-                batch,
-                [(layer, pos, feature_id, 0.0)],
-                freeze_attention=True,
-                apply_activation_function=True,
-                sparse=False,
+            meta = meta_a[sample_id] if run == "A" else meta_b[sample_id]
+            question = meta["question"]
+            assistant_prefix = meta["assistant_prefix"]
+            target_token_id_str = (meta.get("target_token_id") or "").strip()
+            if not target_token_id_str:
+                print(f"[skip] sample={sample_id} run={run} missing target_token_id in meta")
+                skipped_missing_target += 1
+                continue
+            target_token_id = int(target_token_id_str)
+            image_path = meta["image_path"]
+            image = Image.open(image_path).convert("RGB")
+            batch = _build_multimodal_batch(
+                model.processor,
+                image,
+                f"<start_of_image> {question}",
+                assistant_prefix=assistant_prefix,
             )
+            batch["image"] = image
+            batch = _device_batch(model, batch)
+            seq_len = int(batch["input_ids"].shape[1])
 
-        last_pos = original_logits.shape[1] - 1
-        original_target_logit = float(original_logits[0, last_pos, target_token_id].item())
-        intervened_target_logit = float(intervened_logits[0, last_pos, target_token_id].item())
-        delta_target_logit = intervened_target_logit - original_target_logit
+            success_count = 0
+            for row in rows_for_sample_run:
+                if success_count >= args.top_features_per_sample:
+                    break
 
-        original_probs = torch.softmax(original_logits[0, last_pos], dim=-1)
-        intervened_probs = torch.softmax(intervened_logits[0, last_pos], dim=-1)
-        original_target_prob = float(original_probs[target_token_id].item())
-        intervened_target_prob = float(intervened_probs[target_token_id].item())
-        delta_target_prob = intervened_target_prob - original_target_prob
+                layer = int(row["layer"])
+                pos = int(row["pos"])
+                feature_id = int(row["feature_id"])
+                path_mass_best = _safe_float(row.get("path_mass_best"))
+                max_allowed_pos = seq_len - 1 - args.max_pos_buffer
+                if args.max_pos_buffer > 0 and pos > max_allowed_pos:
+                    print(
+                        f"[skip] sample={sample_id} run={run} feature=L{layer}:P{pos}:F{feature_id} "
+                        f"position_buffer_exceeded max_allowed_pos={max_allowed_pos} seq_len={seq_len} "
+                        f"buffer={args.max_pos_buffer}"
+                    )
+                    skipped_pos_buffer += 1
+                    continue
+                if pos >= seq_len:
+                    print(
+                        f"[skip] sample={sample_id} run={run} feature=L{layer}:P{pos}:F{feature_id} "
+                        f"position_out_of_range seq_len={seq_len}"
+                    )
+                    skipped_out_of_range += 1
+                    continue
 
-        top1_before = int(torch.argmax(original_logits[0, last_pos]).item())
-        top1_after = int(torch.argmax(intervened_logits[0, last_pos]).item())
+                with torch.inference_mode():
+                    original_logits = model.forward_from_batch(batch)
+                    intervened_logits, _ = model.feature_intervention(
+                        batch,
+                        [(layer, pos, feature_id, 0.0)],
+                        freeze_attention=True,
+                        apply_activation_function=True,
+                        sparse=False,
+                    )
 
-        results.append(
-            {
-                "bucket": args.bucket,
-                "sample_id": sample_id,
-                "run": run,
-                "question": question,
-                "image_path": image_path,
-                "target_token_id": str(target_token_id),
-                "feature_layer": str(layer),
-                "feature_pos": str(pos),
-                "feature_id": str(feature_id),
-                "path_mass_best": f"{path_mass_best:.10g}" if not math.isnan(path_mass_best) else "",
-                "original_target_logit": f"{original_target_logit:.10g}",
-                "intervened_target_logit": f"{intervened_target_logit:.10g}",
-                "delta_target_logit": f"{delta_target_logit:.10g}",
-                "original_target_prob": f"{original_target_prob:.10g}",
-                "intervened_target_prob": f"{intervened_target_prob:.10g}",
-                "delta_target_prob": f"{delta_target_prob:.10g}",
-                "top1_before_id": str(top1_before),
-                "top1_after_id": str(top1_after),
-                "top1_before_token": model.processor.tokenizer.convert_ids_to_tokens([top1_before])[0],
-                "top1_after_token": model.processor.tokenizer.convert_ids_to_tokens([top1_after])[0],
-            }
-        )
-        print(
-            f"[done] sample={sample_id} run={run} feature=L{layer}:P{pos}:F{feature_id} "
-            f"delta_target_logit={delta_target_logit:.4f} delta_target_prob={delta_target_prob:.6f}"
-        )
+                last_pos = original_logits.shape[1] - 1
+                original_target_logit = float(original_logits[0, last_pos, target_token_id].item())
+                intervened_target_logit = float(intervened_logits[0, last_pos, target_token_id].item())
+                delta_target_logit = intervened_target_logit - original_target_logit
+
+                original_probs = torch.softmax(original_logits[0, last_pos], dim=-1)
+                intervened_probs = torch.softmax(intervened_logits[0, last_pos], dim=-1)
+                original_target_prob = float(original_probs[target_token_id].item())
+                intervened_target_prob = float(intervened_probs[target_token_id].item())
+                delta_target_prob = intervened_target_prob - original_target_prob
+
+                top1_before = int(torch.argmax(original_logits[0, last_pos]).item())
+                top1_after = int(torch.argmax(intervened_logits[0, last_pos]).item())
+
+                results.append(
+                    {
+                        "bucket": args.bucket,
+                        "sample_id": sample_id,
+                        "run": run,
+                        "question": question,
+                        "image_path": image_path,
+                        "target_token_id": str(target_token_id),
+                        "feature_layer": str(layer),
+                        "feature_pos": str(pos),
+                        "feature_id": str(feature_id),
+                        "path_mass_best": f"{path_mass_best:.10g}" if not math.isnan(path_mass_best) else "",
+                        "original_target_logit": f"{original_target_logit:.10g}",
+                        "intervened_target_logit": f"{intervened_target_logit:.10g}",
+                        "delta_target_logit": f"{delta_target_logit:.10g}",
+                        "original_target_prob": f"{original_target_prob:.10g}",
+                        "intervened_target_prob": f"{intervened_target_prob:.10g}",
+                        "delta_target_prob": f"{delta_target_prob:.10g}",
+                        "top1_before_id": str(top1_before),
+                        "top1_after_id": str(top1_after),
+                        "top1_before_token": model.processor.tokenizer.convert_ids_to_tokens([top1_before])[0],
+                        "top1_after_token": model.processor.tokenizer.convert_ids_to_tokens([top1_after])[0],
+                    }
+                )
+                success_count += 1
+                successful_feature_rows += 1
+                print(
+                    f"[done] sample={sample_id} run={run} feature=L{layer}:P{pos}:F{feature_id} "
+                    f"delta_target_logit={delta_target_logit:.4f} delta_target_prob={delta_target_prob:.6f}"
+                )
+
+            if success_count < args.top_features_per_sample:
+                exhausted_sample_runs += 1
+                print(
+                    f"[info] sample={sample_id} run={run} yielded={success_count} "
+                    f"requested={args.top_features_per_sample} candidates={len(rows_for_sample_run)} seq_len={seq_len}"
+                )
 
     _write_csv(
         Path(args.out_csv).expanduser().resolve(),
@@ -314,6 +388,15 @@ def main() -> int:
             "top1_before_token",
             "top1_after_token",
         ],
+    )
+    print(
+        "[stats] "
+        f"successful_feature_rows={successful_feature_rows} "
+        f"skipped_missing_target={skipped_missing_target} "
+        f"skipped_out_of_range={skipped_out_of_range} "
+        f"skipped_pos_buffer={skipped_pos_buffer} "
+        f"sample_runs_without_candidates={skipped_missing_candidates} "
+        f"exhausted_sample_runs={exhausted_sample_runs}"
     )
     print(f"[done] out_csv={Path(args.out_csv).expanduser().resolve()}")
     return 0

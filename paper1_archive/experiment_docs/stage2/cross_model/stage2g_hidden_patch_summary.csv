@@ -1,0 +1,7 @@
+model_family,layer,bucket,condition,scale,n_rows,n_samples,n_prompts,mean_logit_restore,positive_logit_restore_n,mean_rank_restore,positive_rank_restore_n,mean_logit_gap_closure,top1_changed_vs_union_n,nan_logit_restore_n
+llava,15,image_token_span,hidden_bucket_restore_s0p5,0.5,6,3,2,0.321615,4,23.5,3,0.037457,0,0
+llava,15,image_token_span,hidden_bucket_restore_s1p0,1.0,6,3,2,2.41276,6,50.5,4,0.666936,0,0
+llava,15,image_token_span,hidden_bucket_restore_s1p5,1.5,6,3,2,,0,56.333333,6,,6,6
+qwen,26,image_marker_or_span,hidden_bucket_restore_s0p5,0.5,6,3,2,0.078125,4,2.833333,2,0.089804,0,0
+qwen,26,image_marker_or_span,hidden_bucket_restore_s1p0,1.0,6,3,2,0.765625,5,58.5,4,0.200409,1,0
+qwen,26,image_marker_or_span,hidden_bucket_restore_s1p5,1.5,6,3,2,1.651042,4,81.0,4,0.231084,2,0

@@ -1,0 +1,4 @@
+variant,n,route_first_234_frac,route_first_evidence_gold_frac,restore_source_minus_controls_mean,real_minus_shifted_mean,real_minus_shuffled_mean,evidence_specificity_mean
+original,12,0.25,0.0,0.07986111111111112,0.125,0.20833333333333334,10.794270833333334
+dilate,12,0.25,0.0,0.07986111111111112,0.125,0.20833333333333334,10.794270833333334
+erode,12,0.25,0.0,0.07986111111111112,0.125,0.20833333333333334,10.794270833333334

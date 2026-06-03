@@ -1,0 +1,21 @@
+{
+  "tag": "partial8_defensive_v1",
+  "updated": "2026-06-02 17:17:25",
+  "status": "mask_assets_ready",
+  "smoke_samples": 8,
+  "sample_ids": [
+    "okvqa_val_01162",
+    "okvqa_val_03085",
+    "okvqa_val_1440035",
+    "okvqa_val_2078985",
+    "okvqa_val_2494045",
+    "okvqa_val_3713305",
+    "okvqa_val_4469905",
+    "okvqa_val_5186155"
+  ],
+  "variant_manifests": {
+    "original": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_mask_robustness_original_smoke_partial8_defensive_v1_manifest.csv",
+    "dilate": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_mask_robustness_dilate_smoke_partial8_defensive_v1_manifest.csv",
+    "erode": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_mask_robustness_erode_smoke_partial8_defensive_v1_manifest.csv"
+  }
+}

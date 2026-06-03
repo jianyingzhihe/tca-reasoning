@@ -1,0 +1,9 @@
+pack,mode,layer,raw_rows,candidate_count,ok_rows,source_rows
+primary,full,10,5840,146,5840,1460
+primary,full,11,8760,219,8760,2190
+primary,full,12,10400,260,10400,2600
+primary,full,13,10760,269,10760,2690
+primary,full,14,7400,185,7400,1850
+primary,full,15,16680,417,16680,4170
+primary,full,16,10280,257,10280,2570
+primary,full,17,15760,394,15760,3940

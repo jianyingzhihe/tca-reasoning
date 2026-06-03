@@ -1,0 +1,36 @@
+{
+  "updated_at": "2026-05-31 11:31:31",
+  "tag": "unified_v1",
+  "mode": "smoke",
+  "status": "partial_or_full_unified_analysis",
+  "old_qwen_reanalysis": {
+    "source": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_prompt_text_cot_full_prompttext_v1_candidate_metrics.csv",
+    "rows": 2304,
+    "summary_by_prompt": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_unified_crossmodel_unified_v1_old_qwen_summary_by_prompt.csv",
+    "interpretation": "Old Qwen Stage6 reanalysis reports fixed-node causal metrics and pos234; evidence_specificity is not used as the primary stability claim."
+  },
+  "old_gemma_reanalysis": {
+    "source_prefix": "stage6_gemma_prompt_text_cot_full_gemmaprompt_v1_mf8_sharded",
+    "rows": 143,
+    "aligned_rows": 119,
+    "prefix_fail_rows": 24,
+    "target_mismatch_rows": 24,
+    "summary_by_prompt_aligned": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_unified_crossmodel_unified_v1_old_gemma_summary_by_prompt_aligned.csv",
+    "interpretation": "Old Gemma graph-overlap results are split into aligned and format/target-token failure rows before any mechanism interpretation."
+  },
+  "qwen_routeidentity": {
+    "mode": "smoke",
+    "candidate_metrics": 48,
+    "topk_overlap_rows": 32,
+    "candidate_metrics_csv": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_unified_routeidentity_smoke_unified_v1_candidate_metrics.csv",
+    "topk_overlap_csv": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_unified_routeidentity_smoke_unified_v1_topk_overlap.csv"
+  },
+  "gemma_fixednode": {
+    "mode": "smoke",
+    "rows": 12,
+    "aligned_rows": 8,
+    "raw_csv": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_unified_fixednode_smoke_unified_v1_raw.csv",
+    "aligned_csv": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_unified_fixednode_smoke_unified_v1_aligned_rows.csv"
+  },
+  "claim_boundary": "Stage6 unified analysis separates fixed-node causal strength from route identity/topology stability. Format failures and target-token mismatches are diagnostics, not mechanism failures."
+}

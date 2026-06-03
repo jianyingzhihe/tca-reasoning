@@ -1,0 +1,79 @@
+{
+  "claim_boundary": "Stage 2K is an explanatory re-analysis of hidden-position matched-control outputs. It can support or weaken interpretations about delta/activation explanations, but cannot establish CLT feature-level source-control route replication.",
+  "model_decisions": {
+    "llava": {
+      "status": "delta_explanation_partially_supported",
+      "restore_combo_minus_delta_status": "weak_or_heterogeneous_positive",
+      "restore_combo_minus_activation_status": "stable_positive",
+      "corrupt_combo_minus_delta_status": "weak_or_heterogeneous_positive",
+      "corrupt_combo_minus_activation_status": "stable_positive",
+      "reading": "LLaVA is robustly above activation-matched controls, but not robustly above delta-matched controls. This supports the interpretation that clean-vs-union delta magnitude explains part of LLaVA's bridge."
+    },
+    "qwen": {
+      "status": "specificity_explanation_supported",
+      "restore_combo_minus_delta_status": "stable_positive",
+      "restore_combo_minus_activation_status": "stable_positive",
+      "corrupt_combo_minus_delta_status": "stable_positive",
+      "corrupt_combo_minus_activation_status": "weak_or_heterogeneous_positive",
+      "reading": "Qwen remains above both delta- and activation-matched bridge controls in restore; corrupt is positive but activation-matched is weaker. This supports Qwen as the stronger cross-model auxiliary line."
+    }
+  },
+  "typed_notes": {
+    "llava::symbol_text_reading::corrupt": {
+      "n_rows": 16,
+      "combo_minus_delta_mean": 0.244873,
+      "combo_minus_delta_status": "weak_or_heterogeneous_positive",
+      "combo_minus_activation_mean": 0.251465,
+      "combo_minus_activation_status": "weak_or_heterogeneous_positive"
+    },
+    "llava::symbol_text_reading::restore": {
+      "n_rows": 16,
+      "combo_minus_delta_mean": 0.144287,
+      "combo_minus_delta_status": "weak_or_heterogeneous_positive",
+      "combo_minus_activation_mean": 1.375488,
+      "combo_minus_activation_status": "stable_positive"
+    },
+    "llava::visual_readout::corrupt": {
+      "n_rows": 8,
+      "combo_minus_delta_mean": 0.09082,
+      "combo_minus_delta_status": "weak_or_heterogeneous_positive",
+      "combo_minus_activation_mean": 0.174805,
+      "combo_minus_activation_status": "weak_or_heterogeneous_positive"
+    },
+    "llava::visual_readout::restore": {
+      "n_rows": 8,
+      "combo_minus_delta_mean": 0.150879,
+      "combo_minus_delta_status": "stable_positive",
+      "combo_minus_activation_mean": 0.537109,
+      "combo_minus_activation_status": "stable_positive"
+    },
+    "qwen::symbol_text_reading::corrupt": {
+      "n_rows": 16,
+      "combo_minus_delta_mean": 0.219727,
+      "combo_minus_delta_status": "stable_positive",
+      "combo_minus_activation_mean": 0.173828,
+      "combo_minus_activation_status": "weak_or_heterogeneous_positive"
+    },
+    "qwen::symbol_text_reading::restore": {
+      "n_rows": 16,
+      "combo_minus_delta_mean": 0.578125,
+      "combo_minus_delta_status": "stable_positive",
+      "combo_minus_activation_mean": 0.488281,
+      "combo_minus_activation_status": "stable_positive"
+    },
+    "qwen::visual_readout::corrupt": {
+      "n_rows": 8,
+      "combo_minus_delta_mean": 0.007812,
+      "combo_minus_delta_status": "weak_or_heterogeneous_positive",
+      "combo_minus_activation_mean": -0.007812,
+      "combo_minus_activation_status": "not_positive"
+    },
+    "qwen::visual_readout::restore": {
+      "n_rows": 8,
+      "combo_minus_delta_mean": 0.0625,
+      "combo_minus_delta_status": "stable_positive",
+      "combo_minus_activation_mean": 0.039062,
+      "combo_minus_activation_status": "weak_or_heterogeneous_positive"
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "evidence_ladder": {
+    "readout_replication": "supported by Stage 2F for Qwen/LLaVA",
+    "whole_bucket_hidden_patch": "supported by Stage 2G-6",
+    "hidden_position_localization": "evaluated here",
+    "source_control_causal_replication": "not established cross-model; Gemma3 remains full-chain model"
+  },
+  "model_decisions": {
+    "llava": {
+      "model_family": "llava",
+      "best_restore_source_group": "top_hidden_delta_plus_answer_adjacent",
+      "best_restore_source_minus_random_logit": 0.713704,
+      "best_restore_source_minus_random_rank": 3.708333,
+      "best_restore_positive_logit_n": 6,
+      "matched_corrupt_source_minus_random_logit": 0.496094,
+      "matched_corrupt_source_minus_random_rank": 3.375001,
+      "matched_corrupt_positive_logit_n": 6,
+      "decision_status": "supported_bidirectional_hidden_position_localization",
+      "claim_boundary": "Hidden-position localization only; not CLT feature/source-control route replication."
+    },
+    "qwen": {
+      "model_family": "qwen",
+      "best_restore_source_group": "top_hidden_delta_plus_answer_adjacent",
+      "best_restore_source_minus_random_logit": 4.32552,
+      "best_restore_source_minus_random_rank": 78.916667,
+      "best_restore_positive_logit_n": 6,
+      "matched_corrupt_source_minus_random_logit": 3.166667,
+      "matched_corrupt_source_minus_random_rank": 17.0,
+      "matched_corrupt_positive_logit_n": 6,
+      "decision_status": "supported_bidirectional_hidden_position_localization",
+      "claim_boundary": "Hidden-position localization only; not CLT feature/source-control route replication."
+    }
+  }
+}

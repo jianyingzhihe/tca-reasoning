@@ -1,0 +1,76 @@
+{
+  "claim_boundary": "Stage 2O Experiment 2 is an approximate source-control route probe. It can support source-control-like evidence, but not full Gemma-style route replication without source tracing adapter.",
+  "model_decisions": {
+    "llava": {
+      "status": "source_control_probe_partial",
+      "source_control_restore": {
+        "n": 16,
+        "positive_n": 4,
+        "mean": -0.000732,
+        "ci95_low": -0.00293,
+        "ci95_high": 0.001465,
+        "status": "not_positive"
+      },
+      "source_control_zeroing": {
+        "n": 16,
+        "positive_n": 12,
+        "mean": 0.012207,
+        "ci95_low": 0.005371,
+        "ci95_high": 0.019043,
+        "status": "stable_positive"
+      },
+      "real_minus_shuffled": {
+        "n": 16,
+        "positive_n": 7,
+        "mean": 0.003174,
+        "ci95_low": 0.000488,
+        "ci95_high": 0.005859,
+        "status": "stable_positive"
+      },
+      "correct_minus_wrong": {
+        "n": 4,
+        "positive_n": 4,
+        "mean": 0.015472,
+        "ci95_low": 0.003295,
+        "ci95_high": 0.027649,
+        "status": "stable_positive"
+      }
+    },
+    "qwen": {
+      "status": "approx_source_control_route_supported",
+      "source_control_restore": {
+        "n": 24,
+        "positive_n": 19,
+        "mean": 0.395833,
+        "ci95_low": 0.158854,
+        "ci95_high": 0.677083,
+        "status": "stable_positive"
+      },
+      "source_control_zeroing": {
+        "n": 24,
+        "positive_n": 24,
+        "mean": 0.489583,
+        "ci95_low": 0.333333,
+        "ci95_high": 0.661458,
+        "status": "stable_positive"
+      },
+      "real_minus_shuffled": {
+        "n": 24,
+        "positive_n": 17,
+        "mean": 0.377604,
+        "ci95_low": 0.135417,
+        "ci95_high": 0.664062,
+        "status": "stable_positive"
+      },
+      "correct_minus_wrong": {
+        "n": 4,
+        "positive_n": 4,
+        "mean": 0.406169,
+        "ci95_low": 0.382812,
+        "ci95_high": 0.435384,
+        "status": "stable_positive"
+      }
+    }
+  },
+  "overall_status": "model_specific_approx_source_control_support"
+}

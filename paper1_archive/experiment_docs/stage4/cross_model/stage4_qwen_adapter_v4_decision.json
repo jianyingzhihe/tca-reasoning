@@ -1,0 +1,218 @@
+{
+  "created_at": "2026-05-26 18:52:25",
+  "status": "qwen_not_gemma_style_under_v4_adapter",
+  "mode": "full",
+  "layer": 14,
+  "tag": "layer14",
+  "candidate_counts": {
+    "primary": {
+      "record_type": "candidate_manifest",
+      "pack": "primary",
+      "group": "all",
+      "rows": 134,
+      "main_rows": 107,
+      "prompt_runs": 46,
+      "mean_adapter_v4_score": 0.00031762637462832,
+      "mean_zeroing_damage": 0.09151119402985074,
+      "exact_match_rows": 19,
+      "same_feature_rows": 115
+    },
+    "strict": {
+      "record_type": "candidate_manifest",
+      "pack": "strict",
+      "group": "all",
+      "rows": 144,
+      "main_rows": 114,
+      "prompt_runs": 48,
+      "mean_adapter_v4_score": 0.0003017992899491895,
+      "mean_zeroing_damage": 0.09166666666666666,
+      "exact_match_rows": 15,
+      "same_feature_rows": 129
+    }
+  },
+  "gates": {
+    "primary": {
+      "clean_zeroing_source_minus_controls": {
+        "metric": "clean_zeroing_source_minus_controls",
+        "pack": "primary",
+        "n": 107,
+        "mean": 0.05743769470404985,
+        "ci95_low": 0.04731308411214953,
+        "ci95_high": 0.06775700934579439,
+        "positive_frac": 0.7570093457943925
+      },
+      "clean_zeroing_correct_minus_wrong": {
+        "metric": "clean_zeroing_correct_minus_wrong",
+        "pack": "primary",
+        "n": 107,
+        "mean": 0.05081775700934579,
+        "ci95_low": 0.03271028037383177,
+        "ci95_high": 0.07009345794392523,
+        "positive_frac": 0.4953271028037383
+      },
+      "clean_zeroing_target_rank_effect": {
+        "metric": "clean_zeroing_target_rank_effect",
+        "pack": "primary",
+        "n": 107,
+        "mean": 0.17757009345794392,
+        "ci95_low": 0.11214953271028037,
+        "ci95_high": 0.2523364485981308,
+        "positive_frac": 0.17757009345794392
+      },
+      "clean_zeroing_passed": false,
+      "restore_gate": {
+        "condition": "answer_mask",
+        "top_k": "4",
+        "passed": false,
+        "score": -0.08763586956521739,
+        "restore_source_minus_controls": {
+          "metric": "restore_source_minus_controls",
+          "pack": "primary",
+          "n": 46,
+          "mean": 0.006340579710144927,
+          "ci95_low": -0.010869565217391308,
+          "ci95_high": 0.024909420289855072,
+          "positive_frac": 0.43478260869565216,
+          "mask_condition": "answer_mask",
+          "top_k": "4"
+        },
+        "restore_real_minus_shifted": {
+          "metric": "restore_real_minus_shifted",
+          "pack": "primary",
+          "n": 46,
+          "mean": 0.004755434782608696,
+          "ci95_low": -0.028532608695652172,
+          "ci95_high": 0.035326086956521736,
+          "positive_frac": 0.34782608695652173,
+          "mask_condition": "answer_mask",
+          "top_k": "4"
+        },
+        "restore_real_minus_shuffled": {
+          "metric": "restore_real_minus_shuffled",
+          "pack": "primary",
+          "n": 46,
+          "mean": -0.0033967391304347825,
+          "ci95_low": -0.034646739130434784,
+          "ci95_high": 0.025815217391304348,
+          "positive_frac": 0.34782608695652173,
+          "mask_condition": "answer_mask",
+          "top_k": "4"
+        },
+        "restore_correct_minus_wrong": {
+          "metric": "restore_correct_minus_wrong",
+          "pack": "primary",
+          "n": 46,
+          "mean": 0.006114130434782609,
+          "ci95_low": -0.01358695652173913,
+          "ci95_high": 0.02717391304347826,
+          "positive_frac": 0.2826086956521739,
+          "mask_condition": "answer_mask",
+          "top_k": "4"
+        },
+        "restore_target_rank_effect": {
+          "metric": "restore_target_rank_effect",
+          "pack": "primary",
+          "n": 46,
+          "mean": -5.239130434782608,
+          "ci95_low": -16.02173913043478,
+          "ci95_high": 1.0217391304347827,
+          "positive_frac": 0.13043478260869565,
+          "mask_condition": "answer_mask",
+          "top_k": "4"
+        }
+      }
+    },
+    "strict": {
+      "clean_zeroing_source_minus_controls": {
+        "metric": "clean_zeroing_source_minus_controls",
+        "pack": "strict",
+        "n": 114,
+        "mean": 0.05646929824561404,
+        "ci95_low": 0.047149122807017545,
+        "ci95_high": 0.06578947368421052,
+        "positive_frac": 0.7456140350877193
+      },
+      "clean_zeroing_correct_minus_wrong": {
+        "metric": "clean_zeroing_correct_minus_wrong",
+        "pack": "strict",
+        "n": 114,
+        "mean": 0.047697368421052634,
+        "ci95_low": 0.02905701754385965,
+        "ci95_high": 0.0668859649122807,
+        "positive_frac": 0.4824561403508772
+      },
+      "clean_zeroing_target_rank_effect": {
+        "metric": "clean_zeroing_target_rank_effect",
+        "pack": "strict",
+        "n": 114,
+        "mean": 0.16666666666666666,
+        "ci95_low": 0.09649122807017543,
+        "ci95_high": 0.23684210526315788,
+        "positive_frac": 0.16666666666666666
+      },
+      "clean_zeroing_passed": false,
+      "restore_gate": {
+        "condition": "answer_mask",
+        "top_k": "4",
+        "passed": false,
+        "score": -0.07139756944444445,
+        "restore_source_minus_controls": {
+          "metric": "restore_source_minus_controls",
+          "pack": "strict",
+          "n": 48,
+          "mean": 0.006076388888888888,
+          "ci95_low": -0.011501736111111112,
+          "ci95_high": 0.024956597222222224,
+          "positive_frac": 0.3541666666666667,
+          "mask_condition": "answer_mask",
+          "top_k": "4"
+        },
+        "restore_real_minus_shifted": {
+          "metric": "restore_real_minus_shifted",
+          "pack": "strict",
+          "n": 48,
+          "mean": 0.006510416666666667,
+          "ci95_low": -0.0234375,
+          "ci95_high": 0.036458333333333336,
+          "positive_frac": 0.3541666666666667,
+          "mask_condition": "answer_mask",
+          "top_k": "4"
+        },
+        "restore_real_minus_shuffled": {
+          "metric": "restore_real_minus_shuffled",
+          "pack": "strict",
+          "n": 48,
+          "mean": 0.0026041666666666665,
+          "ci95_low": -0.020182291666666668,
+          "ci95_high": 0.026692708333333332,
+          "positive_frac": 0.3541666666666667,
+          "mask_condition": "answer_mask",
+          "top_k": "4"
+        },
+        "restore_correct_minus_wrong": {
+          "metric": "restore_correct_minus_wrong",
+          "pack": "strict",
+          "n": 48,
+          "mean": 0.00390625,
+          "ci95_low": -0.016276041666666668,
+          "ci95_high": 0.0234375,
+          "positive_frac": 0.2708333333333333,
+          "mask_condition": "answer_mask",
+          "top_k": "4"
+        },
+        "restore_target_rank_effect": {
+          "metric": "restore_target_rank_effect",
+          "pack": "strict",
+          "n": 48,
+          "mean": -5.041666666666667,
+          "ci95_low": -15.395833333333334,
+          "ci95_high": 1.1041666666666667,
+          "positive_frac": 0.125,
+          "mask_condition": "answer_mask",
+          "top_k": "4"
+        }
+      }
+    }
+  },
+  "claim_boundary": "Adapter V4 uses Qwen layer-14 artifacts only. Failure is not evidence that Qwen lacks cross-modal mechanisms."
+}

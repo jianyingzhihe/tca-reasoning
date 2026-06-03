@@ -1,4 +1,6 @@
 import logging
+import json
+from pathlib import Path
 import warnings
 from collections import defaultdict
 from contextlib import contextmanager
@@ -18,7 +20,7 @@ from circuit_tracer.attribution.context import AttributionContext
 from circuit_tracer.transcoder import TranscoderSet
 from circuit_tracer.transcoder.cross_layer_transcoder import CrossLayerTranscoder
 from circuit_tracer.utils import get_default_device
-from circuit_tracer.utils.hf_utils import load_transcoder_from_hub
+from circuit_tracer.utils.hf_utils import load_transcoder_from_hub, resolve_hf_repo_path
 
 from PIL import Image
 import requests
@@ -31,6 +33,35 @@ Intervention = tuple[
 
 
 logger = logging.getLogger(__name__)
+
+
+def _infer_hooked_model_name(model_name: str) -> str:
+    """Map a local HF snapshot path back to the official repo id expected by TL."""
+
+    model_path = Path(model_name)
+    if not model_path.exists():
+        return model_name
+
+    config_path = model_path / "config.json"
+    if config_path.exists():
+        try:
+            with config_path.open("r", encoding="utf-8") as f:
+                config = json.load(f)
+            for key in ("_name_or_path", "name_or_path", "model_name"):
+                value = config.get(key)
+                if isinstance(value, str) and value.strip() and "/" in value:
+                    return value.strip()
+        except Exception as e:
+            logger.info("Could not infer official model name from %s (%s)", config_path, e)
+
+    for part in reversed(model_path.parts):
+        if not part.startswith("models--"):
+            continue
+        repo_tail = part[len("models--") :]
+        if repo_tail:
+            return repo_tail.replace("--", "/")
+
+    return model_name
 
 
 def _memory_snapshot() -> str:
@@ -146,22 +177,52 @@ class ReplacementModel(HookedVLTransformer):
         if isinstance(requested_dtype, torch.dtype):
             load_kwargs["torch_dtype"] = requested_dtype
 
+        # Prefer an already-cached local snapshot for gated/base-model assets so
+        # we do not perform fresh HF metadata checks for files like
+        # chat_template.jinja when the model is already present on disk.
+        model_source = model_name
+        hooked_model_name = model_name
+        if Path(model_name).exists():
+            model_source = model_name
+            hooked_model_name = _infer_hooked_model_name(model_name)
+            load_kwargs["local_files_only"] = True
+            logger.info(
+                "Using local model snapshot %s with Hooked model id %s",
+                model_source,
+                hooked_model_name,
+            )
+        else:
+            try:
+                model_source = resolve_hf_repo_path(model_name, local_files_only=True)
+                hooked_model_name = model_name
+                load_kwargs["local_files_only"] = True
+                logger.info("Resolved local HF snapshot for %s -> %s", model_name, model_source)
+            except Exception as e:
+                logger.info(
+                    "Local HF snapshot unavailable for %s; falling back to repo id (%s)",
+                    model_name,
+                    e,
+                )
+
         logger.info(
             "Loading HF model %s with kwargs=%s (%s)",
-            model_name,
+            model_source,
             load_kwargs,
             _memory_snapshot(),
         )
         inner_model = Gemma3ForConditionalGeneration.from_pretrained(
-            model_name,
+            model_source,
             **load_kwargs,
         )
         logger.info("HF model loaded (%s)", _memory_snapshot())
-        processor = AutoProcessor.from_pretrained(model_name)
+        processor = AutoProcessor.from_pretrained(
+            model_source,
+            local_files_only=bool(load_kwargs.get("local_files_only", False)),
+        )
         inner_model.vision_model = inner_model.vision_tower
         logger.info("Processor loaded; constructing HookedVLTransformer (%s)", _memory_snapshot())
         model = super().from_pretrained(
-            model_name,
+            hooked_model_name,
             hf_model=inner_model,
             processor=processor,
             fold_ln=False,

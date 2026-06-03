@@ -1,0 +1,8 @@
+{
+  "tag": "mask16_defensive_v1",
+  "updated": "2026-06-02 21:44:19",
+  "status": "crossmodel_mask_morphology_ready",
+  "qwen_ready": true,
+  "gemma_ready": true,
+  "interpretation_boundary": "Qwen route-first and Gemma hidden-lattice morphology are comparable as defensive mask-artifact lenses, but their raw effect magnitudes are not directly compared."
+}

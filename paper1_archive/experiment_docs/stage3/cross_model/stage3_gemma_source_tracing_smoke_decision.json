@@ -1,0 +1,37 @@
+{
+  "status": "pass",
+  "failure_type": "",
+  "failed_step": "",
+  "interpretation": "Gemma paperpack source-tracing smoke only; this is not a full paperpack result.",
+  "remote_run_root": "/root/autodl-tmp/tca-reasoning/stage3_gemma_paperpack/source_tracing_smoke_current",
+  "remote_compare_dir": "/root/autodl-tmp/tca-reasoning/stage3_gemma_paperpack/source_tracing_smoke_current/compare",
+  "counts": {
+    "eval_a_rows": 3,
+    "eval_b_rows": 3,
+    "meta_a_rows": 2,
+    "meta_b_rows": 2,
+    "valid_smoke_sample_rows": 2,
+    "sample_compare_rows": 2,
+    "nodes_detailed_rows": 113,
+    "intervention_rows": 4
+  },
+  "graph_files": {
+    "a": [
+      "/root/autodl-tmp/tca-reasoning/stage3_gemma_paperpack/source_tracing_smoke_current/graphs_a_D_visual_only/okvqa_val_00528.pt",
+      "/root/autodl-tmp/tca-reasoning/stage3_gemma_paperpack/source_tracing_smoke_current/graphs_a_D_visual_only/okvqa_val_00912.pt"
+    ],
+    "b": [
+      "/root/autodl-tmp/tca-reasoning/stage3_gemma_paperpack/source_tracing_smoke_current/graphs_b_B_direct/okvqa_val_00528.pt",
+      "/root/autodl-tmp/tca-reasoning/stage3_gemma_paperpack/source_tracing_smoke_current/graphs_b_B_direct/okvqa_val_00912.pt"
+    ]
+  },
+  "artifacts": {
+    "eval_a": "/root/autodl-tmp/tca-reasoning/stage3_gemma_paperpack/source_tracing_smoke_current/promptA_D_visual_only_eval.csv",
+    "eval_b": "/root/autodl-tmp/tca-reasoning/stage3_gemma_paperpack/source_tracing_smoke_current/promptB_B_direct_eval.csv",
+    "meta_a": "/root/autodl-tmp/tca-reasoning/stage3_gemma_paperpack/source_tracing_smoke_current/answer_aligned_meta_a.csv",
+    "meta_b": "/root/autodl-tmp/tca-reasoning/stage3_gemma_paperpack/source_tracing_smoke_current/answer_aligned_meta_b.csv",
+    "compare_sample": "/root/autodl-tmp/tca-reasoning/stage3_gemma_paperpack/source_tracing_smoke_current/compare/sample_compare_controlled.csv",
+    "compare_nodes": "/root/autodl-tmp/tca-reasoning/stage3_gemma_paperpack/source_tracing_smoke_current/compare/nodes_detailed_controlled.csv",
+    "intervention": "/root/autodl-tmp/tca-reasoning/stage3_gemma_paperpack/source_tracing_smoke_current/intervention_smoke_paperpack_smoke.csv"
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "claim_boundary": "Stage 2P-2 diagnoses LLaVA feature-level localization across layers/top-k. Failure does not prove absence of cross-modal features.",
+  "status": "llava_layer_sweep_weak_or_partial",
+  "strong_configs": [],
+  "weak_configs": [
+    {
+      "layer": "12",
+      "top_k": "1",
+      "direction": "corrupt",
+      "n_rows": 8,
+      "mean_logit_effect": 0.001953,
+      "effect_status": "weak_or_heterogeneous_positive",
+      "above_all_controls_n": 3,
+      "specificity_n": 8,
+      "mean_positive_control_count": 2.125
+    },
+    {
+      "layer": "15",
+      "top_k": "32",
+      "direction": "corrupt",
+      "n_rows": 8,
+      "mean_logit_effect": 0.068359,
+      "effect_status": "weak_or_heterogeneous_positive",
+      "above_all_controls_n": 4,
+      "specificity_n": 8,
+      "mean_positive_control_count": 2.5
+    },
+    {
+      "layer": "15",
+      "top_k": "8",
+      "direction": "corrupt",
+      "n_rows": 8,
+      "mean_logit_effect": 0.003906,
+      "effect_status": "weak_or_heterogeneous_positive",
+      "above_all_controls_n": 2,
+      "specificity_n": 8,
+      "mean_positive_control_count": 2
+    },
+    {
+      "layer": "18",
+      "top_k": "1",
+      "direction": "restore",
+      "n_rows": 8,
+      "mean_logit_effect": 0.002441,
+      "effect_status": "weak_or_heterogeneous_positive",
+      "above_all_controls_n": 1,
+      "specificity_n": 8,
+      "mean_positive_control_count": 1.875
+    },
+    {
+      "layer": "18",
+      "top_k": "32",
+      "direction": "corrupt",
+      "n_rows": 8,
+      "mean_logit_effect": 0.060547,
+      "effect_status": "stable_positive",
+      "above_all_controls_n": 1,
+      "specificity_n": 8,
+      "mean_positive_control_count": 2.625
+    },
+    {
+      "layer": "18",
+      "top_k": "32",
+      "direction": "restore",
+      "n_rows": 8,
+      "mean_logit_effect": 0.020508,
+      "effect_status": "weak_or_heterogeneous_positive",
+      "above_all_controls_n": 2,
+      "specificity_n": 8,
+      "mean_positive_control_count": 2.25
+    },
+    {
+      "layer": "18",
+      "top_k": "8",
+      "direction": "restore",
+      "n_rows": 8,
+      "mean_logit_effect": 0.006348,
+      "effect_status": "weak_or_heterogeneous_positive",
+      "above_all_controls_n": 1,
+      "specificity_n": 8,
+      "mean_positive_control_count": 2.5
+    },
+    {
+      "layer": "21",
+      "top_k": "1",
+      "direction": "restore",
+      "n_rows": 8,
+      "mean_logit_effect": 0.005859,
+      "effect_status": "weak_or_heterogeneous_positive",
+      "above_all_controls_n": 3,
+      "specificity_n": 8,
+      "mean_positive_control_count": 2
+    },
+    {
+      "layer": "21",
+      "top_k": "8",
+      "direction": "restore",
+      "n_rows": 8,
+      "mean_logit_effect": 0.004395,
+      "effect_status": "weak_or_heterogeneous_positive",
+      "above_all_controls_n": 3,
+      "specificity_n": 8,
+      "mean_positive_control_count": 2.125
+    }
+  ],
+  "observed_layers": [
+    "12",
+    "15",
+    "18",
+    "21"
+  ],
+  "missing_layers": []
+}

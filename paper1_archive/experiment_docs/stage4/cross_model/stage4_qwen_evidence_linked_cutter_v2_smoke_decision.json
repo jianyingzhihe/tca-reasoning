@@ -1,0 +1,8 @@
+{
+  "created_at": "2026-05-24 22:13:52",
+  "status": "qwen_cutter_only_supported",
+  "reason": "grouped restore or activation-drop specificity did not pass shifted/shuffled controls",
+  "raw_rows": 768,
+  "prompt_runs": 6,
+  "claim_boundary": "Qwen has causal cutter evidence from Stage4-014/expanded discovery, but evidence-link is not established by this analyzer."
+}

@@ -1,0 +1,3 @@
+pack,mode,topk,n,route_restore_source_minus_controls_mean,route_real_minus_shifted_mean,route_real_minus_shuffled_mean,route_correct_minus_wrong_mean,gate1_frac,gate2_frac,gate3_frac,gate4_frac,gate5_frac,all_gates_frac
+strict,full,4,4,-0.020833333333333332,0.0625,0.0,0.0,1.0,0.75,0.25,0.25,0.25,0.25
+strict,full,8,4,-0.020833333333333332,0.03125,0.0,0.03125,1.0,0.25,0.25,0.0,0.5,0.0

@@ -1,0 +1,5 @@
+asset_id,case_count,direction,mean_oriented_first_token_gap,mean_oriented_margin_gap,mean_oriented_rank_gap,mean_oriented_sequence_gap,positive_first_token_frac,positive_margin_frac,positive_rank_frac,positive_sequence_frac,source_decoded_changed_vs_reference_count,source_decoded_to_clean_count
+gemma3_hidden,1,corrupt,2.25,1.25,0.0,-1.53509521484375,1.0,1.0,0.0,0.0,0,0
+gemma3_hidden,1,restore,30.5625,2.3125,4191.0,24.58910369873047,1.0,1.0,1.0,1.0,0,0
+qwen2p5vl_plt,5,corrupt,-0.078125,,0.0,0.07984647750854493,0.4,,0.0,0.6,2,3
+qwen2p5vl_plt,5,restore,0.1546875,,59.4,0.017586612701416017,1.0,,0.6,0.6,0,0

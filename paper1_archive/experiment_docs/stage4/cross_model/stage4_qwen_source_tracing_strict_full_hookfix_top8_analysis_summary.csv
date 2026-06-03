@@ -1,0 +1,2 @@
+pack,mode,meta_a_rows,meta_b_rows,graph_ok_a,graph_ok_b,prompt_runs_ok,graph_success_rate,valid_samples,compare_rows,node_rows,feature_node_rows,edge_rows,intervention_rows,mean_delta_target_logit,frac_negative_delta_target_logit,frac_rank_hurt,best_zeroing_mode,best_mode_frac_negative_delta_target_logit
+strict,full,72,72,70,70,140,0.972222,70,70,2369,1120,2240,2240,5.58036e-05,0.0803571,0.0602679,subtract,0.0848214

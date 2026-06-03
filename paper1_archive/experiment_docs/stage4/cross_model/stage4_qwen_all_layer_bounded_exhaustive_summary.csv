@@ -1,0 +1,16 @@
+ci95_high,ci95_low,exact_or_visual_answer_rows,layer,main_rows,mean,metric,n,pack,positive_frac,prompt_runs,stage
+,,96,0,48,0.16588783775878732,candidate_manifest,96,primary,,6,candidate_screen
+,,,0,,,raw_rows,240,primary,,,zeroing
+,,,0,,,raw_rows,1152,primary,,,grouped_restore
+,,96,7,48,0.9750095707988922,candidate_manifest,96,primary,,6,candidate_screen
+,,,7,,,raw_rows,240,primary,,,zeroing
+,,,7,,,raw_rows,1152,primary,,,grouped_restore
+,,96,14,48,0.6084831154567326,candidate_manifest,96,primary,,6,candidate_screen
+,,,14,,,raw_rows,240,primary,,,zeroing
+,,,14,,,raw_rows,1152,primary,,,grouped_restore
+,,96,21,48,1.0222921894095354,candidate_manifest,96,primary,,6,candidate_screen
+,,,21,,,raw_rows,240,primary,,,zeroing
+,,,21,,,raw_rows,1152,primary,,,grouped_restore
+,,0,27,0,0.0,candidate_manifest,0,primary,,0,candidate_screen
+,,,27,,,raw_rows,0,primary,,,zeroing
+,,,27,,,raw_rows,0,primary,,,grouped_restore

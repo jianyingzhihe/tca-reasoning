@@ -1,0 +1,16 @@
+{
+  "tag": "defensive_v1",
+  "updated": "2026-06-02 17:04:43",
+  "status": "mask_assets_ready",
+  "smoke_samples": 3,
+  "sample_ids": [
+    "okvqa_val_2078985",
+    "okvqa_val_3713305",
+    "okvqa_val_5186155"
+  ],
+  "variant_manifests": {
+    "original": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_mask_robustness_original_smoke_defensive_v1_manifest.csv",
+    "dilate": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_mask_robustness_dilate_smoke_defensive_v1_manifest.csv",
+    "erode": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_mask_robustness_erode_smoke_defensive_v1_manifest.csv"
+  }
+}

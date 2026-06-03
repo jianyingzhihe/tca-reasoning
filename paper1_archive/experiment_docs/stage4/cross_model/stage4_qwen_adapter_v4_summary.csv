@@ -1,0 +1,7 @@
+record_type,pack,group,rows,main_rows,prompt_runs,mean_adapter_v4_score,mean_zeroing_damage,exact_match_rows,same_feature_rows
+candidate_manifest,primary,all,134,107,46,0.00031762637462832,0.09151119402985074,19,115
+candidate_manifest,primary,non_numeric,124,97,39,0.0003218583117234683,0.0878024193548387,14,110
+candidate_manifest,primary,numeric,10,10,7,0.0002651503546484819,0.1375,5,5
+candidate_manifest,strict,all,144,114,48,0.0003017992899491895,0.09166666666666666,15,129
+candidate_manifest,strict,non_numeric,138,108,43,0.0003054919110730001,0.09021739130434782,14,124
+candidate_manifest,strict,numeric,6,6,5,0.00021686900410154418,0.125,1,5

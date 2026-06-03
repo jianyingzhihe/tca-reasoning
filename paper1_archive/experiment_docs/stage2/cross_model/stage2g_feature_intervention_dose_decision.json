@@ -1,0 +1,59 @@
+{
+  "evidence_ladder": {
+    "readout_replication": "supported by Stage 2F for Qwen/LLaVA",
+    "intervention_replication": "evaluated here; only partial signed/high-dose responses, no primary ablation success",
+    "source_control_causal_replication": "not established cross-model; Gemma3 remains the only full-chain model"
+  },
+  "model_decisions": {
+    "llava": {
+      "model_family": "llava",
+      "usable_runs": 6,
+      "samples": [
+        "okvqa_val_2847255",
+        "okvqa_val_3658865",
+        "okvqa_val_4157235"
+      ],
+      "primary_condition": "evidence_topk_subtract_s5p0",
+      "primary_rank_hits": 0,
+      "primary_logit_hits": 2,
+      "primary_mean_rank_damage": -0.333333,
+      "primary_mean_logit_damage": -0.064453,
+      "primary_specificity_rank": -0.666666,
+      "primary_specificity_logit": -0.133463,
+      "signed_add_condition": "evidence_topk_add_s5p0",
+      "signed_add_rank_hits": 3,
+      "signed_add_logit_hits": 4,
+      "signed_add_mean_rank_damage": 0.833333,
+      "signed_add_mean_logit_damage": 0.59375,
+      "signed_add_specificity_rank": 0.833333,
+      "signed_add_specificity_logit": 0.56901,
+      "decision_status": "partial_signed_high_dose_effect_not_ablation",
+      "claim_boundary": "Readout-level evidence sensitivity remains supported; this feature-direction probe does not establish source-control causal route replication."
+    },
+    "qwen": {
+      "model_family": "qwen",
+      "usable_runs": 6,
+      "samples": [
+        "okvqa_val_2847255",
+        "okvqa_val_3658865",
+        "okvqa_val_4157235"
+      ],
+      "primary_condition": "evidence_topk_subtract_s5p0",
+      "primary_rank_hits": 0,
+      "primary_logit_hits": 2,
+      "primary_mean_rank_damage": 0.0,
+      "primary_mean_logit_damage": 0.114583,
+      "primary_specificity_rank": 0.0,
+      "primary_specificity_logit": -0.4375,
+      "signed_add_condition": "evidence_topk_add_s5p0",
+      "signed_add_rank_hits": 0,
+      "signed_add_logit_hits": 6,
+      "signed_add_mean_rank_damage": 0.0,
+      "signed_add_mean_logit_damage": 0.90625,
+      "signed_add_specificity_rank": -0.166667,
+      "signed_add_specificity_logit": 0.385417,
+      "decision_status": "partial_signed_high_dose_effect_not_ablation",
+      "claim_boundary": "Readout-level evidence sensitivity remains supported; this feature-direction probe does not establish source-control causal route replication."
+    }
+  }
+}

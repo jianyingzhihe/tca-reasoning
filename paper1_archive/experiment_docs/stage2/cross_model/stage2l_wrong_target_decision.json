@@ -1,0 +1,88 @@
+{
+  "target_group": "top_hidden_delta_plus_answer_adjacent",
+  "models": {
+    "llava": {
+      "verdict": "wrong_target_control_supported",
+      "direction_statuses": {
+        "corrupt": "stable_correct_gt_wrong",
+        "restore": "stable_correct_gt_wrong"
+      },
+      "target_group_rows": [
+        {
+          "model_family": "llava",
+          "direction": "corrupt",
+          "group_name": "top_hidden_delta_plus_answer_adjacent",
+          "n_rows": 24,
+          "n_samples": 12,
+          "mean_correct_effect_logit": 0.555501,
+          "mean_wrong_effect_logit": 0.025532,
+          "mean_correct_minus_wrong_logit": 0.52997,
+          "ci95_low": 0.171885,
+          "ci95_high": 0.987908,
+          "correct_stronger_n": 16,
+          "correct_positive_n": 18,
+          "wrong_positive_n": 15,
+          "status": "stable_correct_gt_wrong"
+        },
+        {
+          "model_family": "llava",
+          "direction": "restore",
+          "group_name": "top_hidden_delta_plus_answer_adjacent",
+          "n_rows": 24,
+          "n_samples": 12,
+          "mean_correct_effect_logit": 1.636556,
+          "mean_wrong_effect_logit": 0.151321,
+          "mean_correct_minus_wrong_logit": 1.485235,
+          "ci95_low": 0.661184,
+          "ci95_high": 2.312505,
+          "correct_stronger_n": 19,
+          "correct_positive_n": 21,
+          "wrong_positive_n": 15,
+          "status": "stable_correct_gt_wrong"
+        }
+      ]
+    },
+    "qwen": {
+      "verdict": "wrong_target_control_supported",
+      "direction_statuses": {
+        "corrupt": "stable_correct_gt_wrong",
+        "restore": "stable_correct_gt_wrong"
+      },
+      "target_group_rows": [
+        {
+          "model_family": "qwen",
+          "direction": "corrupt",
+          "group_name": "top_hidden_delta_plus_answer_adjacent",
+          "n_rows": 24,
+          "n_samples": 12,
+          "mean_correct_effect_logit": 2.953776,
+          "mean_wrong_effect_logit": -0.531291,
+          "mean_correct_minus_wrong_logit": 3.485067,
+          "ci95_low": 2.478394,
+          "ci95_high": 4.456096,
+          "correct_stronger_n": 19,
+          "correct_positive_n": 20,
+          "wrong_positive_n": 7,
+          "status": "stable_correct_gt_wrong"
+        },
+        {
+          "model_family": "qwen",
+          "direction": "restore",
+          "group_name": "top_hidden_delta_plus_answer_adjacent",
+          "n_rows": 24,
+          "n_samples": 12,
+          "mean_correct_effect_logit": 3.442708,
+          "mean_wrong_effect_logit": -0.507324,
+          "mean_correct_minus_wrong_logit": 3.950033,
+          "ci95_low": 2.830078,
+          "ci95_high": 5.07194,
+          "correct_stronger_n": 22,
+          "correct_positive_n": 20,
+          "wrong_positive_n": 7,
+          "status": "stable_correct_gt_wrong"
+        }
+      ]
+    }
+  },
+  "claim_boundary": "This supports target-specific hidden bridge only when correct-target effects exceed wrong-target effects; it is still not Gemma-style source-control causal route replication."
+}

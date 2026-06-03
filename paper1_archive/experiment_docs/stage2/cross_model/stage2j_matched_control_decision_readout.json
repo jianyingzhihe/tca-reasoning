@@ -1,0 +1,19 @@
+{
+  "claim_boundary": "Stage 2J tests hidden-position specificity against delta/activation matched controls. It does not establish CLT feature-level source-control route replication.",
+  "model_decisions": {
+    "llava": {
+      "status": "matched_control_partial",
+      "stable_positive_effect_logit_comparisons": 3,
+      "weak_positive_effect_logit_comparisons": 5,
+      "not_positive_effect_logit_comparisons": 0,
+      "reading": "LLaVA remains clearly above activation-matched controls, but delta-matched controls absorb much of the restore/corrupt effect; write as partial specificity rather than strong matched-control specificity."
+    },
+    "qwen": {
+      "status": "matched_control_mostly_supported",
+      "stable_positive_effect_logit_comparisons": 6,
+      "weak_positive_effect_logit_comparisons": 2,
+      "not_positive_effect_logit_comparisons": 0,
+      "reading": "Qwen remains positive over delta/activation matched controls, with strongest support in restore and visual-only comparisons; corrupt combo vs activation is weaker."
+    }
+  }
+}

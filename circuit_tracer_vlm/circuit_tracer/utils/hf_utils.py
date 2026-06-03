@@ -3,6 +3,7 @@ from __future__ import annotations
 import glob
 import logging
 import os
+import re
 from typing import NamedTuple
 from collections.abc import Iterable
 from urllib.parse import parse_qs, urlparse
@@ -15,6 +16,68 @@ from huggingface_hub.utils.tqdm import tqdm as hf_tqdm
 from tqdm.contrib.concurrent import thread_map
 
 logger = logging.getLogger(__name__)
+
+
+_LAYER_FILE_RE = re.compile(r"layer_(\d+)\.safetensors$")
+
+
+def _discover_layer_safetensors(local_path: str) -> dict[int, str]:
+    """Find layer safetensor files, including snapshot symlinks, keyed by layer index."""
+
+    out: dict[int, str] = {}
+    for entry in os.scandir(local_path):
+        if not entry.name.startswith("layer_") or not entry.name.endswith(".safetensors"):
+            continue
+        if not (entry.is_file(follow_symlinks=True) or entry.is_symlink()):
+            continue
+        match = _LAYER_FILE_RE.match(entry.name)
+        if not match:
+            continue
+        out[int(match.group(1))] = entry.path
+    return out
+
+
+def _hf_hub_download_resilient(
+    *,
+    repo_id: str,
+    filename: str,
+    revision: str | None = None,
+    token: str | None = None,
+    force_download: bool = False,
+) -> str:
+    """Prefer cached local files, then fall back to the network if needed."""
+
+    local_err: Exception | None = None
+    try:
+        return hf_hub_download(
+            repo_id=repo_id,
+            filename=filename,
+            revision=revision,
+            token=token,
+            force_download=force_download,
+            local_files_only=True,
+        )
+    except Exception as e:  # noqa: BLE001
+        local_err = e
+
+    try:
+        return hf_hub_download(
+            repo_id=repo_id,
+            filename=filename,
+            revision=revision,
+            token=token,
+            force_download=force_download,
+        )
+    except Exception as e:  # noqa: BLE001
+        if local_err is not None:
+            logger.warning(
+                "HF download fallback failed for %s/%s (local err: %s, network err: %s)",
+                repo_id,
+                filename,
+                local_err,
+                e,
+            )
+        raise
 
 
 class HfUri(NamedTuple):
@@ -35,6 +98,30 @@ class HfUri(NamedTuple):
         return cls(repo_id, None, revision)
 
 
+def resolve_hf_repo_path(
+    hf_ref: str,
+    *,
+    allow_patterns: list[str] | None = None,
+    local_files_only: bool = False,
+) -> str:
+    """Resolve a repo reference to a local snapshot directory.
+
+    This prefers the local HF cache when ``local_files_only`` is True and avoids
+    metadata calls that can fail for gated repos when the snapshot already
+    exists on disk.
+    """
+
+    hf_uri = HfUri.from_str(hf_ref)
+    kwargs = {
+        "repo_id": hf_uri.repo_id,
+        "revision": hf_uri.revision,
+        "local_files_only": local_files_only,
+    }
+    if allow_patterns:
+        kwargs["allow_patterns"] = allow_patterns
+    return snapshot_download(**kwargs)
+
+
 def load_transcoder_from_hub(
     hf_ref: str,
     device: torch.device | None = None,
@@ -52,7 +139,7 @@ def load_transcoder_from_hub(
 
     hf_uri = HfUri.from_str(hf_ref)
     try:
-        config_path = hf_hub_download(
+        config_path = _hf_hub_download_resilient(
             repo_id=hf_uri.repo_id,
             revision=hf_uri.revision,
             filename="config.yaml",
@@ -100,11 +187,18 @@ def load_transcoders(
     elif model_kind == "cross_layer_transcoder":
         from circuit_tracer.transcoder.cross_layer_transcoder import load_clt
 
-        local_path = snapshot_download(
-            config["repo_id"],
-            revision=config.get("revision", "main"),
-            allow_patterns=["*.safetensors"],
-        )
+        try:
+            local_path = resolve_hf_repo_path(
+                config["repo_id"],
+                allow_patterns=["*.safetensors"],
+                local_files_only=True,
+            )
+        except Exception:
+            local_path = snapshot_download(
+                config["repo_id"],
+                revision=config.get("revision", "main"),
+                allow_patterns=["*.safetensors"],
+            )
 
         return load_clt(
             local_path,
@@ -128,15 +222,29 @@ def resolve_transcoder_paths(config: dict) -> dict:
             i: local_map.get(path, path) for i, path in enumerate(config["transcoders"])
         }
     else:
-        local_path = snapshot_download(
-            config["repo_id"],
-            revision=config.get("revision", "main"),
-            allow_patterns=["layer_*.safetensors"],
-        )
-        layer_files = glob.glob(os.path.join(local_path, "layer_*.safetensors"))
-        transcoder_paths = {
-            i: os.path.join(local_path, f"layer_{i}.safetensors") for i in range(len(layer_files))
-        }
+        try:
+            local_path = resolve_hf_repo_path(
+                config["repo_id"],
+                allow_patterns=["layer_*.safetensors"],
+                local_files_only=True,
+            )
+        except Exception:
+            local_path = snapshot_download(
+                config["repo_id"],
+                revision=config.get("revision", "main"),
+                allow_patterns=["layer_*.safetensors"],
+            )
+        transcoder_paths = _discover_layer_safetensors(local_path)
+        if not transcoder_paths:
+            repo_id = config.get("repo_id", "<unknown_repo>")
+            revision = config.get("revision", None) or "main"
+            raise FileNotFoundError(
+                "No layer_*.safetensors were found for transcoder repo "
+                f"{repo_id}@{revision}. The repo config loaded, but the layer files "
+                f"were not present in the resolved local snapshot: {local_path}. "
+                "This usually means the HF cache is incomplete or the model files "
+                "have not been downloaded yet."
+            )
     return transcoder_paths
 
 
@@ -166,7 +274,7 @@ def download_hf_uri(uri: str) -> str:
     """Download a file referenced by a HuggingFace URI and return the local path."""
     parsed = parse_hf_uri(uri)
     assert parsed.file_path is not None, "File path is not set"
-    return hf_hub_download(
+    return _hf_hub_download_resilient(
         repo_id=parsed.repo_id,
         filename=parsed.file_path,
         revision=parsed.revision,
@@ -192,10 +300,29 @@ def download_hf_uris(uris: Iterable[str], max_workers: int = 8) -> dict[str, str
         return {}
     parsed_map = {uri: parse_hf_uri(uri) for uri in uri_list}
 
+    token = get_token()
+
+    def _download(uri: str) -> str:
+        info = parsed_map[uri]
+        assert info.file_path is not None, "File path is not set"
+        return _hf_hub_download_resilient(
+            repo_id=info.repo_id,
+            filename=info.file_path,
+            revision=info.revision,
+            token=token,
+            force_download=False,
+        )
+
+    # Try a local-cache-only pass first to avoid unnecessary network metadata calls.
+    try:
+        results = [_download(uri) for uri in uri_list]
+        return dict(zip(uri_list, results))
+    except Exception as local_or_network_err:  # noqa: BLE001
+        logger.info("Local-first HF file resolution did not fully succeed; falling back to repo preflight (%s)", local_or_network_err)
+
     # ---  Pre-flight Check ---
     logger.info("Performing pre-flight metadata check...")
     unique_repos = {info.repo_id for info in parsed_map.values()}
-    token = get_token()
 
     for repo_id in unique_repos:
         if hf_api.repo_info(repo_id=repo_id, token=token).gated is not False:
@@ -203,18 +330,6 @@ def download_hf_uris(uris: Iterable[str], max_workers: int = 8) -> dict[str, str
                 raise PermissionError("Cannot access a gated repo without a hf token.")
 
     logger.info("Pre-flight check complete. Starting downloads...")
-
-    def _download(uri: str) -> str:
-        info = parsed_map[uri]
-        assert info.file_path is not None, "File path is not set"
-
-        return hf_hub_download(
-            repo_id=info.repo_id,
-            filename=info.file_path,
-            revision=info.revision,
-            token=token,
-            force_download=False,
-        )
 
     if HF_HUB_ENABLE_HF_TRANSFER:
         # Use a simple loop for sequential download if HF_TRANSFER is enabled

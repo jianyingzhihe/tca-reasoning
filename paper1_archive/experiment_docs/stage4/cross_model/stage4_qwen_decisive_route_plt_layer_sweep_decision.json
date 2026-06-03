@@ -1,0 +1,16 @@
+{
+  "status": "completed",
+  "mode": "smoke",
+  "packs": [
+    "primary"
+  ],
+  "layers": [
+    0,
+    7,
+    14,
+    21,
+    27
+  ],
+  "exit_status": 0,
+  "claim_boundary": "Layer sweep artifacts require analyze_stage4_qwen_decisive_route.py before scientific interpretation."
+}

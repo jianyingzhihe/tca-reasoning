@@ -1,0 +1,35 @@
+{
+  "models": {
+    "llava": {
+      "verdict": "visual_plus_answer_bridge_supported",
+      "combo_minus_answer_status_by_direction": {
+        "corrupt": "stable_positive",
+        "restore": "stable_positive"
+      },
+      "combo_minus_image_status_by_direction": {
+        "corrupt": "stable_positive",
+        "restore": "stable_positive"
+      },
+      "combo_minus_max_single_status_by_direction": {
+        "corrupt": "weak_positive",
+        "restore": "stable_positive"
+      }
+    },
+    "qwen": {
+      "verdict": "visual_plus_answer_bridge_supported",
+      "combo_minus_answer_status_by_direction": {
+        "corrupt": "stable_positive",
+        "restore": "stable_positive"
+      },
+      "combo_minus_image_status_by_direction": {
+        "corrupt": "stable_positive",
+        "restore": "stable_positive"
+      },
+      "combo_minus_max_single_status_by_direction": {
+        "corrupt": "heterogeneous",
+        "restore": "weak_positive"
+      }
+    }
+  },
+  "claim_boundary": "Bridge decomposition distinguishes image-only, answer-adjacent-only, and combo hidden-state effects. It does not establish feature-level or source-control route replication."
+}

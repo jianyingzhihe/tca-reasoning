@@ -1,0 +1,4 @@
+asset,feature_prompt_runs,feature_rows,layer,mode,pack,source_prompt_runs,source_rows,topk
+llava_clt,144,4320,0,screen,primary,55,704,1
+llava_clt,144,4320,0,screen,primary,0,0,32
+llava_clt,144,4320,0,screen,primary,134,1968,8

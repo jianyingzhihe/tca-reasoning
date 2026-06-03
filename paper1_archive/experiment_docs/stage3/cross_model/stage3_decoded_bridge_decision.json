@@ -1,0 +1,34 @@
+{
+  "status": "completed",
+  "asset_mode_decisions": {
+    "qwen2p5vl_clt::effect_gap": {
+      "status": "decoded_zeroing_changes_only",
+      "pair_count": 4,
+      "clean_mask_answer_diff_count": 4,
+      "source_restore_to_clean_count": 0,
+      "source_zeroing_changed_vs_clean_count": 2
+    },
+    "qwen2p5vl_clt::rankaware": {
+      "status": "first_token_rank_bridge_only",
+      "pair_count": 6,
+      "clean_mask_answer_diff_count": 6,
+      "source_restore_to_clean_count": 0,
+      "source_zeroing_changed_vs_clean_count": 0
+    },
+    "qwen2p5vl_plt::effect_gap": {
+      "status": "first_token_rank_bridge_only",
+      "pair_count": 4,
+      "clean_mask_answer_diff_count": 3,
+      "source_restore_to_clean_count": 0,
+      "source_zeroing_changed_vs_clean_count": 0
+    },
+    "qwen2p5vl_plt::rankaware": {
+      "status": "first_token_rank_bridge_only",
+      "pair_count": 6,
+      "clean_mask_answer_diff_count": 6,
+      "source_restore_to_clean_count": 0,
+      "source_zeroing_changed_vs_clean_count": 1
+    }
+  },
+  "claim_boundary": "Decoded generation bridge remains a smoke test. Rank-aware rows show first-token logit/rank movement, but source_restore rarely changes the decoded answer back to clean. Do not claim generation-level cross-model causal bridge unless source_restore_to_clean becomes stable."
+}

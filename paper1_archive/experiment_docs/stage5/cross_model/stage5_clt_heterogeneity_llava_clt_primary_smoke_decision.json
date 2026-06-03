@@ -1,0 +1,15 @@
+{
+  "status": "llava_clt_layer_dependent_weak_route_screen",
+  "asset": "llava_clt",
+  "pack": "primary",
+  "mode": "smoke",
+  "updated_at": "2026-06-01 20:41:26",
+  "usable_configs": 18,
+  "near_pass_metrics": 4,
+  "near_pass_configs": [
+    "L0_topK32",
+    "L21_topK8",
+    "L30_topK1"
+  ],
+  "claim_boundary": "Stage5 CLT is heterogeneity/representation mapping; failure does not imply absence of a cross-modal mechanism."
+}

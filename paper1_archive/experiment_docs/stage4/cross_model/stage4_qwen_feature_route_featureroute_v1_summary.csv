@@ -1,0 +1,2 @@
+pack,mode,raw_file,raw_rows,route_count,ok_rows,source_rows,topk_distribution_json,run_status,usable_routes,requested_routes,skipped_count
+strict,full,stage4_qwen_feature_route_strict_full_featureroute_v1_raw.csv,17400,435,17400,4350,"{""16"": 3480, ""32"": 3480, ""4"": 3480, ""64"": 3480, ""8"": 3480}",ok,435,435,0

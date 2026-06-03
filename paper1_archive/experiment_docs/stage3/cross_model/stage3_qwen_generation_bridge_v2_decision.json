@@ -1,0 +1,115 @@
+{
+  "status": "completed",
+  "asset_decisions": {
+    "qwen2p5vl_clt": {
+      "status": "first_token_only",
+      "supported_topks": [],
+      "partial_topks": [],
+      "first_token_only_topks": [
+        "1",
+        "4",
+        "8",
+        "16",
+        "32"
+      ],
+      "topk_decisions": {
+        "1": {
+          "status": "first_token_only",
+          "restore_sequence_gap": 0.11660301685333252,
+          "corrupt_sequence_gap": -0.07366511225700378,
+          "restore_decoded_to_clean": 0,
+          "corrupt_decoded_to_clean": 4,
+          "corrupt_decoded_changed_vs_clean": 0
+        },
+        "4": {
+          "status": "first_token_only",
+          "restore_sequence_gap": 0.10503193736076355,
+          "corrupt_sequence_gap": -0.13935863971710205,
+          "restore_decoded_to_clean": 0,
+          "corrupt_decoded_to_clean": 3,
+          "corrupt_decoded_changed_vs_clean": 1
+        },
+        "8": {
+          "status": "first_token_only",
+          "restore_sequence_gap": 0.22291237115859985,
+          "corrupt_sequence_gap": -0.08947142958641052,
+          "restore_decoded_to_clean": 0,
+          "corrupt_decoded_to_clean": 3,
+          "corrupt_decoded_changed_vs_clean": 1
+        },
+        "16": {
+          "status": "first_token_only",
+          "restore_sequence_gap": 0.17312869429588318,
+          "corrupt_sequence_gap": -0.1817363202571869,
+          "restore_decoded_to_clean": 0,
+          "corrupt_decoded_to_clean": 3,
+          "corrupt_decoded_changed_vs_clean": 1
+        },
+        "32": {
+          "status": "first_token_only",
+          "restore_sequence_gap": 0.4120504856109619,
+          "corrupt_sequence_gap": -0.13310697674751282,
+          "restore_decoded_to_clean": 0,
+          "corrupt_decoded_to_clean": 3,
+          "corrupt_decoded_changed_vs_clean": 1
+        }
+      }
+    },
+    "qwen2p5vl_plt": {
+      "status": "partial_sequence_bridge",
+      "supported_topks": [],
+      "partial_topks": [
+        "1"
+      ],
+      "first_token_only_topks": [
+        "4",
+        "8",
+        "16",
+        "32"
+      ],
+      "topk_decisions": {
+        "1": {
+          "status": "partial_sequence_bridge",
+          "restore_sequence_gap": 0.004152456919352214,
+          "corrupt_sequence_gap": 0.007262229919433594,
+          "restore_decoded_to_clean": 0,
+          "corrupt_decoded_to_clean": 3,
+          "corrupt_decoded_changed_vs_clean": 0
+        },
+        "4": {
+          "status": "first_token_only",
+          "restore_sequence_gap": -0.0406031608581543,
+          "corrupt_sequence_gap": -0.01627175013224284,
+          "restore_decoded_to_clean": 0,
+          "corrupt_decoded_to_clean": 3,
+          "corrupt_decoded_changed_vs_clean": 0
+        },
+        "8": {
+          "status": "first_token_only",
+          "restore_sequence_gap": -0.04139868418375651,
+          "corrupt_sequence_gap": -0.08773438135782878,
+          "restore_decoded_to_clean": 0,
+          "corrupt_decoded_to_clean": 2,
+          "corrupt_decoded_changed_vs_clean": 1
+        },
+        "16": {
+          "status": "first_token_only",
+          "restore_sequence_gap": -0.0008591016133626302,
+          "corrupt_sequence_gap": -0.33479833602905273,
+          "restore_decoded_to_clean": 0,
+          "corrupt_decoded_to_clean": 3,
+          "corrupt_decoded_changed_vs_clean": 0
+        },
+        "32": {
+          "status": "first_token_only",
+          "restore_sequence_gap": -0.08044004440307617,
+          "corrupt_sequence_gap": -0.5928537050882975,
+          "restore_decoded_to_clean": 0,
+          "corrupt_decoded_to_clean": 2,
+          "corrupt_decoded_changed_vs_clean": 1
+        }
+      }
+    }
+  },
+  "claim_boundary": "Sequence bridge is based on target answer sequence logprob. Decoded generation bridge requires stable source_decoded_to_clean and is not implied by sequence support."
+}

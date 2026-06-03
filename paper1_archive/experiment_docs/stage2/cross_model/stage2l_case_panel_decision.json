@@ -1,0 +1,207 @@
+{
+  "n_rows": 48,
+  "category_counts": {
+    "llava_strong_positive": 12,
+    "llava_activation_supported": 6,
+    "llava_delta_diagnostic": 2,
+    "llava_weak_or_failure": 4,
+    "qwen_strong_positive": 5,
+    "qwen_moderate_positive": 4,
+    "qwen_weak_or_failure": 15
+  },
+  "recommended_counts": {
+    "main_or_appendix_positive_case": 17,
+    "appendix_positive_case": 10,
+    "diagnostic_or_failure_case": 21
+  },
+  "models": {
+    "llava": {
+      "n_rows": 24,
+      "top_positive_cases": [
+        {
+          "sample_id": "okvqa_val_01514",
+          "prompt_name": "B_direct",
+          "question_text": "How heavy are these animals?",
+          "answer_text": "50 pounds",
+          "case_category": "llava_strong_positive",
+          "evidence_score": 12.0,
+          "positive_matched_control_count": 4
+        },
+        {
+          "sample_id": "okvqa_val_01514",
+          "prompt_name": "D_visual_only",
+          "question_text": "How heavy are these animals?",
+          "answer_text": "50 pounds",
+          "case_category": "llava_strong_positive",
+          "evidence_score": 12.0,
+          "positive_matched_control_count": 4
+        },
+        {
+          "sample_id": "okvqa_val_1058855",
+          "prompt_name": "B_direct",
+          "question_text": "What is spewing out water?",
+          "answer_text": "fire hydrant",
+          "case_category": "llava_strong_positive",
+          "evidence_score": 12.0,
+          "positive_matched_control_count": 4
+        },
+        {
+          "sample_id": "okvqa_val_1593205",
+          "prompt_name": "D_visual_only",
+          "question_text": "What city is shown?",
+          "answer_text": "tokyo",
+          "case_category": "llava_strong_positive",
+          "evidence_score": 12.0,
+          "positive_matched_control_count": 4
+        },
+        {
+          "sample_id": "okvqa_val_1058855",
+          "prompt_name": "D_visual_only",
+          "question_text": "What is spewing out water?",
+          "answer_text": "fire hydrant",
+          "case_category": "llava_strong_positive",
+          "evidence_score": 11.0,
+          "positive_matched_control_count": 4
+        }
+      ],
+      "diagnostic_cases": [
+        {
+          "sample_id": "okvqa_val_3959785",
+          "prompt_name": "D_visual_only",
+          "question_text": "Which airline has this insignia?",
+          "answer_text": "kuwait airway",
+          "case_category": "llava_delta_diagnostic",
+          "evidence_score": 3.5
+        },
+        {
+          "sample_id": "okvqa_val_2954205",
+          "prompt_name": "D_visual_only",
+          "question_text": "What service does this truck provide?",
+          "answer_text": "move",
+          "case_category": "llava_delta_diagnostic",
+          "evidence_score": 0.5
+        },
+        {
+          "sample_id": "okvqa_val_2708155",
+          "prompt_name": "B_direct",
+          "question_text": "What is the handedness of the man in the photo?",
+          "answer_text": "left",
+          "case_category": "llava_weak_or_failure",
+          "evidence_score": -1.0
+        },
+        {
+          "sample_id": "okvqa_val_1729795",
+          "prompt_name": "B_direct",
+          "question_text": "What is the symbol shown in the picture?",
+          "answer_text": "arrow",
+          "case_category": "llava_weak_or_failure",
+          "evidence_score": -2.0
+        },
+        {
+          "sample_id": "okvqa_val_1729795",
+          "prompt_name": "D_visual_only",
+          "question_text": "What is the symbol shown in the picture?",
+          "answer_text": "arrow",
+          "case_category": "llava_weak_or_failure",
+          "evidence_score": -2.0
+        }
+      ],
+      "mean_evidence_score": 7.041667,
+      "mean_positive_count": 2.708333
+    },
+    "qwen": {
+      "n_rows": 24,
+      "top_positive_cases": [
+        {
+          "sample_id": "okvqa_val_3959785",
+          "prompt_name": "B_direct",
+          "question_text": "Which airline has this insignia?",
+          "answer_text": "kuwait airway",
+          "case_category": "qwen_strong_positive",
+          "evidence_score": 12.0,
+          "positive_matched_control_count": 4
+        },
+        {
+          "sample_id": "okvqa_val_3959785",
+          "prompt_name": "D_visual_only",
+          "question_text": "Which airline has this insignia?",
+          "answer_text": "kuwait airway",
+          "case_category": "qwen_strong_positive",
+          "evidence_score": 12.0,
+          "positive_matched_control_count": 4
+        },
+        {
+          "sample_id": "okvqa_val_4502065",
+          "prompt_name": "B_direct",
+          "question_text": "What is the animal name mentioned on the bus in image?",
+          "answer_text": "tortoise",
+          "case_category": "qwen_strong_positive",
+          "evidence_score": 12.0,
+          "positive_matched_control_count": 4
+        },
+        {
+          "sample_id": "okvqa_val_4502065",
+          "prompt_name": "D_visual_only",
+          "question_text": "What is the animal name mentioned on the bus in image?",
+          "answer_text": "tortoise",
+          "case_category": "qwen_strong_positive",
+          "evidence_score": 12.0,
+          "positive_matched_control_count": 4
+        },
+        {
+          "sample_id": "okvqa_val_1058855",
+          "prompt_name": "B_direct",
+          "question_text": "What is spewing out water?",
+          "answer_text": "fire hydrant",
+          "case_category": "qwen_strong_positive",
+          "evidence_score": 11.0,
+          "positive_matched_control_count": 4
+        }
+      ],
+      "diagnostic_cases": [
+        {
+          "sample_id": "okvqa_val_1729795",
+          "prompt_name": "D_visual_only",
+          "question_text": "What is the symbol shown in the picture?",
+          "answer_text": "arrow",
+          "case_category": "qwen_weak_or_failure",
+          "evidence_score": 2.0
+        },
+        {
+          "sample_id": "okvqa_val_01514",
+          "prompt_name": "D_visual_only",
+          "question_text": "How heavy are these animals?",
+          "answer_text": "50 pounds",
+          "case_category": "qwen_weak_or_failure",
+          "evidence_score": 1.0
+        },
+        {
+          "sample_id": "okvqa_val_1593205",
+          "prompt_name": "B_direct",
+          "question_text": "What city is shown?",
+          "answer_text": "tokyo",
+          "case_category": "qwen_weak_or_failure",
+          "evidence_score": 1.0
+        },
+        {
+          "sample_id": "okvqa_val_340155",
+          "prompt_name": "B_direct",
+          "question_text": "What is the sporting equipment called that the man has in his hand?",
+          "answer_text": "racquet",
+          "case_category": "qwen_weak_or_failure",
+          "evidence_score": 1.0
+        },
+        {
+          "sample_id": "okvqa_val_340155",
+          "prompt_name": "D_visual_only",
+          "question_text": "What is the sporting equipment called that the man has in his hand?",
+          "answer_text": "racquet",
+          "case_category": "qwen_weak_or_failure",
+          "evidence_score": 1.0
+        }
+      ],
+      "mean_evidence_score": 2.958333,
+      "mean_positive_count": 1.416667
+    }
+  }
+}

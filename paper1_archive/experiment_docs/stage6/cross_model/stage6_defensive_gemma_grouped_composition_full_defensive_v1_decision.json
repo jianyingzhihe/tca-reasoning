@@ -1,0 +1,12 @@
+{
+  "tag": "defensive_v1",
+  "updated": "2026-06-02 21:51:09",
+  "status": "gemma_grouped_composition_artifact_ready",
+  "route_rows": 1704,
+  "topk_summary_rows": 24,
+  "route_stability_rows": 284,
+  "compare_summary_rows": 2,
+  "mixed_composition_frac_at_largest_topk": 0.7992957746478874,
+  "top_edge_dominated_frac_at_largest_topk": 0.0,
+  "interpretation_boundary": "Artifact-level Gemma source-tracing composition diagnostic. It mirrors Qwen grouped-composition analysis at the route-bundle stability question, but does not rerun new graph interventions."
+}

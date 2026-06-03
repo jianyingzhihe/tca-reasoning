@@ -1,0 +1,13 @@
+model_family,mask_condition,mask_variant,intervention,feature_role,n_rows,positive_logit_n,positive_rank_n,mean_effect_logit,ci95_low,ci95_high,effect_status,mean_effect_rank,mean_gap_closure,mean_correct_minus_wrong_logit
+qwen,answer_mask,mask_shuffled,restore,matched_control,24,0,0,-0.015625,-0.03125,-0.002604,not_positive,-0.125,-0.002282,
+qwen,answer_mask,mask_shuffled,restore,source,24,3,0,-0.002604,-0.023438,0.018229,not_positive,-0.166667,-0.00043,
+qwen,answer_mask,real_mask,restore,matched_control,24,6,8,-0.028646,-0.071615,0.010417,not_positive,-20.833333,-0.008165,-0.01237
+qwen,answer_mask,real_mask,restore,source,24,22,19,0.465495,0.249349,0.748047,stable_positive,400.208333,0.064577,0.468941
+qwen,answer_mask,real_mask,zeroing,matched_control,24,11,3,0.041667,-0.026042,0.114583,weak_or_heterogeneous_positive,0.083333,0.005743,0.054728
+qwen,answer_mask,real_mask,zeroing,source,24,24,9,0.908854,0.700521,1.151042,stable_positive,1.041667,0.151736,0.907715
+qwen,union_mask,mask_shuffled,restore,matched_control,24,2,0,-0.005208,-0.023438,0.013021,not_positive,-0.125,-0.000878,
+qwen,union_mask,mask_shuffled,restore,source,24,5,0,0.005208,-0.020833,0.03125,weak_or_heterogeneous_positive,-0.208333,3.2e-05,
+qwen,union_mask,real_mask,restore,matched_control,24,4,8,-0.011719,-0.033854,0.013021,not_positive,-18.541667,-0.001273,-0.00651
+qwen,union_mask,real_mask,restore,source,24,21,17,0.447917,0.199219,0.772135,stable_positive,126.125,0.065223,0.436035
+qwen,union_mask,real_mask,zeroing,matched_control,24,11,3,0.046875,0.0,0.096354,weak_or_heterogeneous_positive,0.166667,0.009922,0.115397
+qwen,union_mask,real_mask,zeroing,source,24,24,9,0.90625,0.697917,1.151042,stable_positive,1.083333,0.151772,0.866852

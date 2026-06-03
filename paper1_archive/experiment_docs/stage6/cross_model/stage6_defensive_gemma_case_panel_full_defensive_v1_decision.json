@@ -1,0 +1,9 @@
+{
+  "tag": "defensive_v1",
+  "mode": "full",
+  "updated": "2026-06-02 15:36:35",
+  "status": "case_panel_ready",
+  "raw_candidate_rows": 70,
+  "selected_rows": 6,
+  "interpretation": "Gemma local PLT topK reconstruction can be weak while reconstruction error retains hidden effect and source-tracing graph artifacts remain available."
+}

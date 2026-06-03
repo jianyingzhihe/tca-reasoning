@@ -1,0 +1,81 @@
+{
+  "created_at": "2026-05-24 20:07:07",
+  "status": "causal_cutter_supported",
+  "raw_rows": 680,
+  "candidate_count": 17,
+  "primary_metrics": {
+    "clean_source_minus_controls": {
+      "metric": "clean_source_minus_controls",
+      "analysis_group": "all",
+      "paired_n": 17,
+      "mean_diff": 0.5747549019607844,
+      "ci95_low": 0.26715686274509803,
+      "ci95_high": 0.9424019607843137,
+      "positive_frac": 0.8823529411764706
+    },
+    "clean_correct_minus_wrong": {
+      "metric": "clean_correct_minus_wrong",
+      "analysis_group": "all",
+      "paired_n": 17,
+      "mean_diff": 0.08823529411764706,
+      "ci95_low": 0.04779411764705882,
+      "ci95_high": 0.12867647058823528,
+      "positive_frac": 0.5882352941176471
+    },
+    "answer_real_minus_shifted": {
+      "metric": "answer_mask_restore_real_minus_shifted",
+      "analysis_group": "all",
+      "paired_n": 17,
+      "mean_diff": -0.025735294117647058,
+      "ci95_low": -0.0661764705882353,
+      "ci95_high": 0.007352941176470588,
+      "positive_frac": 0.058823529411764705
+    },
+    "answer_real_minus_shuffled": {
+      "metric": "answer_mask_restore_real_minus_shuffled",
+      "analysis_group": "all",
+      "paired_n": 17,
+      "mean_diff": 0.014705882352941176,
+      "ci95_low": -0.007352941176470588,
+      "ci95_high": 0.03676470588235294,
+      "positive_frac": 0.17647058823529413
+    },
+    "union_real_minus_shifted": {
+      "metric": "union_mask_restore_real_minus_shifted",
+      "analysis_group": "all",
+      "paired_n": 17,
+      "mean_diff": -0.01838235294117647,
+      "ci95_low": -0.051470588235294115,
+      "ci95_high": 0.0,
+      "positive_frac": 0.0
+    },
+    "union_real_minus_shuffled": {
+      "metric": "union_mask_restore_real_minus_shuffled",
+      "analysis_group": "all",
+      "paired_n": 17,
+      "mean_diff": 0.022058823529411766,
+      "ci95_low": -0.011029411764705883,
+      "ci95_high": 0.05514705882352941,
+      "positive_frac": 0.29411764705882354
+    },
+    "numeric_clean_source_minus_controls": {
+      "metric": "clean_source_minus_controls",
+      "analysis_group": "numeric",
+      "paired_n": 7,
+      "mean_diff": 1.2857142857142858,
+      "ci95_low": 0.8154761904761905,
+      "ci95_high": 1.9047619047619049,
+      "positive_frac": 1.0
+    },
+    "non_numeric_clean_source_minus_controls": {
+      "metric": "clean_source_minus_controls",
+      "analysis_group": "non_numeric",
+      "paired_n": 10,
+      "mean_diff": 0.07708333333333334,
+      "ci95_low": 0.0375,
+      "ci95_high": 0.12083333333333335,
+      "positive_frac": 0.8
+    }
+  },
+  "claim_boundary": "Positive status supports Qwen-native causal-screened cutter nodes. It does not establish Gemma-style automatic source tracing replication."
+}

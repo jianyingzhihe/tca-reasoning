@@ -1,0 +1,30 @@
+{
+  "status": "qwen_clt_robustness_support_primary",
+  "asset": "Qwen2.5-VL-CLT",
+  "pack": "primary",
+  "claim_boundary": "Qwen2.5-VL-CLT is an auxiliary robustness line. Success supports transcoder-type robustness/representation comparison, not full Gemma-style source tracing.",
+  "inputs": {
+    "feature_rows": 4320,
+    "feature_prompt_runs": 144,
+    "source_rows": 2288,
+    "source_prompt_runs": 144,
+    "source_usable_pairs": 286
+  },
+  "primary_feature_specificity_positive": {
+    "positive": 8,
+    "total": 8
+  },
+  "source_control_positive": {
+    "positive": 4,
+    "total": 4
+  },
+  "real_vs_shuffled_positive": {
+    "positive": 4,
+    "total": 8
+  },
+  "known_gaps": [
+    "This CLT line is auxiliary and should not alter the PLT-only verdict by itself.",
+    "Source-control is approximate feature probing, not Gemma ReplacementModel source tracing.",
+    "Decoded generation-level bridge is not part of this paperpack CLT analyzer."
+  ]
+}

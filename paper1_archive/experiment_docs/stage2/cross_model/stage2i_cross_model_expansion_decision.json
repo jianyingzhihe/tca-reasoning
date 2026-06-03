@@ -1,0 +1,33 @@
+{
+  "claim_boundary": "Stage 2I expansion can strengthen cross-model decoded/hidden-state bridge evidence, but it is still below Gemma-style source-control causal route replication.",
+  "model_decisions": {
+    "llava": {
+      "status": "generation_gap_screen_only_pass",
+      "total_sample_prompt_runs": 24,
+      "informative_clean_vs_union_runs": 19,
+      "best_group": "",
+      "best_changed_away_from_union_informative_n": "",
+      "best_same_as_clean_informative_n": "",
+      "best_target_hit_n": "",
+      "best_mean_logit_restore_vs_union": "",
+      "best_mean_rank_restore_vs_union": "",
+      "low_delta_changed_away_from_union_informative_n": "",
+      "random_changed_away_from_union_informative_n": "",
+      "reading": "Use as generation-gap screening result before running bridge conditions."
+    },
+    "qwen": {
+      "status": "partial_decoded_bridge_expanded",
+      "total_sample_prompt_runs": 16,
+      "informative_clean_vs_union_runs": 15,
+      "best_group": "top_hidden_delta_plus_answer_adjacent",
+      "best_changed_away_from_union_informative_n": 11,
+      "best_same_as_clean_informative_n": 3,
+      "best_target_hit_n": 2,
+      "best_mean_logit_restore_vs_union": 5.109375,
+      "best_mean_rank_restore_vs_union": 1473.6875,
+      "low_delta_changed_away_from_union_informative_n": 1,
+      "random_changed_away_from_union_informative_n": 1,
+      "reading": "Use as decoded bridge expansion only; do not write source-control route replication."
+    }
+  }
+}

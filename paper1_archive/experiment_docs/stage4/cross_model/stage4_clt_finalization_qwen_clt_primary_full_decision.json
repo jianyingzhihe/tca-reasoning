@@ -1,0 +1,16 @@
+{
+  "status": "stage4_clt_finalization_analyzed",
+  "pack": "primary",
+  "mode": "full",
+  "summary_csv": "E:\\Bridging\\doc\\experiments\\stage4\\cross_model\\stage4_clt_finalization_qwen_clt_primary_full_summary.csv",
+  "assets": {
+    "qwen_clt": {
+      "status": "qwen_clt_robustness_final",
+      "reason": "positive_feature_and_source_control_under_topk_sensitivity",
+      "best_source_mean_minus_control": "0.195985",
+      "best_feature_mean_source_minus_control": "0.127253",
+      "usable_configs": 1
+    }
+  },
+  "claim_boundary": "CLT is an auxiliary robustness/diagnostic line. Qwen CLT success supports robustness; LLaVA CLT failure does not imply absence of cross-modal mechanisms."
+}

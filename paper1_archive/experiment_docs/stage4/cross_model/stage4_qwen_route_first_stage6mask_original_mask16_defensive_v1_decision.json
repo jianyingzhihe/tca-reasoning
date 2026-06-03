@@ -1,0 +1,46 @@
+{
+  "status": "smoke_ok",
+  "updated_at": "2026-06-02 21:27:47",
+  "tag": "stage6mask_original_mask16_defensive_v1",
+  "pack_filter": "primary",
+  "mode_filter": "smoke",
+  "packs_seen": [
+    "primary"
+  ],
+  "modes_seen": [
+    "smoke"
+  ],
+  "layers_seen": [
+    14
+  ],
+  "primary_full_candidate_count": 0,
+  "primary_route_first_234_count": 0,
+  "primary_route_first_gold_count": 0,
+  "primary_route_first_evidence_gold_count": 0,
+  "strict_full_candidate_count": 0,
+  "strict_route_first_234_count": 0,
+  "strict_route_first_gold_count": 0,
+  "strict_route_first_evidence_gold_count": 0,
+  "primary_aggregate_gates": {
+    "gate2_clean_source_gt_controls": false,
+    "gate3_restore_source_gt_controls": false,
+    "gate4_real_gt_shifted": false,
+    "gate4_real_gt_shuffled": false,
+    "gate1_evidence_sensitive_on_route_first": false,
+    "gate5_correct_gt_wrong_on_route_first": false
+  },
+  "strict_aggregate_gates": {
+    "gate2_clean_source_gt_controls": false,
+    "gate3_restore_source_gt_controls": false,
+    "gate4_real_gt_shifted": false,
+    "gate4_real_gt_shuffled": false,
+    "gate1_evidence_sensitive_on_route_first": false,
+    "gate5_correct_gt_wrong_on_route_first": false
+  },
+  "small_n_exception": false,
+  "summary_csv": "E:\\Bridging\\doc\\experiments\\stage4\\cross_model\\stage4_qwen_route_first_stage6mask_original_mask16_defensive_v1_summary.csv",
+  "specificity_csv": "E:\\Bridging\\doc\\experiments\\stage4\\cross_model\\stage4_qwen_route_first_stage6mask_original_mask16_defensive_v1_specificity.csv",
+  "route_candidates_csv": "E:\\Bridging\\doc\\experiments\\stage4\\cross_model\\stage4_qwen_route_first_stage6mask_original_mask16_defensive_v1_route_candidates.csv",
+  "concentration_csv": "E:\\Bridging\\doc\\experiments\\stage4\\cross_model\\stage4_qwen_route_first_stage6mask_original_mask16_defensive_v1_concentration.csv",
+  "claim_boundary": "Stage4-060 tests Qwen-native route-first causal candidates. It does not establish Gemma-style automatic source tracing without an automatic graph closure."
+}

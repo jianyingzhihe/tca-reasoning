@@ -1,0 +1,37 @@
+{
+  "status": "completed",
+  "input_rows": {
+    "qwen2p5vl_plt": 450,
+    "qwen2p5vl_clt": 576,
+    "llava15_clt": 546
+  },
+  "comparison_rows": 786,
+  "asset_decisions": {
+    "llava15_clt": {
+      "status": "partial_first_token_rank_bridge",
+      "primary_rows": 4,
+      "supported_primary_rows": 2,
+      "partial_positive_mean_rows": 1,
+      "interpretation": "LLaVA-CLT can show weak first-token effects, but unstable restoration/source specificity should remain hidden/weak feature support unless controls are clearly beaten."
+    },
+    "qwen2p5vl_clt": {
+      "status": "supported_first_token_rank_bridge",
+      "primary_rows": 4,
+      "supported_primary_rows": 4,
+      "partial_positive_mean_rows": 0,
+      "interpretation": "CLT Qwen source/control effects are expected to be larger; positive results are auxiliary robustness evidence, not PLT mainline replacement."
+    },
+    "qwen2p5vl_plt": {
+      "status": "partial_first_token_rank_bridge",
+      "primary_rows": 4,
+      "supported_primary_rows": 3,
+      "partial_positive_mean_rows": 1,
+      "interpretation": "PLT-aligned Qwen source/control effects carry through to the first answer token logit/rank when supported; this is still not decoded generation."
+    }
+  },
+  "artifacts": {
+    "comparisons": "E:\\Bridging\\doc\\experiments\\stage3\\cross_model\\stage3_behavior_first_token_comparisons.csv",
+    "summary": "E:\\Bridging\\doc\\experiments\\stage3\\cross_model\\stage3_behavior_first_token_summary.csv"
+  },
+  "claim_boundary": "This analyzes first answer token logit/rank bridge already present in Stage3 source-control probes. It does not test short greedy decoded generation and does not establish full Gemma-style source tracing."
+}

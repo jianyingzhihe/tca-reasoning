@@ -1,0 +1,427 @@
+{
+  "created_at": "2026-05-25 11:23:29",
+  "status": "qwen_not_gemma_style_under_adapter",
+  "mode": "full",
+  "min_candidates": 20,
+  "candidate_counts": {
+    "evidence_first_primary": {
+      "rows": 384,
+      "prompt_runs": 96,
+      "main_rows": 192
+    },
+    "evidence_first_strict": {
+      "rows": 404,
+      "prompt_runs": 101,
+      "main_rows": 202
+    },
+    "adapter_v3_primary": {
+      "rows": 58,
+      "prompt_runs": 16,
+      "main_rows": 32
+    },
+    "adapter_v3_strict": {
+      "rows": 62,
+      "prompt_runs": 17,
+      "main_rows": 34
+    }
+  },
+  "gates": {
+    "evidence_first_primary": {
+      "clean_zeroing_source_minus_controls": {
+        "metric": "clean_zeroing_source_minus_controls",
+        "source": "evidence_first",
+        "pack": "primary",
+        "n": 192,
+        "mean": 0.0031467013888888886,
+        "ci95_low": -0.0029296875,
+        "ci95_high": 0.010850694444444446,
+        "positive_frac": 0.11979166666666667
+      },
+      "clean_zeroing_correct_minus_wrong": {
+        "metric": "clean_zeroing_correct_minus_wrong",
+        "source": "evidence_first",
+        "pack": "primary",
+        "n": 192,
+        "mean": -0.001953125,
+        "ci95_low": -0.0087890625,
+        "ci95_high": 0.005533854166666667,
+        "positive_frac": 0.09895833333333333
+      },
+      "clean_zeroing_target_rank_effect": {
+        "metric": "clean_zeroing_target_rank_effect",
+        "source": "evidence_first",
+        "pack": "primary",
+        "n": 192,
+        "mean": 0.0,
+        "ci95_low": -0.03125,
+        "ci95_high": 0.03125,
+        "positive_frac": 0.026041666666666668
+      },
+      "clean_zeroing_passed": false,
+      "restore_gate": {
+        "condition": "answer_mask",
+        "top_k": "1",
+        "passed": false,
+        "score": -0.013322618272569444,
+        "restore_source_minus_controls": {
+          "metric": "restore_source_minus_controls",
+          "source": "evidence_first",
+          "pack": "primary",
+          "n": 96,
+          "mean": 0.005018446180555555,
+          "ci95_low": -4.74717881944446e-05,
+          "ci95_high": 0.011671278211805554,
+          "positive_frac": 0.13541666666666666,
+          "mask_condition": "answer_mask",
+          "top_k": "1"
+        },
+        "restore_real_minus_shifted": {
+          "metric": "restore_real_minus_shifted",
+          "source": "evidence_first",
+          "pack": "primary",
+          "n": 96,
+          "mean": 0.0027567545572916665,
+          "ci95_low": -0.004435221354166667,
+          "ci95_high": 0.011362711588541666,
+          "positive_frac": 0.10416666666666667,
+          "mask_condition": "answer_mask",
+          "top_k": "1"
+        },
+        "restore_real_minus_shuffled": {
+          "metric": "restore_real_minus_shuffled",
+          "source": "evidence_first",
+          "pack": "primary",
+          "n": 96,
+          "mean": 0.0017801920572916667,
+          "ci95_low": -0.006001790364583333,
+          "ci95_high": 0.010284423828125,
+          "positive_frac": 0.11458333333333333,
+          "mask_condition": "answer_mask",
+          "top_k": "1"
+        },
+        "restore_correct_minus_wrong": {
+          "metric": "restore_correct_minus_wrong",
+          "source": "evidence_first",
+          "pack": "primary",
+          "n": 96,
+          "mean": 0.006685892740885417,
+          "ci95_low": -0.002838134765625,
+          "ci95_high": 0.0169219970703125,
+          "positive_frac": 0.17708333333333334,
+          "mask_condition": "answer_mask",
+          "top_k": "1"
+        },
+        "restore_target_rank_effect": {
+          "metric": "restore_target_rank_effect",
+          "source": "evidence_first",
+          "pack": "primary",
+          "n": 96,
+          "mean": -0.3125,
+          "ci95_low": -2.8333333333333335,
+          "ci95_high": 2.1666666666666665,
+          "positive_frac": 0.10416666666666667,
+          "mask_condition": "answer_mask",
+          "top_k": "1"
+        }
+      }
+    },
+    "evidence_first_strict": {
+      "clean_zeroing_source_minus_controls": {
+        "metric": "clean_zeroing_source_minus_controls",
+        "source": "evidence_first",
+        "pack": "strict",
+        "n": 202,
+        "mean": 0.003506600660066007,
+        "ci95_low": -0.0024752475247524753,
+        "ci95_high": 0.012066831683168317,
+        "positive_frac": 0.10891089108910891
+      },
+      "clean_zeroing_correct_minus_wrong": {
+        "metric": "clean_zeroing_correct_minus_wrong",
+        "source": "evidence_first",
+        "pack": "strict",
+        "n": 202,
+        "mean": -0.001547029702970297,
+        "ci95_low": -0.008044554455445545,
+        "ci95_high": 0.005569306930693069,
+        "positive_frac": 0.10396039603960396
+      },
+      "clean_zeroing_target_rank_effect": {
+        "metric": "clean_zeroing_target_rank_effect",
+        "source": "evidence_first",
+        "pack": "strict",
+        "n": 202,
+        "mean": 0.0,
+        "ci95_low": -0.0297029702970297,
+        "ci95_high": 0.0297029702970297,
+        "positive_frac": 0.024752475247524754
+      },
+      "clean_zeroing_passed": false,
+      "restore_gate": {
+        "condition": "answer_mask",
+        "top_k": "1",
+        "passed": false,
+        "score": -0.0105069100660066,
+        "restore_source_minus_controls": {
+          "metric": "restore_source_minus_controls",
+          "source": "evidence_first",
+          "pack": "strict",
+          "n": 101,
+          "mean": 0.005076191212871287,
+          "ci95_low": -2.5783828382838365e-05,
+          "ci95_high": 0.01102580961221122,
+          "positive_frac": 0.1485148514851485,
+          "mask_condition": "answer_mask",
+          "top_k": "1"
+        },
+        "restore_real_minus_shifted": {
+          "metric": "restore_real_minus_shifted",
+          "source": "evidence_first",
+          "pack": "strict",
+          "n": 101,
+          "mean": 0.0026202815594059408,
+          "ci95_low": -0.004689433787128713,
+          "ci95_high": 0.01038443688118812,
+          "positive_frac": 0.09900990099009901,
+          "mask_condition": "answer_mask",
+          "top_k": "1"
+        },
+        "restore_real_minus_shuffled": {
+          "metric": "restore_real_minus_shuffled",
+          "source": "evidence_first",
+          "pack": "strict",
+          "n": 101,
+          "mean": 0.004167311262376238,
+          "ci95_low": -0.0035968440594059408,
+          "ci95_high": 0.012666305693069308,
+          "positive_frac": 0.12871287128712872,
+          "mask_condition": "answer_mask",
+          "top_k": "1"
+        },
+        "restore_correct_minus_wrong": {
+          "metric": "restore_correct_minus_wrong",
+          "source": "evidence_first",
+          "pack": "strict",
+          "n": 101,
+          "mean": 0.0063549079517326735,
+          "ci95_low": -0.002194848391089109,
+          "ci95_high": 0.01571443765470297,
+          "positive_frac": 0.16831683168316833,
+          "mask_condition": "answer_mask",
+          "top_k": "1"
+        },
+        "restore_target_rank_effect": {
+          "metric": "restore_target_rank_effect",
+          "source": "evidence_first",
+          "pack": "strict",
+          "n": 101,
+          "mean": -0.26732673267326734,
+          "ci95_low": -2.8514851485148514,
+          "ci95_high": 2.1881188118811883,
+          "positive_frac": 0.10891089108910891,
+          "mask_condition": "answer_mask",
+          "top_k": "1"
+        }
+      }
+    },
+    "adapter_v3_primary": {
+      "clean_zeroing_source_minus_controls": {
+        "metric": "clean_zeroing_source_minus_controls",
+        "source": "adapter_v3",
+        "pack": "primary",
+        "n": 32,
+        "mean": -0.0234375,
+        "ci95_low": -0.08919270833333334,
+        "ci95_high": 0.028645833333333336,
+        "positive_frac": 0.09375
+      },
+      "clean_zeroing_correct_minus_wrong": {
+        "metric": "clean_zeroing_correct_minus_wrong",
+        "source": "adapter_v3",
+        "pack": "primary",
+        "n": 32,
+        "mean": -0.009765625,
+        "ci95_low": -0.068359375,
+        "ci95_high": 0.05078125,
+        "positive_frac": 0.09375
+      },
+      "clean_zeroing_target_rank_effect": {
+        "metric": "clean_zeroing_target_rank_effect",
+        "source": "adapter_v3",
+        "pack": "primary",
+        "n": 32,
+        "mean": 0.0,
+        "ci95_low": -0.09375,
+        "ci95_high": 0.09375,
+        "positive_frac": 0.03125
+      },
+      "clean_zeroing_passed": false,
+      "restore_gate": {
+        "condition": "union_mask",
+        "top_k": "1",
+        "passed": false,
+        "score": -0.006673177083333333,
+        "restore_source_minus_controls": {
+          "metric": "restore_source_minus_controls",
+          "source": "adapter_v3",
+          "pack": "primary",
+          "n": 16,
+          "mean": 0.013020833333333334,
+          "ci95_low": -0.0013020833333333333,
+          "ci95_high": 0.033203125,
+          "positive_frac": 0.25,
+          "mask_condition": "union_mask",
+          "top_k": "1"
+        },
+        "restore_real_minus_shifted": {
+          "metric": "restore_real_minus_shifted",
+          "source": "adapter_v3",
+          "pack": "primary",
+          "n": 16,
+          "mean": 0.021484375,
+          "ci95_low": 0.00390625,
+          "ci95_high": 0.044921875,
+          "positive_frac": 0.25,
+          "mask_condition": "union_mask",
+          "top_k": "1"
+        },
+        "restore_real_minus_shuffled": {
+          "metric": "restore_real_minus_shuffled",
+          "source": "adapter_v3",
+          "pack": "primary",
+          "n": 16,
+          "mean": 0.01953125,
+          "ci95_low": 0.0,
+          "ci95_high": 0.0390625,
+          "positive_frac": 0.3125,
+          "mask_condition": "union_mask",
+          "top_k": "1"
+        },
+        "restore_correct_minus_wrong": {
+          "metric": "restore_correct_minus_wrong",
+          "source": "adapter_v3",
+          "pack": "primary",
+          "n": 16,
+          "mean": 0.00634765625,
+          "ci95_low": -0.00927734375,
+          "ci95_high": 0.02734375,
+          "positive_frac": 0.125,
+          "mask_condition": "union_mask",
+          "top_k": "1"
+        },
+        "restore_target_rank_effect": {
+          "metric": "restore_target_rank_effect",
+          "source": "adapter_v3",
+          "pack": "primary",
+          "n": 16,
+          "mean": -0.1875,
+          "ci95_low": -0.5,
+          "ci95_high": 0.0,
+          "positive_frac": 0.0,
+          "mask_condition": "union_mask",
+          "top_k": "1"
+        }
+      }
+    },
+    "adapter_v3_strict": {
+      "clean_zeroing_source_minus_controls": {
+        "metric": "clean_zeroing_source_minus_controls",
+        "source": "adapter_v3",
+        "pack": "strict",
+        "n": 34,
+        "mean": -0.019607843137254905,
+        "ci95_low": -0.08333333333333333,
+        "ci95_high": 0.031862745098039214,
+        "positive_frac": 0.08823529411764706
+      },
+      "clean_zeroing_correct_minus_wrong": {
+        "metric": "clean_zeroing_correct_minus_wrong",
+        "source": "adapter_v3",
+        "pack": "strict",
+        "n": 34,
+        "mean": -0.009191176470588236,
+        "ci95_low": -0.0661764705882353,
+        "ci95_high": 0.04779411764705882,
+        "positive_frac": 0.08823529411764706
+      },
+      "clean_zeroing_target_rank_effect": {
+        "metric": "clean_zeroing_target_rank_effect",
+        "source": "adapter_v3",
+        "pack": "strict",
+        "n": 34,
+        "mean": 0.0,
+        "ci95_low": -0.08823529411764706,
+        "ci95_high": 0.08823529411764706,
+        "positive_frac": 0.029411764705882353
+      },
+      "clean_zeroing_passed": false,
+      "restore_gate": {
+        "condition": "union_mask",
+        "top_k": "1",
+        "passed": false,
+        "score": -0.004901960784313725,
+        "restore_source_minus_controls": {
+          "metric": "restore_source_minus_controls",
+          "source": "adapter_v3",
+          "pack": "strict",
+          "n": 17,
+          "mean": 0.015931372549019607,
+          "ci95_low": 0.0006127450980392157,
+          "ci95_high": 0.037990196078431376,
+          "positive_frac": 0.23529411764705882,
+          "mask_condition": "union_mask",
+          "top_k": "1"
+        },
+        "restore_real_minus_shifted": {
+          "metric": "restore_real_minus_shifted",
+          "source": "adapter_v3",
+          "pack": "strict",
+          "n": 17,
+          "mean": 0.02022058823529412,
+          "ci95_low": 0.003676470588235294,
+          "ci95_high": 0.042279411764705885,
+          "positive_frac": 0.23529411764705882,
+          "mask_condition": "union_mask",
+          "top_k": "1"
+        },
+        "restore_real_minus_shuffled": {
+          "metric": "restore_real_minus_shuffled",
+          "source": "adapter_v3",
+          "pack": "strict",
+          "n": 17,
+          "mean": 0.01838235294117647,
+          "ci95_low": 0.0,
+          "ci95_high": 0.04044117647058824,
+          "positive_frac": 0.29411764705882354,
+          "mask_condition": "union_mask",
+          "top_k": "1"
+        },
+        "restore_correct_minus_wrong": {
+          "metric": "restore_correct_minus_wrong",
+          "source": "adapter_v3",
+          "pack": "strict",
+          "n": 17,
+          "mean": 0.0059742647058823525,
+          "ci95_low": -0.009191176470588236,
+          "ci95_high": 0.024356617647058824,
+          "positive_frac": 0.11764705882352941,
+          "mask_condition": "union_mask",
+          "top_k": "1"
+        },
+        "restore_target_rank_effect": {
+          "metric": "restore_target_rank_effect",
+          "source": "adapter_v3",
+          "pack": "strict",
+          "n": 17,
+          "mean": -0.17647058823529413,
+          "ci95_low": -0.47058823529411764,
+          "ci95_high": 0.0,
+          "positive_frac": 0.0,
+          "mask_condition": "union_mask",
+          "top_k": "1"
+        }
+      }
+    }
+  },
+  "claim_boundary": "Stage4-020 tests Qwen-native evidence-first and evidence-biased Adapter V3 routes. It does not reuse Gemma node maps and does not by itself prove full Gemma-style source tracing unless adapter gates pass."
+}

@@ -1,0 +1,54 @@
+{
+  "status": "qwen_route_first_full_supported",
+  "updated_at": "2026-05-29 19:38:46",
+  "tag": "routefirst_v1",
+  "pack_filter": "",
+  "mode_filter": "full",
+  "packs_seen": [
+    "primary",
+    "strict"
+  ],
+  "modes_seen": [
+    "full"
+  ],
+  "layers_seen": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17
+  ],
+  "primary_full_candidate_count": 23040,
+  "primary_route_first_234_count": 2029,
+  "primary_route_first_gold_count": 1491,
+  "primary_route_first_evidence_gold_count": 1334,
+  "strict_full_candidate_count": 1930,
+  "strict_route_first_234_count": 1930,
+  "strict_route_first_gold_count": 1447,
+  "strict_route_first_evidence_gold_count": 1295,
+  "primary_aggregate_gates": {
+    "gate2_clean_source_gt_controls": true,
+    "gate3_restore_source_gt_controls": true,
+    "gate4_real_gt_shifted": true,
+    "gate4_real_gt_shuffled": true,
+    "gate1_evidence_sensitive_on_route_first": true,
+    "gate5_correct_gt_wrong_on_route_first": true
+  },
+  "strict_aggregate_gates": {
+    "gate2_clean_source_gt_controls": true,
+    "gate3_restore_source_gt_controls": true,
+    "gate4_real_gt_shifted": true,
+    "gate4_real_gt_shuffled": true,
+    "gate1_evidence_sensitive_on_route_first": true,
+    "gate5_correct_gt_wrong_on_route_first": true
+  },
+  "small_n_exception": false,
+  "summary_csv": "E:\\Bridging\\doc\\experiments\\stage4\\cross_model\\stage4_qwen_route_first_routefirst_v1_summary.csv",
+  "specificity_csv": "E:\\Bridging\\doc\\experiments\\stage4\\cross_model\\stage4_qwen_route_first_routefirst_v1_specificity.csv",
+  "route_candidates_csv": "E:\\Bridging\\doc\\experiments\\stage4\\cross_model\\stage4_qwen_route_first_routefirst_v1_route_candidates.csv",
+  "concentration_csv": "E:\\Bridging\\doc\\experiments\\stage4\\cross_model\\stage4_qwen_route_first_routefirst_v1_concentration.csv",
+  "claim_boundary": "Stage4-060 tests Qwen-native route-first causal candidates. It does not establish Gemma-style automatic source tracing without an automatic graph closure."
+}

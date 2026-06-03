@@ -1,0 +1,11 @@
+{
+  "status": "clt_not_established_under_tested_assets",
+  "asset": "llava_clt",
+  "pack": "primary",
+  "mode": "screen",
+  "updated_at": "2026-06-02 12:49:40",
+  "usable_configs": 3,
+  "near_pass_metrics": 0,
+  "near_pass_configs": [],
+  "claim_boundary": "Stage5 CLT is heterogeneity/representation mapping; failure does not imply absence of a cross-modal mechanism."
+}

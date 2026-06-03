@@ -1,0 +1,96 @@
+{
+  "created_at": "2026-05-26 19:30:16",
+  "status": "qwen_native_route_decomposition_complete",
+  "failure_type": "operator_or_feature_not_sufficient",
+  "key_gates": {
+    "activation_specificity_primary": {
+      "metric": "activation_drop_real_minus_shifted",
+      "pack": "primary",
+      "n": 46,
+      "mean": 5.717391304347826,
+      "ci95_low": 2.1953125,
+      "ci95_high": 9.797554347826088,
+      "positive_frac": 0.6304347826086957,
+      "slice": "all",
+      "mask_condition": "union_mask",
+      "top_k": "4"
+    },
+    "activation_specificity_strict": {
+      "metric": "activation_drop_real_minus_shifted",
+      "pack": "strict",
+      "n": 48,
+      "mean": 4.811197916666667,
+      "ci95_low": 1.5211588541666667,
+      "ci95_high": 8.616536458333334,
+      "positive_frac": 0.6041666666666666,
+      "slice": "all",
+      "mask_condition": "union_mask",
+      "top_k": "4"
+    },
+    "clean_zeroing_primary": {
+      "metric": "clean_zeroing_source_minus_controls",
+      "pack": "primary",
+      "n": 107,
+      "mean": 0.05743769470404985,
+      "ci95_low": 0.04731308411214953,
+      "ci95_high": 0.06775700934579439,
+      "positive_frac": 0.7570093457943925,
+      "slice": "all"
+    },
+    "clean_zeroing_strict": {
+      "metric": "clean_zeroing_source_minus_controls",
+      "pack": "strict",
+      "n": 114,
+      "mean": 0.05646929824561404,
+      "ci95_low": 0.047149122807017545,
+      "ci95_high": 0.06578947368421052,
+      "positive_frac": 0.7456140350877193,
+      "slice": "all"
+    },
+    "restore_specificity_primary": {
+      "metric": "restore_real_minus_shifted",
+      "pack": "primary",
+      "n": 46,
+      "mean": 0.004755434782608696,
+      "ci95_low": -0.028532608695652172,
+      "ci95_high": 0.035326086956521736,
+      "positive_frac": 0.34782608695652173,
+      "slice": "all",
+      "mask_condition": "answer_mask",
+      "top_k": "4"
+    },
+    "restore_specificity_strict": {
+      "metric": "restore_real_minus_shifted",
+      "pack": "strict",
+      "n": 48,
+      "mean": 0.006510416666666667,
+      "ci95_low": -0.0234375,
+      "ci95_high": 0.036458333333333336,
+      "positive_frac": 0.3541666666666667,
+      "slice": "all",
+      "mask_condition": "answer_mask",
+      "top_k": "4"
+    },
+    "exact_position_primary": {
+      "record_type": "candidate_summary",
+      "pack": "primary",
+      "slice": "exact_pos_feature",
+      "rows": 19,
+      "main_rows": 14,
+      "prompt_runs": 14,
+      "mean_adapter_v4_score": 0.00032461544385396464,
+      "mean_zeroing_damage": 0.0975
+    },
+    "exact_position_strict": {
+      "record_type": "candidate_summary",
+      "pack": "strict",
+      "slice": "exact_pos_feature",
+      "rows": 15,
+      "main_rows": 10,
+      "prompt_runs": 12,
+      "mean_adapter_v4_score": 0.0003211602607566516,
+      "mean_zeroing_damage": 0.08183333333333334
+    }
+  },
+  "claim_boundary": "This decomposition explains current Adapter V4 failure. It is not a negative claim about Qwen mechanisms."
+}

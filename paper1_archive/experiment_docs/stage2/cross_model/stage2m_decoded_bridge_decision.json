@@ -1,0 +1,39 @@
+{
+  "claim_boundary": "Decoded answer smoke only. A positive result can support generation-level bridge smoke, but cannot establish source-control causal route replication.",
+  "model_decisions": {
+    "llava": {
+      "status": "partial_generation_bridge_smoke",
+      "informative_clean_vs_union_rows": 11,
+      "best_group": "top_hidden_delta_plus_answer_adjacent",
+      "best_target_hit_n": 2,
+      "best_semantic_target_hit_n": 2,
+      "best_answer_changed_vs_union_n": 6,
+      "best_same_as_clean_on_informative_n": 2,
+      "best_target_hits_on_informative_n": 2,
+      "best_mean_logit_restore_vs_union": 4.10026,
+      "best_mean_rank_restore_vs_union": 45.25,
+      "low_delta_target_hit_n": 0,
+      "random_control_target_hit_n": 0,
+      "low_delta_semantic_target_hit_n": 0,
+      "random_control_semantic_target_hit_n": 0,
+      "reading": "Decoded answer bridge smoke is partially supported on informative clean-vs-union rows."
+    },
+    "qwen": {
+      "status": "partial_generation_bridge_smoke",
+      "informative_clean_vs_union_rows": 13,
+      "best_group": "top_hidden_delta_plus_answer_adjacent",
+      "best_target_hit_n": 4,
+      "best_semantic_target_hit_n": 4,
+      "best_answer_changed_vs_union_n": 11,
+      "best_same_as_clean_on_informative_n": 3,
+      "best_target_hits_on_informative_n": 2,
+      "best_mean_logit_restore_vs_union": 5.255859,
+      "best_mean_rank_restore_vs_union": 1247.875,
+      "low_delta_target_hit_n": 3,
+      "random_control_target_hit_n": 3,
+      "low_delta_semantic_target_hit_n": 2,
+      "random_control_semantic_target_hit_n": 2,
+      "reading": "Decoded answer bridge smoke is partially supported on informative clean-vs-union rows."
+    }
+  }
+}

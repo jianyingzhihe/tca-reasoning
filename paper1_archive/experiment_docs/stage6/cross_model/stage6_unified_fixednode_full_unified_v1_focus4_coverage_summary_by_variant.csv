@@ -1,0 +1,4 @@
+attempted_over_planned,attempted_rows,error_rows,not_attempted_rows,out_of_range_over_attempted,planned_aligned_rows,planned_rows,skipped_unaligned_rows,source_pos_out_of_range_rows,stage6_question_variant,unique_samples,usable_exact_over_planned,usable_exact_over_planned_aligned,usable_exact_rows
+1.0,176,0,0,0.0,136,176,40,0,original,12,0.7727272727272727,1.0,136
+1.0,176,5,0,0.028409090909090908,144,176,32,5,paraphrase_1,12,0.7897727272727273,0.9652777777777778,139
+1.0,172,9,0,0.05232558139534884,148,172,24,9,paraphrase_2,12,0.8081395348837209,0.9391891891891891,139

@@ -405,27 +405,6 @@ def main() -> int:
         attempt_log_path = ""
 
         output_pt = out_dir / f"{sample_id}.pt"
-        if output_pt.exists():
-            processed += 1
-            meta_rows.append(
-                {
-                    "sample_id": sample_id,
-                    "question": question,
-                    "image_path": image_path,
-                    "generated_text": generated_text,
-                    "answer_text": answer_text,
-                    "assistant_prefix": "",
-                    "target_token_id": "",
-                    "target_token_text": "",
-                    "used_max_feature_nodes": "",
-                    "graph_output_path": str(output_pt),
-                    "attempt_log_path": "",
-                    "status": "exists",
-                    "error_message": "",
-                }
-            )
-            _write_metadata_rows(metadata_csv, meta_rows, fieldnames)
-            continue
 
         try:
             if not image_path or not question:
@@ -437,6 +416,27 @@ def main() -> int:
             token_id, token_text = _first_answer_token_id(tokenizer, assistant_prefix, answer_text)
             target_token_id = str(token_id)
             target_token_text = token_text
+            if output_pt.exists():
+                processed += 1
+                meta_rows.append(
+                    {
+                        "sample_id": sample_id,
+                        "question": question,
+                        "image_path": image_path,
+                        "generated_text": generated_text,
+                        "answer_text": answer_text,
+                        "assistant_prefix": assistant_prefix,
+                        "target_token_id": target_token_id,
+                        "target_token_text": target_token_text,
+                        "used_max_feature_nodes": "",
+                        "graph_output_path": str(output_pt),
+                        "attempt_log_path": "",
+                        "status": "exists",
+                        "error_message": "",
+                    }
+                )
+                _write_metadata_rows(metadata_csv, meta_rows, fieldnames)
+                continue
             last_exc = None
             for attempt_idx, feature_limit in enumerate(retry_limits, start=1):
                 cmd_preview = [
@@ -467,6 +467,10 @@ def main() -> int:
                 ]
                 if args.offload != "none":
                     cmd_preview.extend(["--offload", args.offload])
+                if args.lazy_encoder:
+                    cmd_preview.append("--lazy-encoder")
+                if args.lazy_decoder:
+                    cmd_preview.append("--lazy-decoder")
                 if args.verbose_attribution:
                     cmd_preview.append("--verbose")
 

@@ -1,0 +1,13 @@
+{
+  "created_at": "2026-05-26 22:07:33",
+  "status": "qwen_route_may_live_in_plt_error",
+  "pack": "strict",
+  "mode": "full",
+  "tag": "stage4_038",
+  "raw_csv": "E:\\Bridging\\doc\\experiments\\stage4\\cross_model\\stage4_qwen_native_route_hidden_to_plt_strict_full_stage4_038_raw.csv",
+  "hidden_ok": true,
+  "hidden_prior_supported": true,
+  "plt_topk_ok": false,
+  "plt_error_ok": true,
+  "claim_boundary": "Smoke statuses are diagnostic only; full primary and strict confirmation are required for paper claims."
+}

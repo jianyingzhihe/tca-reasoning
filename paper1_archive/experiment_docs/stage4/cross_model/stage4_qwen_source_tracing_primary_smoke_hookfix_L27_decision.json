@@ -1,0 +1,15 @@
+{
+  "status": "qwen_adapter_blocked",
+  "reason": "layer_27_index_out_of_range_for_current_qwen_plt_asset_or_loader",
+  "pack": "primary",
+  "mode": "smoke",
+  "metrics": {
+    "meta_a_rows": 3,
+    "meta_b_rows": 3,
+    "graph_ok_a": 0,
+    "graph_ok_b": 0,
+    "graph_success_rate": "0",
+    "valid_samples": 0
+  },
+  "claim_boundary": "Layer-27 smoke is an asset/loader availability check and is not mechanism-negative evidence."
+}

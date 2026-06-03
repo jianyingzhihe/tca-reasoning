@@ -1,0 +1,41 @@
+{
+  "claim_boundary": "Stage 2O Experiment 2 is an approximate source-control route probe. It can support source-control-like evidence, but not full Gemma-style route replication without source tracing adapter.",
+  "model_decisions": {
+    "qwen": {
+      "status": "approx_source_control_route_supported",
+      "source_control_restore": {
+        "n": 48,
+        "positive_n": 41,
+        "mean": 0.476888,
+        "ci95_low": 0.305664,
+        "ci95_high": 0.683268,
+        "status": "stable_positive"
+      },
+      "source_control_zeroing": {
+        "n": 48,
+        "positive_n": 48,
+        "mean": 0.863281,
+        "ci95_low": 0.713542,
+        "ci95_high": 1.022135,
+        "status": "stable_positive"
+      },
+      "real_minus_shuffled": {
+        "n": 48,
+        "positive_n": 43,
+        "mean": 0.455404,
+        "ci95_low": 0.283203,
+        "ci95_high": 0.65918,
+        "status": "stable_positive"
+      },
+      "correct_minus_wrong": {
+        "n": 4,
+        "positive_n": 4,
+        "mean": 0.669886,
+        "ci95_low": 0.452488,
+        "ci95_high": 0.887284,
+        "status": "stable_positive"
+      }
+    }
+  },
+  "overall_status": "model_specific_approx_source_control_support"
+}

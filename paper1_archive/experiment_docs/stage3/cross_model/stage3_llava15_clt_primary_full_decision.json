@@ -1,0 +1,30 @@
+{
+  "status": "not_supported",
+  "asset": "LLaVA-1.5-CLT",
+  "pack": "primary",
+  "claim_boundary": "LLaVA-CLT is diagnostic/auxiliary. Weak feature localization is not evidence that LLaVA has no cross-modal mechanism.",
+  "inputs": {
+    "feature_rows": 4320,
+    "feature_prompt_runs": 144,
+    "source_rows": 2112,
+    "source_prompt_runs": 139,
+    "source_usable_pairs": 264
+  },
+  "primary_feature_specificity_positive": {
+    "positive": 3,
+    "total": 8
+  },
+  "source_control_positive": {
+    "positive": 4,
+    "total": 4
+  },
+  "real_vs_shuffled_positive": {
+    "positive": 2,
+    "total": 8
+  },
+  "known_gaps": [
+    "This CLT line is auxiliary and should not alter the PLT-only verdict by itself.",
+    "Source-control is approximate feature probing, not Gemma ReplacementModel source tracing.",
+    "Decoded generation-level bridge is not part of this paperpack CLT analyzer."
+  ]
+}

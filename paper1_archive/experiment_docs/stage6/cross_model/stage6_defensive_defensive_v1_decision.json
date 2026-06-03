@@ -1,0 +1,14 @@
+{
+  "tag": "defensive_v1",
+  "updated": "2026-06-02 15:16:27",
+  "status": "ready_for_defensive_smoke",
+  "missing_required": [],
+  "gemma_hidden_to_plt_status": "gemma_hidden_flow_error_heavy_like_qwen",
+  "qwen_grouped_route_status": "qwen_hidden_route_feature_route_not_supported",
+  "next_steps": [
+    "build Gemma error-heavy vs source-route case panel",
+    "run gpu1 Qwen grouped composition smoke",
+    "run gpu1 mask robustness smoke",
+    "attempt decoded bridge only after cleaner smoke results"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "status": "no_sparse_route_support_L17_L20",
+  "layers": [
+    17,
+    18,
+    19,
+    20
+  ],
+  "near_pass_count": 1,
+  "near_pass_layers": [
+    17
+  ],
+  "metrics_csv": "E:\\Bridging\\doc\\experiments\\stage4\\cross_model\\stage4_qwen_all_layer_bounded_exhaustive_L17_L20_partial_metrics.csv"
+}

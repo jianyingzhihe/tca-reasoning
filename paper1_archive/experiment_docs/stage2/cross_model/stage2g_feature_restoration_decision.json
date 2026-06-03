@@ -1,0 +1,36 @@
+{
+  "evidence_ladder": {
+    "readout_replication": "supported by Stage 2F for Qwen/LLaVA",
+    "feature_direction_intervention": "not established by Stage 2G dose/sign probe",
+    "mask_to_clean_restoration": "evaluated here",
+    "source_control_causal_replication": "not established cross-model; Gemma3 remains the only full-chain model"
+  },
+  "model_decisions": {
+    "llava": {
+      "model_family": "llava",
+      "best_evidence_condition": "evidence_topk_restore_s1p0",
+      "best_mean_logit_restore": -0.03125,
+      "best_mean_rank_restore": 1.166667,
+      "best_positive_logit_restore_n": 2,
+      "best_positive_rank_restore_n": 2,
+      "best_mean_logit_gap_closure": -0.032112,
+      "best_specificity_logit": -0.07487,
+      "best_specificity_rank": -3.166666,
+      "decision_status": "not_supported_feature_level_restoration",
+      "claim_boundary": "No source-control causal route replication unless evidence restoration clearly beats control on rank/logit restoration."
+    },
+    "qwen": {
+      "model_family": "qwen",
+      "best_evidence_condition": "evidence_topk_restore_s1p0",
+      "best_mean_logit_restore": 0.036458,
+      "best_mean_rank_restore": 0.333333,
+      "best_positive_logit_restore_n": 3,
+      "best_positive_rank_restore_n": 1,
+      "best_mean_logit_gap_closure": 0.070728,
+      "best_specificity_logit": 0.005208,
+      "best_specificity_rank": -1.0,
+      "decision_status": "partial_logit_restoration_only",
+      "claim_boundary": "No source-control causal route replication unless evidence restoration clearly beats control on rank/logit restoration."
+    }
+  }
+}

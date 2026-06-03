@@ -1,0 +1,42 @@
+{
+  "status": "qwen_smoke_artifacts_passed_direction_not_supported",
+  "reason": "smoke_artifacts_present_but_feature_zeroing_did_not_hurt_target",
+  "pack": "primary",
+  "mode": "smoke",
+  "metrics": {
+    "pack": "primary",
+    "mode": "smoke",
+    "meta_a_rows": 3,
+    "meta_b_rows": 3,
+    "graph_ok_a": 3,
+    "graph_ok_b": 3,
+    "prompt_runs_ok": 6,
+    "graph_success_rate": "1",
+    "valid_samples": 3,
+    "compare_rows": 3,
+    "node_rows": 42,
+    "feature_node_rows": 18,
+    "edge_rows": 36,
+    "intervention_rows": 24,
+    "mean_delta_target_logit": "0.0520833",
+    "frac_negative_delta_target_logit": "0.0833333",
+    "frac_rank_hurt": "0",
+    "best_zeroing_mode": "subtract",
+    "best_mode_frac_negative_delta_target_logit": "0.166667"
+  },
+  "zeroing_mode_summary": {
+    "add": {
+      "rows": "12",
+      "mean_delta_target_logit": "0.0729167",
+      "frac_negative_delta_target_logit": "0",
+      "frac_rank_hurt": "0"
+    },
+    "subtract": {
+      "rows": "12",
+      "mean_delta_target_logit": "0.03125",
+      "frac_negative_delta_target_logit": "0.166667",
+      "frac_rank_hurt": "0"
+    }
+  },
+  "claim_boundary": "Qwen full source-tracing verdict is only supported if adapter graph, compare, intervention, and controls all pass. Blocked adapter is not negative mechanism evidence."
+}

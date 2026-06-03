@@ -1,0 +1,17 @@
+pack,mode,layer,raw_file,raw_rows,candidate_count,ok_rows,source_rows,route_first_234_count,route_first_gold_count,route_first_evidence_gold_count
+primary,full,10,stage4_qwen_route_first_primary_full_L10_routefirst_v1_raw.csv,491520,12288,491520,122880,1104,811,697
+primary,full,11,stage4_qwen_route_first_primary_full_L11_routefirst_v1_raw.csv,61440,1536,61440,15360,145,112,108
+primary,full,12,stage4_qwen_route_first_primary_full_L12_routefirst_v1_raw.csv,61440,1536,61440,15360,137,100,98
+primary,full,13,stage4_qwen_route_first_primary_full_L13_routefirst_v1_raw.csv,61440,1536,61440,15360,124,98,93
+primary,full,14,stage4_qwen_route_first_primary_full_L14_routefirst_v1_raw.csv,61440,1536,61440,15360,144,101,96
+primary,full,15,stage4_qwen_route_first_primary_full_L15_routefirst_v1_raw.csv,61440,1536,61440,15360,124,94,84
+primary,full,16,stage4_qwen_route_first_primary_full_L16_routefirst_v1_raw.csv,61440,1536,61440,15360,120,74,70
+primary,full,17,stage4_qwen_route_first_primary_full_L17_routefirst_v1_raw.csv,61440,1536,61440,15360,131,101,88
+strict,full,10,stage4_qwen_route_first_strict_full_L10_routefirst_v1_raw.csv,42480,1062,42480,10620,1062,796,684
+strict,full,11,stage4_qwen_route_first_strict_full_L11_routefirst_v1_raw.csv,5520,138,5520,1380,138,105,101
+strict,full,12,stage4_qwen_route_first_strict_full_L12_routefirst_v1_raw.csv,5160,129,5160,1290,129,96,95
+strict,full,13,stage4_qwen_route_first_strict_full_L13_routefirst_v1_raw.csv,4680,117,4680,1170,117,93,88
+strict,full,14,stage4_qwen_route_first_strict_full_L14_routefirst_v1_raw.csv,5280,132,5280,1320,132,97,92
+strict,full,15,stage4_qwen_route_first_strict_full_L15_routefirst_v1_raw.csv,4600,115,4600,1150,115,91,82
+strict,full,16,stage4_qwen_route_first_strict_full_L16_routefirst_v1_raw.csv,4560,114,4560,1140,114,74,70
+strict,full,17,stage4_qwen_route_first_strict_full_L17_routefirst_v1_raw.csv,4920,123,4920,1230,123,95,83

@@ -1,0 +1,17 @@
+condition,reasoning_operation,metric,n,mean,ci95_low,ci95_high,positive_count,positive_rate
+answer_mask,,source_minus_nearest,7,0.9732142857142857,0.16964285714285715,1.875,5,0.7142857142857143
+union_mask,,source_minus_nearest,7,1.1428571428571428,0.32142857142857145,2.0714285714285716,6,0.8571428571428571
+answer_mask,,source_minus_random16,7,0.46875,0.06138392857142857,0.8895089285714286,4,0.5714285714285714
+union_mask,,source_minus_random16,7,0.5223214285714286,0.12165178571428571,0.9241071428571429,5,0.7142857142857143
+answer_mask,scene_inference,source_minus_nearest,2,0.0625,0.0,0.125,1,0.5
+answer_mask,symbol_text_reading,source_minus_nearest,3,1.75,-0.125,3.0,2,0.6666666666666666
+answer_mask,visual_readout,source_minus_nearest,2,0.71875,0.5,0.9375,2,1.0
+union_mask,scene_inference,source_minus_nearest,2,0.0,-0.125,0.125,1,0.5
+union_mask,symbol_text_reading,source_minus_nearest,3,1.9583333333333333,0.125,3.0,3,1.0
+union_mask,visual_readout,source_minus_nearest,2,1.0625,1.0,1.125,2,1.0
+answer_mask,scene_inference,source_minus_random16,2,-0.12890625,-0.25,-0.0078125,0,0.0
+answer_mask,symbol_text_reading,source_minus_random16,3,0.3880208333333333,-0.1015625,0.7890625,2,0.6666666666666666
+answer_mask,visual_readout,source_minus_random16,2,1.1875,1.0546875,1.3203125,2,1.0
+union_mask,scene_inference,source_minus_random16,2,-0.00390625,-0.1328125,0.125,1,0.5
+union_mask,symbol_text_reading,source_minus_random16,3,0.4296875,-0.1015625,0.7265625,2,0.6666666666666666
+union_mask,visual_readout,source_minus_random16,2,1.1875,0.9296875,1.4453125,2,1.0

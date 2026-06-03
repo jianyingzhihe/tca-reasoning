@@ -1,0 +1,91 @@
+{
+  "claim_boundary": "Stage 2O Experiment 1 checks attribution-weighted feature-level bridge. It does not establish Gemma-style source-control route replication.",
+  "model_decisions": {
+    "qwen": {
+      "status": "feature_bridge_bidirectional_supported",
+      "direction_decisions": {
+        "restore": {
+          "status": "supported",
+          "n_rows": 48,
+          "above_all_controls_n": 40,
+          "mean_positive_control_count": 3.6875,
+          "evidence_summary": [
+            {
+              "model_family": "qwen",
+              "mask_condition": "answer_mask",
+              "position_group": "top_hidden_delta_plus_answer_adjacent",
+              "direction": "restore",
+              "feature_group": "evidence_attribution_topk",
+              "n_rows": 24,
+              "positive_logit_n": 24,
+              "positive_rank_n": 22,
+              "mean_logit_effect": 1.279297,
+              "ci95_low": 0.867839,
+              "ci95_high": 1.729818,
+              "effect_status": "stable_positive",
+              "mean_rank_effect": 1052.041667,
+              "mean_gap_closure": 0.212161
+            },
+            {
+              "model_family": "qwen",
+              "mask_condition": "union_mask",
+              "position_group": "top_hidden_delta_plus_answer_adjacent",
+              "direction": "restore",
+              "feature_group": "evidence_attribution_topk",
+              "n_rows": 24,
+              "positive_logit_n": 23,
+              "positive_rank_n": 21,
+              "mean_logit_effect": 1.089844,
+              "ci95_low": 0.630208,
+              "ci95_high": 1.617188,
+              "effect_status": "stable_positive",
+              "mean_rank_effect": 397.375,
+              "mean_gap_closure": 0.169614
+            }
+          ]
+        },
+        "corrupt": {
+          "status": "supported",
+          "n_rows": 48,
+          "above_all_controls_n": 32,
+          "mean_positive_control_count": 3.270833,
+          "evidence_summary": [
+            {
+              "model_family": "qwen",
+              "mask_condition": "answer_mask",
+              "position_group": "top_hidden_delta_plus_answer_adjacent",
+              "direction": "corrupt",
+              "feature_group": "evidence_attribution_topk",
+              "n_rows": 24,
+              "positive_logit_n": 23,
+              "positive_rank_n": 6,
+              "mean_logit_effect": 0.747396,
+              "ci95_low": 0.434896,
+              "ci95_high": 1.132812,
+              "effect_status": "stable_positive",
+              "mean_rank_effect": 1.75,
+              "mean_gap_closure": 0.122925
+            },
+            {
+              "model_family": "qwen",
+              "mask_condition": "union_mask",
+              "position_group": "top_hidden_delta_plus_answer_adjacent",
+              "direction": "corrupt",
+              "feature_group": "evidence_attribution_topk",
+              "n_rows": 24,
+              "positive_logit_n": 20,
+              "positive_rank_n": 8,
+              "mean_logit_effect": 0.721354,
+              "ci95_low": 0.348958,
+              "ci95_high": 1.161458,
+              "effect_status": "stable_positive",
+              "mean_rank_effect": 1.583333,
+              "mean_gap_closure": 0.108007
+            }
+          ]
+        }
+      }
+    }
+  },
+  "overall_status": "partial_or_model_specific_feature_bridge_support"
+}

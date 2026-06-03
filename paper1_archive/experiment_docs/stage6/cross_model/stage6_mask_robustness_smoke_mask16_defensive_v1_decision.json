@@ -1,0 +1,9 @@
+{
+  "tag": "mask16_defensive_v1",
+  "updated": "2026-06-02 21:27:53",
+  "status": "mask_robustness_smoke_ready",
+  "original_vs_dilate_route234_delta": 0.022727272727272707,
+  "original_vs_erode_route234_delta": -0.03787878787878789,
+  "original_vs_dilate_specificity_delta": -2.512885816169508,
+  "original_vs_erode_specificity_delta": -3.015906131628787
+}

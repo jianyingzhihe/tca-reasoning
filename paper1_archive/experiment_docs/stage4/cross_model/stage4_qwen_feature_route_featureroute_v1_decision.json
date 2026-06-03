@@ -1,0 +1,133 @@
+{
+  "status": "qwen_hidden_route_feature_route_not_supported",
+  "updated_at": "2026-05-29 22:41:55",
+  "tag": "featureroute_v1",
+  "pack_filter": "strict",
+  "mode_filter": "full",
+  "packs_seen": [
+    "strict"
+  ],
+  "modes_seen": [
+    "full"
+  ],
+  "topks_seen": [
+    4,
+    8,
+    16,
+    32,
+    64
+  ],
+  "passing_topks": [],
+  "primary_full_route_count": 0,
+  "strict_full_route_count": 435,
+  "primary_unique_sample_count": 0,
+  "strict_unique_sample_count": 48,
+  "strict_missing_fraction_mean": 0.0,
+  "topk_gate_report": {
+    "4": {
+      "primary": {
+        "gate1_evidence_sensitive": false,
+        "gate2_clean_source_gt_controls": false,
+        "gate3_restore_source_gt_controls": false,
+        "gate4_real_gt_shifted": false,
+        "gate4_real_gt_shuffled": false,
+        "gate5_correct_gt_wrong": false,
+        "rank_bridge": false
+      },
+      "strict": {
+        "gate1_evidence_sensitive": true,
+        "gate2_clean_source_gt_controls": false,
+        "gate3_restore_source_gt_controls": false,
+        "gate4_real_gt_shifted": false,
+        "gate4_real_gt_shuffled": false,
+        "gate5_correct_gt_wrong": true,
+        "rank_bridge": false
+      }
+    },
+    "8": {
+      "primary": {
+        "gate1_evidence_sensitive": false,
+        "gate2_clean_source_gt_controls": false,
+        "gate3_restore_source_gt_controls": false,
+        "gate4_real_gt_shifted": false,
+        "gate4_real_gt_shuffled": false,
+        "gate5_correct_gt_wrong": false,
+        "rank_bridge": false
+      },
+      "strict": {
+        "gate1_evidence_sensitive": true,
+        "gate2_clean_source_gt_controls": false,
+        "gate3_restore_source_gt_controls": false,
+        "gate4_real_gt_shifted": true,
+        "gate4_real_gt_shuffled": false,
+        "gate5_correct_gt_wrong": true,
+        "rank_bridge": false
+      }
+    },
+    "16": {
+      "primary": {
+        "gate1_evidence_sensitive": false,
+        "gate2_clean_source_gt_controls": false,
+        "gate3_restore_source_gt_controls": false,
+        "gate4_real_gt_shifted": false,
+        "gate4_real_gt_shuffled": false,
+        "gate5_correct_gt_wrong": false,
+        "rank_bridge": false
+      },
+      "strict": {
+        "gate1_evidence_sensitive": true,
+        "gate2_clean_source_gt_controls": false,
+        "gate3_restore_source_gt_controls": false,
+        "gate4_real_gt_shifted": false,
+        "gate4_real_gt_shuffled": false,
+        "gate5_correct_gt_wrong": true,
+        "rank_bridge": false
+      }
+    },
+    "32": {
+      "primary": {
+        "gate1_evidence_sensitive": false,
+        "gate2_clean_source_gt_controls": false,
+        "gate3_restore_source_gt_controls": false,
+        "gate4_real_gt_shifted": false,
+        "gate4_real_gt_shuffled": false,
+        "gate5_correct_gt_wrong": false,
+        "rank_bridge": false
+      },
+      "strict": {
+        "gate1_evidence_sensitive": true,
+        "gate2_clean_source_gt_controls": true,
+        "gate3_restore_source_gt_controls": false,
+        "gate4_real_gt_shifted": false,
+        "gate4_real_gt_shuffled": false,
+        "gate5_correct_gt_wrong": true,
+        "rank_bridge": false
+      }
+    },
+    "64": {
+      "primary": {
+        "gate1_evidence_sensitive": false,
+        "gate2_clean_source_gt_controls": false,
+        "gate3_restore_source_gt_controls": false,
+        "gate4_real_gt_shifted": false,
+        "gate4_real_gt_shuffled": false,
+        "gate5_correct_gt_wrong": false,
+        "rank_bridge": false
+      },
+      "strict": {
+        "gate1_evidence_sensitive": true,
+        "gate2_clean_source_gt_controls": true,
+        "gate3_restore_source_gt_controls": false,
+        "gate4_real_gt_shifted": false,
+        "gate4_real_gt_shuffled": false,
+        "gate5_correct_gt_wrong": true,
+        "rank_bridge": false
+      }
+    }
+  },
+  "summary_csv": "E:\\Bridging\\doc\\experiments\\stage4\\cross_model\\stage4_qwen_feature_route_featureroute_v1_summary.csv",
+  "specificity_csv": "E:\\Bridging\\doc\\experiments\\stage4\\cross_model\\stage4_qwen_feature_route_featureroute_v1_specificity.csv",
+  "route_metrics_csv": "E:\\Bridging\\doc\\experiments\\stage4\\cross_model\\stage4_qwen_feature_route_featureroute_v1_route_metrics.csv",
+  "concentration_csv": "E:\\Bridging\\doc\\experiments\\stage4\\cross_model\\stage4_qwen_feature_route_featureroute_v1_concentration.csv",
+  "claim_boundary": "Stage4-066 tests Qwen-native grouped feature routes under route-first discovery. It does not establish Gemma-style automatic source-tracing graph replication."
+}

@@ -1,0 +1,4 @@
+split,metric_group,rows,empty_generated,error_rows,strict_gold_correct,n,node_overlap_jaccard_mean,edge_overlap_jaccard_mean,delta_target_total_in_abs_mean,a_traced_nodes_mean,b_traced_nodes_mean,a_traced_edges_mean,b_traced_edges_mean
+A_D_visual_only,,72,1,0,10,,,,,,,,
+B_B_direct,,72,0,0,16,,,,,,,,
+,sample_compare,,,,,71,0.30924465445715554,0.2093654008657556,-7.616048490497428,28.323943661971832,29.788732394366196,48.014084507042256,51.57746478873239

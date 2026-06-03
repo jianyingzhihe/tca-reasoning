@@ -1,0 +1,16 @@
+{
+  "status": "qwen_clt_partial_robustness",
+  "pack": "primary",
+  "paired_feature_rows": 4320,
+  "paired_source_rows": 726,
+  "primary_feature_clt_positive": {
+    "positive": 2,
+    "total": 2
+  },
+  "primary_source_clt_positive": {
+    "positive": 4,
+    "total": 4
+  },
+  "primary_sign_agreement_mean": 0.5706625683060109,
+  "claim_boundary": "This compares Qwen2.5-VL PLT vs CLT on the same paperpack sample/prompt/mask/control schema. It supports robustness or representation-dependence claims only; it is not Gemma-style source tracing."
+}

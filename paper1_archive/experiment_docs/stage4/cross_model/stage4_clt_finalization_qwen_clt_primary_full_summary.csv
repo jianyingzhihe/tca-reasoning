@@ -1,0 +1,2 @@
+asset,pack,mode,layer,topk,feature_rows,feature_prompt_runs,feature_positive_controls,feature_control_tests,feature_mean_source_minus_control,source_rows,source_prompt_runs,source_pairs,source_positive_pairs,source_mean_minus_control,real_minus_shuffled_mean
+qwen_clt,primary,full,26,1,4320,144,1645,3456,0.127253,1848,127,924,498,0.195985,0.140577

@@ -1,0 +1,229 @@
+{
+  "updated": "2026-06-02 20:34:51",
+  "mode": "smoke",
+  "status": "decoded_bridge_smoke_ready",
+  "asset_decisions": {
+    "gemma3_hidden:hidden_residual": {
+      "status": "decoded_bridge_rank_margin_only",
+      "asset_id": "gemma3_hidden",
+      "bridge_operator": "hidden_residual",
+      "directions": [
+        {
+          "asset_id": "gemma3_hidden",
+          "bridge_operator": "hidden_residual",
+          "direction": "corrupt",
+          "case_count": 1,
+          "mean_oriented_sequence_gap": -1.53509521484375,
+          "positive_sequence_frac": 0.0,
+          "mean_oriented_first_token_gap": 2.25,
+          "positive_first_token_frac": 1.0,
+          "mean_oriented_rank_gap": 0.0,
+          "positive_rank_frac": 0.0,
+          "mean_oriented_margin_gap": 1.25,
+          "positive_margin_frac": 1.0,
+          "source_decoded_to_clean_count": 0,
+          "source_decoded_changed_vs_reference_count": 0
+        },
+        {
+          "asset_id": "gemma3_hidden",
+          "bridge_operator": "hidden_residual",
+          "direction": "restore",
+          "case_count": 1,
+          "mean_oriented_sequence_gap": 24.58910369873047,
+          "positive_sequence_frac": 1.0,
+          "mean_oriented_first_token_gap": 30.5625,
+          "positive_first_token_frac": 1.0,
+          "mean_oriented_rank_gap": 4191.0,
+          "positive_rank_frac": 1.0,
+          "mean_oriented_margin_gap": 2.3125,
+          "positive_margin_frac": 1.0,
+          "source_decoded_to_clean_count": 0,
+          "source_decoded_changed_vs_reference_count": 0
+        }
+      ]
+    },
+    "gemma3_plt:plt_reconstruction_error": {
+      "status": "decoded_bridge_rank_margin_only",
+      "asset_id": "gemma3_plt",
+      "bridge_operator": "plt_reconstruction_error",
+      "directions": [
+        {
+          "asset_id": "gemma3_plt",
+          "bridge_operator": "plt_reconstruction_error",
+          "direction": "corrupt",
+          "case_count": 3,
+          "mean_oriented_sequence_gap": -1.9501279195149739,
+          "positive_sequence_frac": 0.0,
+          "mean_oriented_first_token_gap": 2.0,
+          "positive_first_token_frac": 1.0,
+          "mean_oriented_rank_gap": 0.0,
+          "positive_rank_frac": 0.0,
+          "mean_oriented_margin_gap": 0.25,
+          "positive_margin_frac": 0.6666666666666666,
+          "source_decoded_to_clean_count": 0,
+          "source_decoded_changed_vs_reference_count": 0
+        },
+        {
+          "asset_id": "gemma3_plt",
+          "bridge_operator": "plt_reconstruction_error",
+          "direction": "restore",
+          "case_count": 3,
+          "mean_oriented_sequence_gap": 25.381432851155598,
+          "positive_sequence_frac": 1.0,
+          "mean_oriented_first_token_gap": 31.020833333333332,
+          "positive_first_token_frac": 1.0,
+          "mean_oriented_rank_gap": 3738.0,
+          "positive_rank_frac": 1.0,
+          "mean_oriented_margin_gap": 2.1875,
+          "positive_margin_frac": 1.0,
+          "source_decoded_to_clean_count": 0,
+          "source_decoded_changed_vs_reference_count": 0
+        }
+      ]
+    },
+    "gemma3_plt:plt_topk_reconstruction": {
+      "status": "decoded_bridge_rank_margin_only",
+      "asset_id": "gemma3_plt",
+      "bridge_operator": "plt_topk_reconstruction",
+      "directions": [
+        {
+          "asset_id": "gemma3_plt",
+          "bridge_operator": "plt_topk_reconstruction",
+          "direction": "corrupt",
+          "case_count": 3,
+          "mean_oriented_sequence_gap": 0.3874308268229167,
+          "positive_sequence_frac": 0.6666666666666666,
+          "mean_oriented_first_token_gap": 0.0,
+          "positive_first_token_frac": 0.3333333333333333,
+          "mean_oriented_rank_gap": 0.0,
+          "positive_rank_frac": 0.0,
+          "mean_oriented_margin_gap": 0.08333333333333333,
+          "positive_margin_frac": 0.3333333333333333,
+          "source_decoded_to_clean_count": 0,
+          "source_decoded_changed_vs_reference_count": 0
+        },
+        {
+          "asset_id": "gemma3_plt",
+          "bridge_operator": "plt_topk_reconstruction",
+          "direction": "restore",
+          "case_count": 3,
+          "mean_oriented_sequence_gap": 0.09042104085286458,
+          "positive_sequence_frac": 0.6666666666666666,
+          "mean_oriented_first_token_gap": -0.6302083333333334,
+          "positive_first_token_frac": 0.0,
+          "mean_oriented_rank_gap": -1781.3333333333333,
+          "positive_rank_frac": 0.3333333333333333,
+          "mean_oriented_margin_gap": -0.109375,
+          "positive_margin_frac": 0.3333333333333333,
+          "source_decoded_to_clean_count": 0,
+          "source_decoded_changed_vs_reference_count": 3
+        }
+      ]
+    },
+    "qwen2p5vl_hidden:hidden_residual": {
+      "status": "decoded_bridge_rank_margin_only",
+      "asset_id": "qwen2p5vl_hidden",
+      "bridge_operator": "hidden_residual",
+      "directions": [
+        {
+          "asset_id": "qwen2p5vl_hidden",
+          "bridge_operator": "hidden_residual",
+          "direction": "corrupt",
+          "case_count": 1,
+          "mean_oriented_sequence_gap": -0.5306682586669922,
+          "positive_sequence_frac": 0.0,
+          "mean_oriented_first_token_gap": 4.5625,
+          "positive_first_token_frac": 1.0,
+          "mean_oriented_rank_gap": 23.0,
+          "positive_rank_frac": 1.0,
+          "mean_oriented_margin_gap": 5.5,
+          "positive_margin_frac": 1.0,
+          "source_decoded_to_clean_count": 0,
+          "source_decoded_changed_vs_reference_count": 0
+        },
+        {
+          "asset_id": "qwen2p5vl_hidden",
+          "bridge_operator": "hidden_residual",
+          "direction": "restore",
+          "case_count": 1,
+          "mean_oriented_sequence_gap": 1.9348182678222656,
+          "positive_sequence_frac": 1.0,
+          "mean_oriented_first_token_gap": 7.25,
+          "positive_first_token_frac": 1.0,
+          "mean_oriented_rank_gap": 2881.0,
+          "positive_rank_frac": 1.0,
+          "mean_oriented_margin_gap": 6.9375,
+          "positive_margin_frac": 1.0,
+          "source_decoded_to_clean_count": 0,
+          "source_decoded_changed_vs_reference_count": 0
+        }
+      ]
+    },
+    "qwen2p5vl_plt:qwen_plt_multifeature": {
+      "status": "decoded_bridge_case_supported",
+      "asset_id": "qwen2p5vl_plt",
+      "bridge_operator": "qwen_plt_multifeature",
+      "directions": [
+        {
+          "asset_id": "qwen2p5vl_plt",
+          "bridge_operator": "qwen_plt_multifeature",
+          "direction": "corrupt",
+          "case_count": 5,
+          "mean_oriented_sequence_gap": 0.07984647750854493,
+          "positive_sequence_frac": 0.6,
+          "mean_oriented_first_token_gap": -0.078125,
+          "positive_first_token_frac": 0.4,
+          "mean_oriented_rank_gap": 0.0,
+          "positive_rank_frac": 0.0,
+          "mean_oriented_margin_gap": "",
+          "positive_margin_frac": "",
+          "source_decoded_to_clean_count": 3,
+          "source_decoded_changed_vs_reference_count": 2
+        },
+        {
+          "asset_id": "qwen2p5vl_plt",
+          "bridge_operator": "qwen_plt_multifeature",
+          "direction": "restore",
+          "case_count": 5,
+          "mean_oriented_sequence_gap": 0.017586612701416017,
+          "positive_sequence_frac": 0.6,
+          "mean_oriented_first_token_gap": 0.1546875,
+          "positive_first_token_frac": 1.0,
+          "mean_oriented_rank_gap": 59.4,
+          "positive_rank_frac": 0.6,
+          "mean_oriented_margin_gap": "",
+          "positive_margin_frac": "",
+          "source_decoded_to_clean_count": 0,
+          "source_decoded_changed_vs_reference_count": 0
+        }
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "asset_id": "gemma3_hidden",
+      "path": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_node_generation_bridge_smoke_defensive_v2_symmetric_gemma.csv",
+      "exists": true,
+      "rows": 30
+    },
+    {
+      "asset_id": "qwen2p5vl_hidden",
+      "path": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_node_generation_bridge_smoke_defensive_v2_symmetric_qwen2p5vl_hidden.csv",
+      "exists": true,
+      "rows": 4
+    },
+    {
+      "asset_id": "qwen2p5vl_plt",
+      "path": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_node_generation_bridge_smoke_defensive_v2_symmetric_qwen2p5vl_plt.csv",
+      "exists": true,
+      "rows": 52
+    },
+    {
+      "asset_id": "qwen2p5vl_clt",
+      "path": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_node_generation_bridge_smoke_defensive_v2_symmetric_qwen2p5vl_clt.csv",
+      "exists": true,
+      "rows": 0
+    }
+  ],
+  "claim_boundary": "Stage6-022 is illustrative case-level bridge evidence. Rank/margin/sequence movement is accepted; stable greedy decoded restoration is not required."
+}

@@ -1,0 +1,28 @@
+{
+  "status": "qwen_plt_strict_support",
+  "claim_boundary": "Qwen2.5-VL-PLT strict72 full supports only approximate feature/source-control evidence. It is not Gemma-style source tracing and does not establish decoded generation bridge.",
+  "inputs": {
+    "feature_rows": 4320,
+    "feature_prompt_runs": 144,
+    "source_rows": 1446,
+    "source_prompt_runs": 128,
+    "source_usable_pairs": 241
+  },
+  "primary_feature_specificity_positive": {
+    "positive": 8,
+    "total": 8
+  },
+  "source_control_positive": {
+    "positive": 4,
+    "total": 4
+  },
+  "real_vs_shuffled_positive": {
+    "positive": 4,
+    "total": 8
+  },
+  "known_gaps": [
+    "shifted_mask was not run in this full runner; current negative spatial mask control is mask_shuffled.",
+    "Qwen still uses approximate source/control feature probes, not a ReplacementModel/source-tracing adapter.",
+    "Sequence-score and decoded generation bridge are not part of this primary full run."
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "evidence_ladder": {
+    "readout_replication": "supported by Stage 2F for Qwen/LLaVA",
+    "feature_level_restoration": "not established by Stage 2G-5",
+    "hidden_state_upper_bound": "evaluated here",
+    "source_control_causal_replication": "not established cross-model; Gemma3 remains the only full-chain model"
+  },
+  "model_decisions": {
+    "llava": {
+      "model_family": "llava",
+      "primary_condition": "hidden_bucket_restore_s1p0",
+      "primary_mean_logit_restore": 2.41276,
+      "primary_positive_logit_restore_n": 6,
+      "primary_mean_rank_restore": 50.5,
+      "primary_positive_rank_restore_n": 4,
+      "primary_mean_logit_gap_closure": 0.666936,
+      "decision_status": "supported_hidden_state_upper_bound",
+      "claim_boundary": "Hidden-state patch is an upper bound for layer/bucket causality. It does not provide feature-level specificity or source-control route replication."
+    },
+    "qwen": {
+      "model_family": "qwen",
+      "primary_condition": "hidden_bucket_restore_s1p0",
+      "primary_mean_logit_restore": 0.765625,
+      "primary_positive_logit_restore_n": 5,
+      "primary_mean_rank_restore": 58.5,
+      "primary_positive_rank_restore_n": 4,
+      "primary_mean_logit_gap_closure": 0.200409,
+      "decision_status": "supported_hidden_state_upper_bound",
+      "claim_boundary": "Hidden-state patch is an upper bound for layer/bucket causality. It does not provide feature-level specificity or source-control route replication."
+    }
+  }
+}

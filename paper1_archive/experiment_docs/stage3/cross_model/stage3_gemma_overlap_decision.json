@@ -1,0 +1,43 @@
+{
+  "status": "partial_calibration_only",
+  "stage3_manifest_samples": 24,
+  "gemma_overlap_available_samples": 4,
+  "gemma_overlap_available_sample_ids": [
+    "okvqa_val_02444",
+    "okvqa_val_2847255",
+    "okvqa_val_4739195",
+    "okvqa_val_5334645"
+  ],
+  "missing_source_control_samples": 20,
+  "missing_source_control_sample_ids": [
+    "okvqa_val_1593205",
+    "okvqa_val_4502065",
+    "okvqa_val_2954205",
+    "okvqa_val_1729795",
+    "okvqa_val_3959785",
+    "okvqa_val_4043385",
+    "okvqa_val_4938465",
+    "okvqa_val_136595",
+    "okvqa_val_3658865",
+    "okvqa_val_1058855",
+    "okvqa_val_340155",
+    "okvqa_val_01514",
+    "okvqa_val_2708155",
+    "okvqa_val_1704425",
+    "okvqa_val_02422",
+    "okvqa_val_3774865",
+    "okvqa_val_03149",
+    "okvqa_val_5606265",
+    "okvqa_val_512035",
+    "okvqa_val_3608785"
+  ],
+  "support_source_nearest_comparison_rows": 14,
+  "summary_artifacts": {
+    "overlap_manifest": "E:\\Bridging\\doc\\experiments\\stage3\\cross_model\\stage3_gemma_overlap_manifest.csv",
+    "raw_rows": "E:\\Bridging\\doc\\experiments\\stage3\\cross_model\\stage3_gemma_overlap_raw_rows.csv",
+    "support_pairs": "E:\\Bridging\\doc\\experiments\\stage3\\cross_model\\stage3_gemma_overlap_support_pairs.csv",
+    "summary": "E:\\Bridging\\doc\\experiments\\stage3\\cross_model\\stage3_gemma_overlap_summary.csv",
+    "missing": "E:\\Bridging\\doc\\experiments\\stage3\\cross_model\\stage3_gemma_missing_source_samples.csv"
+  },
+  "interpretation": "Gemma3-PLT has overlapping historical prefix-fix source/control evidence for a subset of Stage3 aligned24, so it can be used as an overlap calibration baseline. It is not a full 24-sample Stage3 rerun. A full Gemma Stage3 baseline requires new source tracing or a run-ready manifest for the remaining Stage3 samples."
+}

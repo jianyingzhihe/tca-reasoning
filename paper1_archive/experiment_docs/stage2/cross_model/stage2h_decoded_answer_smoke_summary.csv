@@ -1,0 +1,14 @@
+model_family,direction,group_name,group_kind,n_rows,target_hit_n,semantic_target_hit_n,answer_changed_vs_clean_n,answer_changed_vs_union_n,same_as_clean_n,same_as_union_n,mean_prompt_target_logit,mean_prompt_target_rank,mean_first_step_target_rank,mean_logit_restore_vs_union,mean_rank_restore_vs_union,unique_predicted_answers
+llava,baseline,clean,baseline,6,0,2,0,0,6,6,12.040365,3.333333,3.333333,2.949219,54.0,0 | 1 | 中国
+llava,baseline,union_mask,baseline,6,0,2,0,0,6,6,9.091146,57.333333,57.333333,0.0,0.0,0 | 1 | 中国
+llava,restore,answer_adjacent_text,bridge_text,6,0,2,0,0,6,6,9.598307,48.166667,48.166667,0.507161,9.166667,0 | 1 | 中国
+llava,restore,evidence_region_plus_answer_adjacent,bridge_combo,6,0,2,0,0,6,6,10.279297,15.666667,15.666667,1.188151,41.666667,0 | 1 | 中国
+llava,restore,low_delta_control,control,6,0,2,0,0,6,6,9.164062,51.0,51.0,0.072917,6.333333,0 | 1 | 中国
+llava,restore,random_control_1,random_control,6,0,2,0,0,6,6,10.481771,10.166667,10.166667,1.390625,47.166667,0 | 1 | 中国
+llava,restore,top_hidden_delta_plus_answer_adjacent,bridge_combo,6,0,2,0,0,6,6,11.230469,8.0,8.0,2.139323,49.333333,0 | 1 | 中国
+qwen,baseline,clean,baseline,6,6,6,0,4,6,2,17.208333,1.666667,1.666667,3.984375,90.166667,a dog | china | samsung
+qwen,baseline,union_mask,baseline,6,2,2,4,0,2,6,13.223958,91.833333,91.833333,0.0,0.0,china | polo | unknown
+qwen,restore,answer_adjacent_text,bridge_text,6,2,2,4,4,2,2,16.875,2.666667,2.666667,3.651042,89.166667,a horse | china | nokia
+qwen,restore,low_delta_control,control,6,2,2,4,0,2,6,13.229167,94.0,94.0,0.005208,-2.166667,china | polo | unknown
+qwen,restore,random_control_1,random_control,6,2,2,4,0,2,6,13.369792,71.333333,71.333333,0.145833,20.5,china | polo | unknown
+qwen,restore,top_hidden_delta_plus_answer_adjacent,bridge_combo,6,4,4,2,4,4,2,17.666667,1.833333,1.833333,4.442708,90.0,a horse | china | samsung

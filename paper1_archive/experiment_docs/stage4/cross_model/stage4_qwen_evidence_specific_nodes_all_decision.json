@@ -1,0 +1,26 @@
+{
+  "status": "qwen_evidence_sensitive_but_not_causal",
+  "updated_at": "2026-05-28 12:41:15",
+  "tag": "all",
+  "packs_seen": [
+    "primary"
+  ],
+  "layers_seen": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17
+  ],
+  "primary_source_gate": false,
+  "strict_source_gate": false,
+  "primary_mask_gate": false,
+  "strict_mask_gate": false,
+  "summary_csv": "E:\\Bridging\\doc\\experiments\\stage4\\cross_model\\stage4_qwen_evidence_specific_nodes_all_summary.csv",
+  "specificity_csv": "E:\\Bridging\\doc\\experiments\\stage4\\cross_model\\stage4_qwen_evidence_specific_nodes_all_specificity.csv",
+  "case_table_csv": "E:\\Bridging\\doc\\experiments\\stage4\\cross_model\\stage4_qwen_evidence_specific_nodes_all_case_table.csv",
+  "claim_boundary": "Targeted validation tests Qwen-native evidence-specific PLT candidates; it is not Gemma-style automatic source tracing."
+}

@@ -1,0 +1,34 @@
+{
+  "status": "blocked",
+  "failure_type": "answer_aligned_attribute_oom_or_graph_missing",
+  "failed_step": "attribute_B_baseline_gold_answer_unique",
+  "mode": "full",
+  "tag": "gemmaprompt_v1_mf32",
+  "bucket": "stage6_gemma_prompt_text_cot_gemmaprompt_v1_mf32",
+  "interpretation": "Gemma Stage6 prompt/text/CoT source-tracing counterpart. A=condition prompt, B=B_direct/original baseline.",
+  "counts": {
+    "eval_a_rows": 144,
+    "eval_b_rows": 144,
+    "valid_sample_rows": 143,
+    "failure_rows": 1,
+    "meta_a_rows": 143,
+    "meta_b_rows": 3,
+    "sample_compare_rows": 0,
+    "nodes_detailed_rows": 0,
+    "edges_detailed_rows": 0,
+    "graph_a_files": 118,
+    "graph_b_files": 0,
+    "graph_success_rate_vs_valid": 0.0
+  },
+  "artifacts": {
+    "eval_a": "/root/autodl-tmp/tca-reasoning/stage6_gemma_prompt_text_cot/source_tracing_full_gemmaprompt_v1_mf32/promptA_condition_eval.csv",
+    "eval_b": "/root/autodl-tmp/tca-reasoning/stage6_gemma_prompt_text_cot/source_tracing_full_gemmaprompt_v1_mf32/promptB_baseline_eval.csv",
+    "valid_samples": "/root/autodl-tmp/tca-reasoning/stage6_gemma_prompt_text_cot/source_tracing_full_gemmaprompt_v1_mf32/stage6_gemma_prompt_text_cot_full_gemmaprompt_v1_mf32_valid_samples.csv",
+    "failure_manifest": "/root/autodl-tmp/tca-reasoning/stage6_gemma_prompt_text_cot/source_tracing_full_gemmaprompt_v1_mf32/stage6_gemma_prompt_text_cot_full_gemmaprompt_v1_mf32_failure_manifest.csv",
+    "meta_a": "/root/autodl-tmp/tca-reasoning/stage6_gemma_prompt_text_cot/source_tracing_full_gemmaprompt_v1_mf32/answer_aligned_meta_a.csv",
+    "meta_b": "/root/autodl-tmp/tca-reasoning/stage6_gemma_prompt_text_cot/source_tracing_full_gemmaprompt_v1_mf32/answer_aligned_meta_b.csv",
+    "compare_sample": "/root/autodl-tmp/tca-reasoning/stage6_gemma_prompt_text_cot/source_tracing_full_gemmaprompt_v1_mf32/compare/sample_compare_controlled.csv",
+    "compare_nodes": "/root/autodl-tmp/tca-reasoning/stage6_gemma_prompt_text_cot/source_tracing_full_gemmaprompt_v1_mf32/compare/nodes_detailed_controlled.csv",
+    "compare_edges": "/root/autodl-tmp/tca-reasoning/stage6_gemma_prompt_text_cot/source_tracing_full_gemmaprompt_v1_mf32/compare/edges_detailed_controlled.csv"
+  }
+}

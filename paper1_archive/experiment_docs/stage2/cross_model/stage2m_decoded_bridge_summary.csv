@@ -1,0 +1,18 @@
+model_family,direction,group_name,group_kind,n_rows,target_hit_n,semantic_target_hit_n,answer_changed_vs_clean_n,answer_changed_vs_union_n,same_as_clean_n,same_as_union_n,mean_prompt_target_logit,mean_prompt_target_rank,mean_first_step_target_rank,mean_logit_restore_vs_union,mean_rank_restore_vs_union,unique_predicted_answers
+llava,baseline,clean,baseline,12,1,1,0,11,12,1,13.235677,2.666667,2.666667,5.086589,47.333333,1 | 180 | a fire hyd | fire hydrant | ping pong | san francisco | turtle
+llava,baseline,union_mask,baseline,12,0,0,11,0,1,12,8.149089,50.0,50.0,0.0,0.0,0 | 1 | 3m | a fire hyd | seattle | short answer
+llava,restore,activation_matched_plus_answer_adjacent,matched_bridge_control,12,0,0,11,4,1,8,8.948568,31.416667,31.416667,0.799479,18.583333,0 | 3m | a fire hyd | iguana | short answer
+llava,restore,answer_adjacent_text,bridge_text,12,0,0,11,4,1,8,8.777669,34.25,34.25,0.628581,15.75,0 | 3m | a fire hyd | iguana | short answer
+llava,restore,delta_matched_plus_answer_adjacent,matched_bridge_control,12,0,0,11,4,1,8,10.900391,12.166667,12.166667,2.751302,37.833333,0 | 1 | a fire hyd | iguana | short answer
+llava,restore,evidence_region_plus_answer_adjacent,bridge_combo,12,1,1,11,4,1,8,11.714193,8.916667,8.916667,3.565104,41.083333,0 | 1 | a fire hyd | amazon | iguana | short answer
+llava,restore,low_delta_control,control,12,0,0,11,0,1,12,8.229818,48.666667,48.666667,0.080729,1.333333,0 | 1 | 3m | a fire hyd | seattle | short answer
+llava,restore,random_control_1,random_control,12,0,0,11,0,1,12,8.263997,44.083333,44.083333,0.114909,5.916667,0 | 1 | 3m | a fire hyd | seattle | short answer
+llava,restore,top_hidden_delta_plus_answer_adjacent,bridge_combo,12,2,2,9,6,3,6,12.249349,4.75,4.75,4.10026,45.25,0 | 1 | a fire hyd | amazon | fire hydrant | iguana | ping pong | short answer
+qwen,baseline,clean,baseline,16,7,7,0,13,16,3,15.167969,8.625,8.625,5.134766,1251.0,777 | a fire hydr | china | green tortoise | kuwait airways | paddleball | ping pong | removals | samsung | 未知
+qwen,baseline,union_mask,baseline,16,2,2,13,0,3,16,10.033203,1259.625,1259.625,0.0,0.0, | 0 | a hydrant | china | there is no | unknown | 无法确定 | 未知
+qwen,restore,activation_matched_plus_answer_adjacent,matched_bridge_control,16,2,2,12,10,4,6,14.503906,15.375,15.375,4.470703,1244.25, | 5 | 777 | a hydrant | bus | china | nokia | tennis | unknown | 未知
+qwen,restore,answer_adjacent_text,bridge_text,16,2,2,12,10,4,6,13.873047,142.6875,142.6875,3.839844,1116.9375, | 5 | 777 | a hydrant | china | nokia | tennis | thebus | unknown | 未知
+qwen,restore,delta_matched_plus_answer_adjacent,matched_bridge_control,16,2,2,12,11,4,5,14.542969,15.8125,15.8125,4.509766,1243.8125,5 | 777 | a hydrant | china | greenpeace | motorola | tennis | unknown | 未知
+qwen,restore,low_delta_control,control,16,3,2,13,1,3,15,10.029297,1269.6875,1269.6875,-0.003906,-10.0625, | 0 | a hydrant | china | hydrant | there is no | unknown | 无法确定 | 未知
+qwen,restore,random_control_1,random_control,16,3,2,13,1,3,15,10.074219,1150.25,1150.25,0.041016,109.375, | 0 | a hydrant | china | hydrant | there is no | unknown | 无法确定 | 未知
+qwen,restore,top_hidden_delta_plus_answer_adjacent,bridge_combo,16,4,4,10,11,6,5,15.289062,11.75,11.75,5.255859,1247.875,5 | 777 | a hydrant | china | greenpeace | samsung | tennis | unknown | 未知

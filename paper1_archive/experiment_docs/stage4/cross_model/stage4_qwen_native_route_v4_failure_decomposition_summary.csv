@@ -1,0 +1,7 @@
+record_type,pack,slice,rows,main_rows,prompt_runs,mean_adapter_v4_score,mean_zeroing_damage
+candidate_summary,primary,all,134,107,46,0.00031762637462832,0.09151119402985074
+candidate_summary,primary,exact_pos_feature,19,14,14,0.00032461544385396464,0.0975
+candidate_summary,primary,same_feature,115,93,44,0.0003164716588432136,0.09052173913043478
+candidate_summary,strict,all,144,114,48,0.0003017992899491895,0.09166666666666666
+candidate_summary,strict,exact_pos_feature,15,10,12,0.0003211602607566516,0.08183333333333334
+candidate_summary,strict,same_feature,129,104,48,0.00029954801427390314,0.09281007751937985

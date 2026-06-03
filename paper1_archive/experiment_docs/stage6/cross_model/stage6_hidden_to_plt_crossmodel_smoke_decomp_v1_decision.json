@@ -1,0 +1,47 @@
+{
+  "created_at": "2026-06-02 00:09:55",
+  "status": "gemma_hidden_to_plt_decomp_hidden_not_replicated",
+  "mode": "smoke",
+  "tag": "decomp_v1",
+  "gemma_metrics_rows": 336,
+  "primary_hidden_gate": null,
+  "strict_hidden_gate": null,
+  "primary_topk_gate": null,
+  "strict_topk_gate": null,
+  "primary_error_gate": null,
+  "strict_error_gate": null,
+  "source_route_imported": [
+    {
+      "model": "gemma3",
+      "pack": "primary",
+      "operator": "source_tracing_route",
+      "status": "primary_full_passed",
+      "n": 71,
+      "node_overlap_jaccard_mean": 0.30924465445715554,
+      "edge_overlap_jaccard_mean": 0.2093654008657556,
+      "delta_target_total_in_abs_mean": -7.616048490497428,
+      "graph_success_rate_vs_valid": 1.0,
+      "claim_boundary": "Imported existing Gemma Stage3 source-tracing graph compare; no graph rerun."
+    },
+    {
+      "model": "gemma3",
+      "pack": "strict",
+      "operator": "source_tracing_route",
+      "status": "strict_full_graph_compare_passed_intervention_blocked",
+      "n": 71,
+      "node_overlap_jaccard_mean": 0.2998760290821914,
+      "edge_overlap_jaccard_mean": 0.1996125772824626,
+      "delta_target_total_in_abs_mean": -7.609689900572871,
+      "graph_success_rate_vs_valid": 1.0,
+      "claim_boundary": "Imported existing Gemma Stage3 source-tracing graph compare; no graph rerun."
+    }
+  ],
+  "source_route_ok": true,
+  "topk_retention_mean": 0.042317133770352046,
+  "error_retention_mean": 0.8350875426475537,
+  "claim_boundary": "Within-model normalized decomposition only; no cross-model raw logit magnitude comparison.",
+  "metrics_csv": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_hidden_to_plt_crossmodel_smoke_decomp_v1_gemma_metrics.csv",
+  "ratios_csv": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_hidden_to_plt_crossmodel_smoke_decomp_v1_retention_ratios.csv",
+  "source_route_csv": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_hidden_to_plt_crossmodel_smoke_decomp_v1_source_route_import.csv",
+  "qwen_reference_csv": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_hidden_to_plt_crossmodel_smoke_decomp_v1_qwen_reference_metrics.csv"
+}

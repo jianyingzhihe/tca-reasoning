@@ -1,0 +1,133 @@
+{
+  "updated": "2026-06-02 19:45:34",
+  "mode": "full",
+  "status": "decoded_bridge_full_ready",
+  "asset_decisions": {
+    "gemma3_hidden": {
+      "status": "decoded_bridge_case_supported",
+      "directions": [
+        {
+          "asset_id": "gemma3_hidden",
+          "direction": "corrupt",
+          "case_count": 3,
+          "mean_oriented_sequence_gap": -0.733587900797526,
+          "positive_sequence_frac": 0.3333333333333333,
+          "mean_oriented_first_token_gap": 1.5833333333333333,
+          "positive_first_token_frac": 1.0,
+          "mean_oriented_rank_gap": 1.3333333333333333,
+          "positive_rank_frac": 0.6666666666666666,
+          "mean_oriented_margin_gap": 1.1666666666666667,
+          "positive_margin_frac": 0.6666666666666666,
+          "source_decoded_to_clean_count": 0,
+          "source_decoded_changed_vs_reference_count": 1
+        },
+        {
+          "asset_id": "gemma3_hidden",
+          "direction": "restore",
+          "case_count": 3,
+          "mean_oriented_sequence_gap": 18.071619669596355,
+          "positive_sequence_frac": 0.6666666666666666,
+          "mean_oriented_first_token_gap": 27.6875,
+          "positive_first_token_frac": 1.0,
+          "mean_oriented_rank_gap": 1601.3333333333333,
+          "positive_rank_frac": 1.0,
+          "mean_oriented_margin_gap": 11.270833333333334,
+          "positive_margin_frac": 0.6666666666666666,
+          "source_decoded_to_clean_count": 0,
+          "source_decoded_changed_vs_reference_count": 2
+        }
+      ]
+    },
+    "qwen2p5vl_clt": {
+      "status": "decoded_bridge_rank_margin_only",
+      "directions": [
+        {
+          "asset_id": "qwen2p5vl_clt",
+          "direction": "corrupt",
+          "case_count": 15,
+          "mean_oriented_sequence_gap": 0.03854977289835612,
+          "positive_sequence_frac": 0.5333333333333333,
+          "mean_oriented_first_token_gap": 0.014583333333333334,
+          "positive_first_token_frac": 0.6,
+          "mean_oriented_rank_gap": 0.16666666666666666,
+          "positive_rank_frac": 0.4666666666666667,
+          "mean_oriented_margin_gap": "",
+          "positive_margin_frac": "",
+          "source_decoded_to_clean_count": 15,
+          "source_decoded_changed_vs_reference_count": 0
+        },
+        {
+          "asset_id": "qwen2p5vl_clt",
+          "direction": "restore",
+          "case_count": 15,
+          "mean_oriented_sequence_gap": 0.12690483729044597,
+          "positive_sequence_frac": 0.8,
+          "mean_oriented_first_token_gap": 0.28958333333333336,
+          "positive_first_token_frac": 0.8,
+          "mean_oriented_rank_gap": 500.85,
+          "positive_rank_frac": 0.8,
+          "mean_oriented_margin_gap": "",
+          "positive_margin_frac": "",
+          "source_decoded_to_clean_count": 0,
+          "source_decoded_changed_vs_reference_count": 0
+        }
+      ]
+    },
+    "qwen2p5vl_plt": {
+      "status": "decoded_bridge_case_supported",
+      "directions": [
+        {
+          "asset_id": "qwen2p5vl_plt",
+          "direction": "corrupt",
+          "case_count": 15,
+          "mean_oriented_sequence_gap": 0.20487918853759765,
+          "positive_sequence_frac": 0.7333333333333333,
+          "mean_oriented_first_token_gap": -0.04583333333333333,
+          "positive_first_token_frac": 0.4666666666666667,
+          "mean_oriented_rank_gap": 0.0,
+          "positive_rank_frac": 0.0,
+          "mean_oriented_margin_gap": "",
+          "positive_margin_frac": "",
+          "source_decoded_to_clean_count": 13,
+          "source_decoded_changed_vs_reference_count": 2
+        },
+        {
+          "asset_id": "qwen2p5vl_plt",
+          "direction": "restore",
+          "case_count": 15,
+          "mean_oriented_sequence_gap": -0.03182970682779948,
+          "positive_sequence_frac": 0.3333333333333333,
+          "mean_oriented_first_token_gap": 0.09375,
+          "positive_first_token_frac": 0.8666666666666667,
+          "mean_oriented_rank_gap": 57.666666666666664,
+          "positive_rank_frac": 0.8,
+          "mean_oriented_margin_gap": "",
+          "positive_margin_frac": "",
+          "source_decoded_to_clean_count": 0,
+          "source_decoded_changed_vs_reference_count": 0
+        }
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "asset_id": "gemma3_hidden",
+      "path": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_node_generation_bridge_full_defensive_v1_gemma.csv",
+      "exists": true,
+      "rows": 18
+    },
+    {
+      "asset_id": "qwen2p5vl_plt",
+      "path": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_node_generation_bridge_full_defensive_v1_qwen2p5vl_plt.csv",
+      "exists": true,
+      "rows": 156
+    },
+    {
+      "asset_id": "qwen2p5vl_clt",
+      "path": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_node_generation_bridge_full_defensive_v1_qwen2p5vl_clt.csv",
+      "exists": true,
+      "rows": 156
+    }
+  ],
+  "claim_boundary": "Stage6-022 is illustrative case-level bridge evidence. Rank/margin/sequence movement is accepted; stable greedy decoded restoration is not required."
+}

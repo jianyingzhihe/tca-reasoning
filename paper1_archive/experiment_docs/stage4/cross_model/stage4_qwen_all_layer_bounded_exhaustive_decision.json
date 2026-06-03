@@ -1,0 +1,34 @@
+{
+  "status": "qwen_route_may_live_in_plt_error_confirmed",
+  "mode": "smoke",
+  "updated_at": "2026-05-26 23:11:00",
+  "layers_seen": [
+    0,
+    7,
+    14,
+    21,
+    27
+  ],
+  "primary_positive_sparse_metrics": 0,
+  "primary_positive_mask_metrics": 0,
+  "strict_positive_sparse_metrics": 0,
+  "strict_positive_mask_metrics": 0,
+  "topk_positive_restore_metrics": 0,
+  "stage4_038_context": {
+    "stage4_038_decision": {
+      "created_at": "2026-05-26 22:07:33",
+      "status": "qwen_route_may_live_in_plt_error",
+      "pack": "strict",
+      "mode": "full",
+      "tag": "stage4_038",
+      "raw_csv": "E:\\Bridging\\doc\\experiments\\stage4\\cross_model\\stage4_qwen_native_route_hidden_to_plt_strict_full_stage4_038_raw.csv",
+      "hidden_ok": true,
+      "hidden_prior_supported": true,
+      "plt_topk_ok": false,
+      "plt_error_ok": true,
+      "claim_boundary": "Smoke statuses are diagnostic only; full primary and strict confirmation are required for paper claims."
+    },
+    "stage4_038_metrics_rows": 176
+  },
+  "claim_boundary": "Bounded exhaustive over active Qwen-PLT candidates and top causal validations; not literal all-node forward intervention."
+}

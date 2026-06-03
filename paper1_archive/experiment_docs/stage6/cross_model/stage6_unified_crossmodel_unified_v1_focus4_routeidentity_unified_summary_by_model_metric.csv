@@ -1,0 +1,9 @@
+model,overlap_metric,overlap_value_ci_low_sem,overlap_value_mean,overlap_value_positive_frac,route_object,rows,topk,unique_samples
+gemma,edge_overlap_jaccard,0.12746382810384607,0.1825445856427228,0.7563025210084033,gemma_source_tracing_graph,119,graph_mf8,119
+gemma,node_overlap_jaccard,0.23073922477630165,0.28044004357095126,1.0,gemma_source_tracing_graph,119,graph_mf8,119
+qwen,feature_id_overlap,0.5689030011721413,0.5962921137158431,1.0,qwen_route_first_feature_set,144,16,12
+qwen,feature_id_overlap,0.18119189614114278,0.22504960317460318,0.7361111111111112,qwen_route_first_feature_set,144,4,12
+qwen,feature_id_overlap,0.3353466200699383,0.37354269958436626,0.9861111111111112,qwen_route_first_feature_set,144,8,12
+qwen,layer_pos_feature_overlap,0.37699184831881893,0.409236973439872,1.0,qwen_route_first_feature_set,144,16,12
+qwen,layer_pos_feature_overlap,0.11203051796637466,0.15694444444444444,0.4930555555555556,qwen_route_first_feature_set,144,4,12
+qwen,layer_pos_feature_overlap,0.18646590688854608,0.22705997705997705,0.9444444444444444,qwen_route_first_feature_set,144,8,12

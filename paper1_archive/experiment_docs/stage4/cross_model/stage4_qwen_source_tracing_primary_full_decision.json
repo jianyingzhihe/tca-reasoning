@@ -1,0 +1,42 @@
+{
+  "status": "qwen_source_tracing_not_supported",
+  "reason": "adapter_ran_but_intervention_direction_not_sufficient",
+  "pack": "primary",
+  "mode": "full",
+  "metrics": {
+    "pack": "primary",
+    "mode": "full",
+    "meta_a_rows": 72,
+    "meta_b_rows": 72,
+    "graph_ok_a": 70,
+    "graph_ok_b": 70,
+    "prompt_runs_ok": 140,
+    "graph_success_rate": "0.972222",
+    "valid_samples": 70,
+    "compare_rows": 70,
+    "node_rows": 968,
+    "feature_node_rows": 420,
+    "edge_rows": 840,
+    "intervention_rows": 560,
+    "mean_delta_target_logit": "-0.0175502",
+    "frac_negative_delta_target_logit": "0.101786",
+    "frac_rank_hurt": "0.0625",
+    "best_zeroing_mode": "subtract",
+    "best_mode_frac_negative_delta_target_logit": "0.121429"
+  },
+  "zeroing_mode_summary": {
+    "add": {
+      "rows": "280",
+      "mean_delta_target_logit": "-0.0093192",
+      "frac_negative_delta_target_logit": "0.0821429",
+      "frac_rank_hurt": "0.0678571"
+    },
+    "subtract": {
+      "rows": "280",
+      "mean_delta_target_logit": "-0.0257812",
+      "frac_negative_delta_target_logit": "0.121429",
+      "frac_rank_hurt": "0.0571429"
+    }
+  },
+  "claim_boundary": "Qwen full source-tracing verdict is only supported if adapter graph, compare, intervention, and controls all pass. Blocked adapter is not negative mechanism evidence."
+}

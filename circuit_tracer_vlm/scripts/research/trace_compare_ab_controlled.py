@@ -85,6 +85,9 @@ def _build_index(d: dict, target_logit_rank: int) -> dict:
     selected_features = d["selected_features"].cpu()
     logit_tokens = d["logit_tokens"].cpu()
     adjacency_matrix = d["adjacency_matrix"]
+    position_map = d.get("position_map")
+    if position_map is not None:
+        position_map = position_map.cpu()
 
     cfg_layers = int(getattr(cfg, "n_layers"))
     n_features = int(len(selected_features))
@@ -115,6 +118,13 @@ def _build_index(d: dict, target_logit_rank: int) -> dict:
     n_errors = n_layers * n_pos
     n_tokens = n_pos
 
+    def display_pos(pos: int) -> int:
+        if position_map is None:
+            return int(pos)
+        if 0 <= int(pos) < len(position_map):
+            return int(position_map[int(pos)].item())
+        return int(pos)
+
     if target_logit_rank < 0 or target_logit_rank >= n_logits:
         raise ValueError(f"target_logit_rank out of range: {target_logit_rank}")
 
@@ -132,12 +142,13 @@ def _build_index(d: dict, target_logit_rank: int) -> dict:
     for local_idx in range(n_features):
         active_idx = int(selected_features[local_idx])
         layer, pos, feat = [int(x) for x in active_features[active_idx].tolist()]
-        node_ids[local_idx] = f"F:L{layer}:P{pos}:ID{feat}"
+        out_pos = display_pos(pos)
+        node_ids[local_idx] = f"F:L{layer}:P{out_pos}:ID{feat}"
         stage[local_idx] = layer
         node_meta[local_idx] = {
             "node_type": "feature",
             "layer": layer,
-            "pos": pos,
+            "pos": out_pos,
             "feature_id": feat,
             "token_id": "",
         }
@@ -146,12 +157,13 @@ def _build_index(d: dict, target_logit_rank: int) -> dict:
         idx = error_start + rel
         layer = rel // n_pos
         pos = rel % n_pos
-        node_ids[idx] = f"E:L{layer}:P{pos}"
+        out_pos = display_pos(pos)
+        node_ids[idx] = f"E:L{layer}:P{out_pos}"
         stage[idx] = layer
         node_meta[idx] = {
             "node_type": "error",
             "layer": layer,
-            "pos": pos,
+            "pos": out_pos,
             "feature_id": "",
             "token_id": "",
         }
@@ -159,12 +171,13 @@ def _build_index(d: dict, target_logit_rank: int) -> dict:
     for pos in range(n_tokens):
         idx = token_start + pos
         tok_id = int(input_tokens[pos]) if pos < len(input_tokens) else -1
-        node_ids[idx] = f"T:P{pos}:ID{tok_id}"
+        out_pos = display_pos(pos)
+        node_ids[idx] = f"T:P{out_pos}:ID{tok_id}"
         stage[idx] = -1
         node_meta[idx] = {
             "node_type": "token",
             "layer": -1,
-            "pos": pos,
+            "pos": out_pos,
             "feature_id": "",
             "token_id": tok_id,
         }

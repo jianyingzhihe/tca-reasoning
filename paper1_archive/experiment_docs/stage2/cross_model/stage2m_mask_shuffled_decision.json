@@ -1,0 +1,80 @@
+{
+  "target_group": "top_hidden_delta_plus_answer_adjacent",
+  "models": {
+    "llava": {
+      "verdict": "mask_shuffled_control_supported",
+      "direction_statuses": {
+        "corrupt": "stable_real_gt_shuffled",
+        "restore": "stable_real_gt_shuffled"
+      },
+      "target_group_rows": [
+        {
+          "model_family": "llava",
+          "direction": "corrupt",
+          "group_name": "top_hidden_delta_plus_answer_adjacent",
+          "n_rows": 48,
+          "n_samples": 24,
+          "mean_real_mask_effect_logit": 0.65389,
+          "mean_shuffled_mask_effect_logit": -0.027995,
+          "mean_real_minus_shuffled_logit": 0.681885,
+          "ci95_low": 0.380046,
+          "ci95_high": 0.982015,
+          "real_stronger_n": 41,
+          "status": "stable_real_gt_shuffled"
+        },
+        {
+          "model_family": "llava",
+          "direction": "restore",
+          "group_name": "top_hidden_delta_plus_answer_adjacent",
+          "n_rows": 48,
+          "n_samples": 24,
+          "mean_real_mask_effect_logit": 1.446818,
+          "mean_shuffled_mask_effect_logit": 0.108805,
+          "mean_real_minus_shuffled_logit": 1.338013,
+          "ci95_low": 0.874959,
+          "ci95_high": 1.808472,
+          "real_stronger_n": 44,
+          "status": "stable_real_gt_shuffled"
+        }
+      ]
+    },
+    "qwen": {
+      "verdict": "mask_shuffled_control_supported",
+      "direction_statuses": {
+        "corrupt": "stable_real_gt_shuffled",
+        "restore": "stable_real_gt_shuffled"
+      },
+      "target_group_rows": [
+        {
+          "model_family": "qwen",
+          "direction": "corrupt",
+          "group_name": "top_hidden_delta_plus_answer_adjacent",
+          "n_rows": 48,
+          "n_samples": 24,
+          "mean_real_mask_effect_logit": 2.352539,
+          "mean_shuffled_mask_effect_logit": 0.123698,
+          "mean_real_minus_shuffled_logit": 2.228841,
+          "ci95_low": 1.371094,
+          "ci95_high": 3.073242,
+          "real_stronger_n": 37,
+          "status": "stable_real_gt_shuffled"
+        },
+        {
+          "model_family": "qwen",
+          "direction": "restore",
+          "group_name": "top_hidden_delta_plus_answer_adjacent",
+          "n_rows": 48,
+          "n_samples": 24,
+          "mean_real_mask_effect_logit": 2.884766,
+          "mean_shuffled_mask_effect_logit": 0.186198,
+          "mean_real_minus_shuffled_logit": 2.698568,
+          "ci95_low": 1.786458,
+          "ci95_high": 3.66862,
+          "real_stronger_n": 38,
+          "status": "stable_real_gt_shuffled"
+        }
+      ]
+    }
+  },
+  "claim_boundary": "Mask-shuffled control supports evidence-location specificity only at hidden-state bridge level."
+}

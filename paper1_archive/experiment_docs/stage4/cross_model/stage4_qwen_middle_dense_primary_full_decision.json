@@ -1,0 +1,16 @@
+{
+  "status": "qwen_answer_support_not_evidence_linked",
+  "pack": "primary",
+  "mode": "full",
+  "updated_at": "2026-05-28 09:40:40",
+  "configs": 24,
+  "source_positive_metrics": 2,
+  "mask_positive_metrics": 0,
+  "correct_positive_metrics": 0,
+  "source_positive_configs": [
+    "L10:visual_answer:topK8:answer_mask",
+    "L10:visual_only:topK16:union_mask"
+  ],
+  "mask_positive_configs": [],
+  "claim_boundary": "Middle dense scan is Qwen-native PLT localization; failure does not negate hidden-level mechanism."
+}

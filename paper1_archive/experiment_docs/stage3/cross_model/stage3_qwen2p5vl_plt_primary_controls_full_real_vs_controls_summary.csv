@@ -1,0 +1,9 @@
+role,comparison,mask_condition,intervention,n,mean,positive_frac
+source,real_minus_mask_shifted,answer_mask,restore,122,0.03349129098360656,0.4016393442622951
+source,real_minus_mask_shifted,union_mask,restore,120,0.03595377604166667,0.375
+source,real_minus_mask_shuffled,answer_mask,restore,122,0.034091636782786885,0.39344262295081966
+source,real_minus_mask_shuffled,union_mask,restore,120,0.038289388020833336,0.38333333333333336
+matched_control,real_minus_mask_shifted,answer_mask,restore,122,0.005707287397540984,0.2540983606557377
+matched_control,real_minus_mask_shifted,union_mask,restore,120,0.021028645833333335,0.4
+matched_control,real_minus_mask_shuffled,answer_mask,restore,122,0.009725601946721311,0.2786885245901639
+matched_control,real_minus_mask_shuffled,union_mask,restore,120,0.024300130208333333,0.39166666666666666

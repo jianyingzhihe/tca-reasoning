@@ -1,0 +1,13 @@
+{
+  "tag": "defensive_v1",
+  "mode": "full",
+  "updated": "2026-06-02 21:01:44",
+  "status": "qwen_grouped_composition_artifact_smoke_ready",
+  "route_metric_rows": 435,
+  "candidate_rows": 24970,
+  "topk_summary_rows": 5,
+  "layer_band_rows": 6,
+  "nonmonotonic_routes": 63,
+  "nonmonotonic_frac": 0.7241379310344828,
+  "interpretation": "artifact-level diagnostic; true support-only regrouped intervention remains a follow-up if needed"
+}

@@ -1,0 +1,9 @@
+model_family,direction,group_name,group_kind,n_rows,informative_rows,target_hit_n,changed_away_from_union_n,changed_away_from_union_informative_n,same_as_clean_n,same_as_clean_informative_n,mean_logit_restore_vs_union,mean_rank_restore_vs_union,unique_predicted_answers
+llava,baseline,clean,baseline,24,19,5,21,19,24,19,2.02653,44.291667,1 | 13 | 17 | 3 | 50 pounds | a fire hyd | fire hydrant | san francisco | schwinn | short answer | tennis racket | turtle
+llava,baseline,union_mask,baseline,24,19,4,0,0,3,0,0.0,0.0,0 | 1 | 100 | 5 | a fire hyd | racket | schwinn | seattle | short answer
+qwen,baseline,clean,baseline,16,15,5,15,15,16,15,4.46875,1476.1875,4way traffic | 777 | a fire hydr | green tortoise | kuwait airways | removals | spanish | tennis racket | 未知
+qwen,baseline,union_mask,baseline,16,15,0,0,0,1,0,0.0,0.0,0 | a hydrant | racket | there is no | 无法确定 | 未知
+qwen,restore,answer_adjacent_text,bridge_text,16,15,2,10,10,4,3,3.865234,1342.9375,4 | 5 | 777 | a hydrant | racket | spanish | thebus | unknown | 未知
+qwen,restore,low_delta_control,control,16,15,1,1,1,1,0,-0.003906,-1.4375,0 | a hydrant | hydrant | racket | there is no | 无法确定 | 未知
+qwen,restore,random_control_1,random_control,16,15,1,1,1,1,0,0.041016,116.875,0 | a hydrant | hydrant | racket | there is no | 无法确定 | 未知
+qwen,restore,top_hidden_delta_plus_answer_adjacent,bridge_combo,16,15,2,11,11,4,3,5.109375,1473.6875,4 | 5 | 777 | a hydrant | greenpeace | racket | spanish | unknown | 未知

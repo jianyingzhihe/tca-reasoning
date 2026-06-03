@@ -1,0 +1,170 @@
+{
+  "claim_boundary": "Feature-level causal bridge smoke only. Positive results can support a feature-level bridge, but do not establish Gemma-style source-control route replication.",
+  "model_decisions": {
+    "llava": {
+      "status": "feature_bridge_not_established",
+      "direction_status": {
+        "restore": {
+          "status": "partial_or_weak",
+          "strong_controls": [],
+          "control_stats": {
+            "activation_matched_topk": {
+              "mean": -0.013346,
+              "positive_n": 3,
+              "n": 12
+            },
+            "drop_matched_topk": {
+              "mean": -0.006185,
+              "positive_n": 2,
+              "n": 12
+            },
+            "mask_insensitive_topk": {
+              "mean": -0.011393,
+              "positive_n": 3,
+              "n": 12
+            },
+            "random_topk": {
+              "mean": -0.013346,
+              "positive_n": 1,
+              "n": 12
+            }
+          }
+        },
+        "corrupt": {
+          "status": "partial_or_weak",
+          "strong_controls": [],
+          "control_stats": {
+            "activation_matched_topk": {
+              "mean": 0.003906,
+              "positive_n": 4,
+              "n": 12
+            },
+            "drop_matched_topk": {
+              "mean": -0.008464,
+              "positive_n": 5,
+              "n": 12
+            },
+            "mask_insensitive_topk": {
+              "mean": -0.003255,
+              "positive_n": 2,
+              "n": 12
+            },
+            "random_topk": {
+              "mean": -0.045573,
+              "positive_n": 3,
+              "n": 12
+            }
+          }
+        }
+      },
+      "evidence_summary": [
+        {
+          "model_family": "llava",
+          "direction": "corrupt",
+          "feature_group": "evidence_topk",
+          "n_rows": 12,
+          "positive_logit_n": 2,
+          "positive_rank_n": 0,
+          "mean_logit_effect": -0.016276,
+          "mean_rank_effect": -0.083333,
+          "mean_gap_closure": -0.002666
+        },
+        {
+          "model_family": "llava",
+          "direction": "restore",
+          "feature_group": "evidence_topk",
+          "n_rows": 12,
+          "positive_logit_n": 2,
+          "positive_rank_n": 1,
+          "mean_logit_effect": -0.010091,
+          "mean_rank_effect": 0.0,
+          "mean_gap_closure": -0.00231
+        }
+      ]
+    },
+    "qwen": {
+      "status": "feature_bridge_not_established",
+      "direction_status": {
+        "restore": {
+          "status": "partial_or_weak",
+          "strong_controls": [
+            "activation_matched_topk"
+          ],
+          "control_stats": {
+            "activation_matched_topk": {
+              "mean": 0.064453,
+              "positive_n": 9,
+              "n": 16
+            },
+            "drop_matched_topk": {
+              "mean": 0.064453,
+              "positive_n": 8,
+              "n": 16
+            },
+            "mask_insensitive_topk": {
+              "mean": -0.044922,
+              "positive_n": 7,
+              "n": 16
+            },
+            "random_topk": {
+              "mean": -0.046875,
+              "positive_n": 5,
+              "n": 16
+            }
+          }
+        },
+        "corrupt": {
+          "status": "partial_or_weak",
+          "strong_controls": [],
+          "control_stats": {
+            "activation_matched_topk": {
+              "mean": 0.007812,
+              "positive_n": 6,
+              "n": 16
+            },
+            "drop_matched_topk": {
+              "mean": 0.046875,
+              "positive_n": 7,
+              "n": 16
+            },
+            "mask_insensitive_topk": {
+              "mean": -0.03125,
+              "positive_n": 6,
+              "n": 16
+            },
+            "random_topk": {
+              "mean": -0.050781,
+              "positive_n": 7,
+              "n": 16
+            }
+          }
+        }
+      },
+      "evidence_summary": [
+        {
+          "model_family": "qwen",
+          "direction": "corrupt",
+          "feature_group": "evidence_topk",
+          "n_rows": 16,
+          "positive_logit_n": 6,
+          "positive_rank_n": 4,
+          "mean_logit_effect": -0.011719,
+          "mean_rank_effect": 0.3125,
+          "mean_gap_closure": -0.064061
+        },
+        {
+          "model_family": "qwen",
+          "direction": "restore",
+          "feature_group": "evidence_topk",
+          "n_rows": 16,
+          "positive_logit_n": 7,
+          "positive_rank_n": 8,
+          "mean_logit_effect": 0.011719,
+          "mean_rank_effect": 140.5625,
+          "mean_gap_closure": -0.102351
+        }
+      ]
+    }
+  },
+  "overall_status": "feature_bridge_not_established"
+}

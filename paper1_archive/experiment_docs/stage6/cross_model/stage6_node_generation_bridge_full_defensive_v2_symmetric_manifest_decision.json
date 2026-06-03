@@ -1,0 +1,10 @@
+{
+  "created_at": "2026-06-02 20:35:07",
+  "mode": "full",
+  "tag": "defensive_v2_symmetric",
+  "status": "ready",
+  "gemma_rows": 3,
+  "qwen_rows": 6,
+  "missing": [],
+  "claim_boundary": "Stage6-022 is a case-level node-to-generation bridge. Gemma rows use hidden-residual generation bridge unless a graph-route generation operator is added later."
+}

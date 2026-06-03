@@ -1,0 +1,28 @@
+{
+  "updated_at": "2026-05-30 11:13:01",
+  "status": "exploratory_analyzed",
+  "mode": "full",
+  "tag": "prompttext_v1",
+  "raw_rows": 92160,
+  "candidate_metrics": 2304,
+  "unique_samples": 12,
+  "prompt_counts": {
+    "A_step_visual": 576,
+    "B_direct": 576,
+    "C_step_only": 576,
+    "D_visual_only": 576
+  },
+  "variant_counts": {
+    "original": 768,
+    "paraphrase_1": 768,
+    "paraphrase_2": 768
+  },
+  "type_counts": {
+    "compact_scene_inference": 960,
+    "symbol_text_reading": 384,
+    "visual_readout": 960
+  },
+  "text_stability_hint": true,
+  "prompt_modulation_hint": false,
+  "claim_boundary": "Exploratory secondary-claim analysis only. Positive signs motivate paper-side claims after manual prompt/format audit; they do not replace Stage4 causal route evidence."
+}

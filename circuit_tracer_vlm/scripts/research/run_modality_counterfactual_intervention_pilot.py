@@ -9,7 +9,7 @@ from collections import defaultdict
 from pathlib import Path
 
 import torch
-from PIL import Image
+from PIL import Image, ImageDraw
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -70,10 +70,14 @@ def _infer_model_name_from_transcoder_set(repo_id: str) -> str:
 
 def _load_meta(outputs_root: Path, run_tag_base: str, bucket: str, run: str) -> dict[str, dict[str, str]]:
     suffix = "a" if run == "A" else "b"
-    path = outputs_root / f"{run_tag_base}_{bucket}" / f"answer_aligned_meta_{suffix}.csv"
-    if not path.exists():
-        return {}
-    return {row.get("sample_id", ""): row for row in _read_csv(path)}
+    candidate_paths = [
+        outputs_root / f"{run_tag_base}_{bucket}" / f"answer_aligned_meta_{suffix}.csv",
+        outputs_root / run_tag_base / f"answer_aligned_meta_{suffix}.csv",
+    ]
+    for path in candidate_paths:
+        if path.exists():
+            return {row.get("sample_id", ""): row for row in _read_csv(path)}
+    return {}
 
 
 def _pick_candidate_rows(
@@ -162,6 +166,9 @@ def _condition_image(
     condition: str,
     original_image: Image.Image,
     wrong_image: Image.Image | None,
+    *,
+    mask_fraction: float,
+    mask_fill_rgb: tuple[int, int, int],
 ) -> Image.Image | None:
     if condition == "clean":
         return original_image
@@ -169,7 +176,41 @@ def _condition_image(
         return Image.new("RGB", original_image.size, color=(128, 128, 128))
     if condition == "wrong_image":
         return wrong_image if wrong_image is not None else None
+    if condition == "masked_image":
+        masked = original_image.copy()
+        width, height = masked.size
+        mask_w = max(1, int(round(width * mask_fraction)))
+        mask_h = max(1, int(round(height * mask_fraction)))
+        left = max(0, (width - mask_w) // 2)
+        top = max(0, (height - mask_h) // 2)
+        right = min(width, left + mask_w)
+        bottom = min(height, top + mask_h)
+        ImageDraw.Draw(masked).rectangle((left, top, right, bottom), fill=mask_fill_rgb)
+        return masked
     raise ValueError(f"unknown condition: {condition}")
+
+
+def _resolve_feature_pos(
+    *,
+    original_pos: int,
+    clean_seq_len: int,
+    current_seq_len: int,
+    alignment_mode: str,
+    max_position_shift: int,
+) -> tuple[int | None, str]:
+    if original_pos < current_seq_len:
+        return original_pos, "exact"
+    if alignment_mode != "relative_to_end":
+        return None, "out_of_range"
+    rel_from_end = (clean_seq_len - 1) - original_pos
+    if rel_from_end < 0:
+        return None, "invalid_clean_pos"
+    mapped_pos = (current_seq_len - 1) - rel_from_end
+    if mapped_pos < 0 or mapped_pos >= current_seq_len:
+        return None, "mapped_out_of_range"
+    if abs(mapped_pos - original_pos) > max_position_shift:
+        return None, "mapped_shift_too_large"
+    return mapped_pos, "relative_to_end"
 
 
 def main() -> int:
@@ -183,9 +224,13 @@ def main() -> int:
     parser.add_argument("--model-name", default="")
     parser.add_argument("--dtype", default="bfloat16", choices=["float32", "bfloat16", "float16", "fp32", "bf16", "fp16"])
     parser.add_argument("--conditions", default="clean,no_image,wrong_image")
+    parser.add_argument("--mask-fraction", type=float, default=0.4)
+    parser.add_argument("--mask-fill", default="128,128,128", help="RGB fill for masked_image, e.g. 128,128,128")
     parser.add_argument("--max-samples-per-bucket", type=int, default=4)
     parser.add_argument("--top-support-per-run", type=int, default=1)
     parser.add_argument("--top-suppressor-per-run", type=int, default=1)
+    parser.add_argument("--position-alignment", default="strict", choices=["strict", "relative_to_end"])
+    parser.add_argument("--max-position-shift", type=int, default=8)
     parser.add_argument("--out-csv", required=True)
     args = parser.parse_args()
 
@@ -197,6 +242,15 @@ def main() -> int:
         raise ValueError("no smoke rows loaded")
 
     conditions = [part.strip() for part in args.conditions.split(",") if part.strip()]
+    if not 0.0 < args.mask_fraction <= 1.0:
+        raise ValueError("--mask-fraction must be in (0, 1]")
+    mask_fill_parts = [part.strip() for part in args.mask_fill.split(",")]
+    if len(mask_fill_parts) != 3:
+        raise ValueError("--mask-fill must have exactly 3 comma-separated integers")
+    mask_fill_rgb = tuple(int(part) for part in mask_fill_parts)
+    if any(v < 0 or v > 255 for v in mask_fill_rgb):
+        raise ValueError("--mask-fill values must be between 0 and 255")
+
     selected_rows = _pick_candidate_rows(
         smoke_rows,
         max_samples_per_bucket=args.max_samples_per_bucket,
@@ -257,9 +311,22 @@ def main() -> int:
         pos = int(row["feature_pos"])
         feature_id = int(row["feature_id"])
         reference_clean_delta = _safe_float(row.get("delta_target_logit"))
+        clean_batch = _build_multimodal_batch(
+            model.processor,
+            original_image,
+            f"<start_of_image> {question}",
+            assistant_prefix=assistant_prefix,
+        )
+        clean_seq_len = int(clean_batch["input_ids"].shape[1])
 
         for condition in conditions:
-            condition_image = _condition_image(condition, original_image, wrong_image)
+            condition_image = _condition_image(
+                condition,
+                original_image,
+                wrong_image,
+                mask_fraction=args.mask_fraction,
+                mask_fill_rgb=mask_fill_rgb,
+            )
             if condition_image is None:
                 print(f"[skip] bucket={bucket} sample={sample_id} condition={condition} unavailable")
                 continue
@@ -272,16 +339,39 @@ def main() -> int:
             )
             batch["image"] = condition_image
             batch = _device_batch(model, batch)
-
-            with torch.inference_mode():
-                original_logits = model.forward_from_batch(batch)
-                intervened_logits, _ = model.feature_intervention(
-                    batch,
-                    [(layer, pos, feature_id, 0.0)],
-                    freeze_attention=True,
-                    apply_activation_function=True,
-                    sparse=False,
+            seq_len = int(batch["input_ids"].shape[1])
+            applied_pos, alignment_status = _resolve_feature_pos(
+                original_pos=pos,
+                clean_seq_len=clean_seq_len,
+                current_seq_len=seq_len,
+                alignment_mode=args.position_alignment,
+                max_position_shift=args.max_position_shift,
+            )
+            if applied_pos is None:
+                print(
+                    f"[skip] bucket={bucket} sample={sample_id} run={run} condition={condition} "
+                    f"role={row.get('node_role','')} feature=L{layer}:P{pos}:F{feature_id} "
+                    f"position_unusable status={alignment_status} clean_seq_len={clean_seq_len} seq_len={seq_len}"
                 )
+                continue
+
+            try:
+                with torch.inference_mode():
+                    original_logits = model.forward_from_batch(batch)
+                    intervened_logits, _ = model.feature_intervention(
+                        batch,
+                        [(layer, applied_pos, feature_id, 0.0)],
+                        freeze_attention=True,
+                        apply_activation_function=True,
+                        sparse=False,
+                    )
+            except IndexError as exc:
+                print(
+                    f"[skip] bucket={bucket} sample={sample_id} run={run} condition={condition} "
+                    f"role={row.get('node_role','')} feature=L{layer}:P{pos}:F{feature_id} "
+                    f"index_error={exc}"
+                )
+                continue
 
             last_pos = original_logits.shape[1] - 1
             original_target_logit = float(original_logits[0, last_pos, target_token_id].item())
@@ -304,13 +394,24 @@ def main() -> int:
                     "run": run,
                     "condition": condition,
                     "node_role": row.get("node_role", ""),
+                    "followup_visual_type_label": row.get("followup_visual_type_label", ""),
+                    "followup_knowledge_level_label": row.get("followup_knowledge_level_label", ""),
+                    "followup_priority": row.get("followup_priority", ""),
+                    "followup_display_question": row.get("followup_display_question", ""),
                     "wrong_image_sample_id": wrong_sample_id if condition == "wrong_image" else "",
+                    "mask_fraction": f"{args.mask_fraction:.10g}" if condition == "masked_image" else "",
+                    "mask_fill_rgb": args.mask_fill if condition == "masked_image" else "",
                     "question": question,
                     "image_path": image_path,
                     "condition_image_path": wrong_image_path if condition == "wrong_image" else image_path,
                     "target_token_id": str(target_token_id),
                     "feature_layer": str(layer),
                     "feature_pos": str(pos),
+                    "applied_feature_pos": str(applied_pos),
+                    "position_alignment": alignment_status,
+                    "clean_seq_len": str(clean_seq_len),
+                    "condition_seq_len": str(seq_len),
+                    "position_shift": str(applied_pos - pos),
                     "feature_id": str(feature_id),
                     "reference_clean_delta_target_logit": f"{reference_clean_delta:.10g}" if not math.isnan(reference_clean_delta) else "",
                     "original_target_logit": f"{original_target_logit:.10g}",
@@ -327,7 +428,8 @@ def main() -> int:
             )
             print(
                 f"[done] bucket={bucket} sample={sample_id} run={run} condition={condition} "
-                f"role={row.get('node_role','')} feature=L{layer}:P{pos}:F{feature_id} "
+                f"role={row.get('node_role','')} feature=L{layer}:P{pos}->P{applied_pos}:F{feature_id} "
+                f"align={alignment_status} "
                 f"delta_target_logit={delta_target_logit:.4f} delta_target_prob={delta_target_prob:.6f}"
             )
 
@@ -340,13 +442,24 @@ def main() -> int:
             "run",
             "condition",
             "node_role",
+            "followup_visual_type_label",
+            "followup_knowledge_level_label",
+            "followup_priority",
+            "followup_display_question",
             "wrong_image_sample_id",
+            "mask_fraction",
+            "mask_fill_rgb",
             "question",
             "image_path",
             "condition_image_path",
             "target_token_id",
             "feature_layer",
             "feature_pos",
+            "applied_feature_pos",
+            "position_alignment",
+            "clean_seq_len",
+            "condition_seq_len",
+            "position_shift",
             "feature_id",
             "reference_clean_delta_target_logit",
             "original_target_logit",

@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OKVQA Type Label UI</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #0f1115;
+      --panel: #171a21;
+      --soft: #222733;
+      --text: #eef2ff;
+      --muted: #aab2c7;
+      --accent: #6ea8fe;
+      --accent-2: #7dd3fc;
+      --good: #34d399;
+      --border: #2c3342;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .shell {
+      display: grid;
+      grid-template-columns: 300px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+    .sidebar {
+      border-right: 1px solid var(--border);
+      background: var(--panel);
+      padding: 20px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .main {
+      padding: 22px;
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr);
+      gap: 18px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    .title { font-size: 20px; font-weight: 700; }
+    .muted { color: var(--muted); }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .progress-bar {
+      height: 10px;
+      background: var(--soft);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      width: 0%;
+    }
+    .counts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 13px;
+    }
+    .count-pill {
+      background: var(--soft);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .nav-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn:hover { border-color: var(--accent); }
+    .btn:disabled { opacity: 0.45; cursor: default; }
+    .btn.primary {
+      background: #1d3557;
+      border-color: #2e5c96;
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .meta-box {
+      background: var(--soft);
+      border-radius: 8px;
+      padding: 10px 12px;
+      min-height: 66px;
+    }
+    .viewer {
+      display: grid;
+      grid-template-columns: minmax(320px, 56%) minmax(280px, 44%);
+      gap: 18px;
+      min-height: 0;
+    }
+    .image-wrap {
+      background: #0b0d12;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 560px;
+    }
+    .image-wrap img {
+      max-width: 100%;
+      max-height: 78vh;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+    .label-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 0;
+    }
+    .options {
+      display: grid;
+      gap: 10px;
+    }
+    .option-btn {
+      text-align: left;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 14px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .option-btn:hover { border-color: var(--accent); }
+    .option-btn.active {
+      border-color: var(--good);
+      box-shadow: inset 0 0 0 1px var(--good);
+    }
+    .option-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+    .shortcut {
+      color: var(--accent-2);
+      font-weight: 600;
+    }
+    textarea {
+      width: 100%;
+      min-height: 96px;
+      resize: vertical;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--text);
+      padding: 12px;
+      font: inherit;
+    }
+    .footer-note {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .status {
+      font-size: 13px;
+      color: var(--good);
+      min-height: 18px;
+    }
+    @media (max-width: 1100px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar { border-right: 0; border-bottom: 1px solid var(--border); }
+      .viewer { grid-template-columns: 1fr; }
+      .meta-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div>
+        <div class="title">{{ dataset_name }}</div>
+        <div class="muted">OKVQA dual-label typing UI</div>
+      </div>
+
+      <div class="card">
+        <div class="nav-row" style="margin-bottom:10px">
+          <strong>Progress</strong>
+          <span id="progressText" class="muted">0 / 0</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+
+      <div class="card">
+        <strong style="display:block; margin-bottom:10px;">Counts</strong>
+        <div class="counts" id="countsBox"></div>
+      </div>
+
+      <div class="card">
+        <strong style="display:block; margin-bottom:10px;">Type hints</strong>
+        <div class="muted" style="display:grid; gap:10px; font-size:13px;">
+          <div><strong>Visual structure:</strong> localized, multi-region, diffuse/global.</div>
+          <div><strong>Knowledge load:</strong> low, medium, high.</div>
+        </div>
+      </div>
+
+      <div class="footer-note">
+        Shortcuts:
+        visual <code>1</code> <code>2</code> <code>3</code>,
+        knowledge <code>Q</code> <code>W</code> <code>E</code>,
+        move <code>&larr;</code>/<code>&rarr;</code>,
+        clear <code>U</code>.
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="card nav-row">
+        <div>
+          <div class="muted">Current item</div>
+          <div class="title" id="itemTitle">Loading...</div>
+        </div>
+        <div class="nav-row">
+          <button class="btn" id="prevBtn">Previous</button>
+          <button class="btn primary" id="nextBtn">Next Unlabeled</button>
+          <button class="btn" id="nextAnyBtn">Next</button>
+        </div>
+      </div>
+
+      <div class="meta-grid">
+        <div class="meta-box"><div class="muted">Bucket</div><div id="bucketText"></div></div>
+        <div class="meta-box"><div class="muted">Priority / Rank</div><div id="priorityText"></div></div>
+        <div class="meta-box"><div class="muted">Gold answer</div><div id="answerText"></div></div>
+        <div class="meta-box"><div class="muted">Saved labels</div><div id="savedLabelText"></div></div>
+      </div>
+
+      <div class="viewer">
+        <div class="image-wrap">
+          <img id="mainImage" alt="current sample">
+        </div>
+
+        <div class="label-panel">
+          <div class="card" style="display:grid; gap:10px;">
+            <div class="muted">Question</div>
+            <div id="questionText" style="font-size:18px; line-height:1.45;"></div>
+          </div>
+
+          <div class="card">
+            <strong style="display:block; margin-bottom:10px;">Choose labels</strong>
+            <div style="display:grid; gap:16px;">
+              <div>
+                <div class="muted" style="margin-bottom:8px;">Visual evidence distribution</div>
+                <div class="options" id="visualOptionsBox"></div>
+              </div>
+              <div>
+                <div class="muted" style="margin-bottom:8px;">External knowledge dependence</div>
+                <div class="options" id="knowledgeOptionsBox"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <strong style="display:block; margin-bottom:10px;">Notes (optional)</strong>
+            <textarea id="notesBox" placeholder="Anything ambiguous? Why this type?"></textarea>
+            <div class="nav-row" style="margin-top:10px;">
+              <button class="btn" id="clearBtn">Clear Label</button>
+              <button class="btn" id="saveNotesBtn">Save Notes</button>
+            </div>
+            <div class="status" id="statusText"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const state = {
+      items: [],
+      visualOptions: [],
+      knowledgeOptions: [],
+      currentIndex: 0,
+    };
+
+    const els = {
+      progressText: document.getElementById("progressText"),
+      progressFill: document.getElementById("progressFill"),
+      countsBox: document.getElementById("countsBox"),
+      itemTitle: document.getElementById("itemTitle"),
+      bucketText: document.getElementById("bucketText"),
+      priorityText: document.getElementById("priorityText"),
+      answerText: document.getElementById("answerText"),
+      savedLabelText: document.getElementById("savedLabelText"),
+      mainImage: document.getElementById("mainImage"),
+      questionText: document.getElementById("questionText"),
+      visualOptionsBox: document.getElementById("visualOptionsBox"),
+      knowledgeOptionsBox: document.getElementById("knowledgeOptionsBox"),
+      notesBox: document.getElementById("notesBox"),
+      statusText: document.getElementById("statusText"),
+      prevBtn: document.getElementById("prevBtn"),
+      nextBtn: document.getElementById("nextBtn"),
+      nextAnyBtn: document.getElementById("nextAnyBtn"),
+      clearBtn: document.getElementById("clearBtn"),
+      saveNotesBtn: document.getElementById("saveNotesBtn"),
+    };
+
+    function showStatus(text) {
+      els.statusText.textContent = text;
+      window.clearTimeout(showStatus._timer);
+      showStatus._timer = window.setTimeout(() => {
+        els.statusText.textContent = "";
+      }, 1800);
+    }
+
+    function countsByLabel() {
+      const counts = {};
+      state.visualOptions.forEach((opt) => { counts[`visual:${opt.id}`] = 0; });
+      state.knowledgeOptions.forEach((opt) => { counts[`knowledge:${opt.id}`] = 0; });
+      let labeled = 0;
+      state.items.forEach((item) => {
+        if (item.visual_type_label && item.knowledge_level_label) {
+          labeled += 1;
+        }
+        if (item.visual_type_label) {
+          counts[`visual:${item.visual_type_label}`] = (counts[`visual:${item.visual_type_label}`] || 0) + 1;
+        }
+        if (item.knowledge_level_label) {
+          counts[`knowledge:${item.knowledge_level_label}`] = (counts[`knowledge:${item.knowledge_level_label}`] || 0) + 1;
+        }
+      });
+      return { labeled, counts };
+    }
+
+    function renderCounts() {
+      const { labeled, counts } = countsByLabel();
+      els.progressText.textContent = `${labeled} / ${state.items.length}`;
+      els.progressFill.style.width = `${state.items.length ? (100 * labeled / state.items.length) : 0}%`;
+      els.countsBox.innerHTML = "";
+      state.visualOptions.forEach((opt) => {
+        const div = document.createElement("div");
+        div.className = "count-pill";
+        div.innerHTML = `<div style="font-weight:700">${opt.title}</div><div class="muted">visual: ${counts[`visual:${opt.id}`] || 0}</div>`;
+        els.countsBox.appendChild(div);
+      });
+      state.knowledgeOptions.forEach((opt) => {
+        const div = document.createElement("div");
+        div.className = "count-pill";
+        div.innerHTML = `<div style="font-weight:700">${opt.title}</div><div class="muted">knowledge: ${counts[`knowledge:${opt.id}`] || 0}</div>`;
+        els.countsBox.appendChild(div);
+      });
+    }
+
+    function currentItem() {
+      return state.items[state.currentIndex] || null;
+    }
+
+    function renderOptionGroup(targetEl, options, activeId, onPick) {
+      targetEl.innerHTML = "";
+      options.forEach((opt) => {
+        const btn = document.createElement("button");
+        btn.className = `option-btn${activeId === opt.id ? " active" : ""}`;
+        btn.innerHTML = `
+          <div class="option-top">
+            <span>${opt.title}</span>
+            <span class="shortcut">${opt.shortcut}</span>
+          </div>
+          <div class="muted">${opt.description}</div>
+        `;
+        btn.addEventListener("click", () => onPick(opt.id));
+        targetEl.appendChild(btn);
+      });
+    }
+
+    function renderItem() {
+      const item = currentItem();
+      if (!item) {
+        return;
+      }
+      els.itemTitle.textContent = `${state.currentIndex + 1}. ${item.sample_id}`;
+      els.bucketText.textContent = item.bucket;
+      els.priorityText.textContent = `${item.priority} / rank ${item.rank}`;
+      els.answerText.textContent = item.answer_text || "(missing)";
+      const visual = item.visual_type_label || "(none)";
+      const knowledge = item.knowledge_level_label || "(none)";
+      els.savedLabelText.textContent = `${visual} / ${knowledge}`;
+      els.questionText.textContent = item.display_question || item.raw_question || "";
+      els.mainImage.src = item.image_url;
+      els.notesBox.value = item.label_notes || "";
+      renderOptionGroup(els.visualOptionsBox, state.visualOptions, item.visual_type_label, (picked) => savePartialLabel("visual", picked));
+      renderOptionGroup(els.knowledgeOptionsBox, state.knowledgeOptions, item.knowledge_level_label, (picked) => savePartialLabel("knowledge", picked));
+      renderCounts();
+      els.prevBtn.disabled = state.currentIndex <= 0;
+      els.nextAnyBtn.disabled = state.currentIndex >= state.items.length - 1;
+    }
+
+    function nextUnlabeledIndex(startIndex) {
+      for (let i = startIndex; i < state.items.length; i += 1) {
+        if (!(state.items[i].visual_type_label && state.items[i].knowledge_level_label)) {
+          return i;
+        }
+      }
+      return Math.min(state.items.length - 1, Math.max(0, startIndex));
+    }
+
+    async function postLabel(payload) {
+      const res = await fetch("/api/label", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text);
+      }
+    }
+
+    async function saveFullState(item, jumpToNext) {
+      const payload = {
+        item_id: item.item_id,
+        visual_type_label: item.visual_type_label || "",
+        knowledge_level_label: item.knowledge_level_label || "",
+        label_notes: els.notesBox.value.trim(),
+      };
+      await postLabel(payload);
+      item.label_notes = payload.label_notes;
+      renderItem();
+      showStatus("Saved");
+      if (jumpToNext && item.visual_type_label && item.knowledge_level_label) {
+        const nextIdx = nextUnlabeledIndex(state.currentIndex + 1);
+        if (nextIdx !== state.currentIndex) {
+          state.currentIndex = nextIdx;
+          renderItem();
+        }
+      }
+    }
+
+    async function savePartialLabel(kind, value) {
+      const item = currentItem();
+      if (!item) {
+        return;
+      }
+      if (kind === "visual") {
+        item.visual_type_label = value;
+      }
+      if (kind === "knowledge") {
+        item.knowledge_level_label = value;
+      }
+      await saveFullState(item, true);
+    }
+
+    async function saveNotesOnly() {
+      const item = currentItem();
+      if (!item) {
+        return;
+      }
+      await saveFullState(item, false);
+    }
+
+    function move(delta) {
+      const next = state.currentIndex + delta;
+      if (next < 0 || next >= state.items.length) {
+        return;
+      }
+      state.currentIndex = next;
+      renderItem();
+    }
+
+    async function clearCurrentLabel() {
+      const item = currentItem();
+      if (!item) {
+        return;
+      }
+      item.visual_type_label = "";
+      item.knowledge_level_label = "";
+      await saveFullState(item, false);
+    }
+
+    async function boot() {
+      const res = await fetch("/api/items");
+      const data = await res.json();
+      state.items = data.items;
+      state.visualOptions = data.visual_options;
+      state.knowledgeOptions = data.knowledge_options;
+      const firstUnlabeled = state.items.findIndex((item) => !(item.visual_type_label && item.knowledge_level_label));
+      state.currentIndex = firstUnlabeled >= 0 ? firstUnlabeled : 0;
+      renderItem();
+    }
+
+    els.prevBtn.addEventListener("click", () => move(-1));
+    els.nextAnyBtn.addEventListener("click", () => move(1));
+    els.nextBtn.addEventListener("click", () => {
+      const idx = nextUnlabeledIndex(state.currentIndex + 1);
+      state.currentIndex = idx;
+      renderItem();
+    });
+    els.clearBtn.addEventListener("click", clearCurrentLabel);
+    els.saveNotesBtn.addEventListener("click", saveNotesOnly);
+
+    window.addEventListener("keydown", async (event) => {
+      if (event.target && ["TEXTAREA", "INPUT"].includes(event.target.tagName)) {
+        if (event.key.toLowerCase() !== "u") {
+          return;
+        }
+      }
+      const key = event.key.toLowerCase();
+      const visual = state.visualOptions.find((opt) => opt.shortcut === key);
+      if (visual) {
+        event.preventDefault();
+        await savePartialLabel("visual", visual.id);
+        return;
+      }
+      const knowledge = state.knowledgeOptions.find((opt) => opt.shortcut === key);
+      if (knowledge) {
+        event.preventDefault();
+        await savePartialLabel("knowledge", knowledge.id);
+        return;
+      }
+      if (key === "arrowleft") {
+        event.preventDefault();
+        move(-1);
+      } else if (key === "arrowright") {
+        event.preventDefault();
+        move(1);
+      } else if (key === "u") {
+        event.preventDefault();
+        await clearCurrentLabel();
+      }
+    });
+
+    boot();
+  </script>
+</body>
+</html>

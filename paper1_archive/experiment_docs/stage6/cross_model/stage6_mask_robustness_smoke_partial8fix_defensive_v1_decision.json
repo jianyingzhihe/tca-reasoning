@@ -1,0 +1,9 @@
+{
+  "tag": "partial8fix_defensive_v1",
+  "updated": "2026-06-02 17:40:52",
+  "status": "mask_robustness_smoke_ready",
+  "original_vs_dilate_route234_delta": 0.125,
+  "original_vs_erode_route234_delta": 0.020833333333333343,
+  "original_vs_dilate_specificity_delta": -1.0341339111328125,
+  "original_vs_erode_specificity_delta": -3.008748372395834
+}

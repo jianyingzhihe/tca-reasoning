@@ -1,0 +1,75 @@
+{
+  "manifest": {
+    "target_count": 24,
+    "selected_count": 24,
+    "available_eligible_count": 52,
+    "type_quotas": {
+      "symbol_text_reading": 12,
+      "visual_readout": 8,
+      "scene_inference": 4
+    },
+    "selected_type_counts": {
+      "symbol_text_reading": 11,
+      "visual_readout": 11,
+      "scene_inference": 2
+    },
+    "quota_deficits": {
+      "symbol_text_reading": 1,
+      "scene_inference": 2
+    },
+    "usable_status": "pass_min20",
+    "selected_samples": [
+      "okvqa_val_1593205",
+      "okvqa_val_4739195",
+      "okvqa_val_4502065",
+      "okvqa_val_2954205",
+      "okvqa_val_1729795",
+      "okvqa_val_3959785",
+      "okvqa_val_4043385",
+      "okvqa_val_4938465",
+      "okvqa_val_136595",
+      "okvqa_val_2847255",
+      "okvqa_val_3658865",
+      "okvqa_val_1058855",
+      "okvqa_val_340155",
+      "okvqa_val_01514",
+      "okvqa_val_2708155",
+      "okvqa_val_02444",
+      "okvqa_val_1704425",
+      "okvqa_val_02422",
+      "okvqa_val_3774865",
+      "okvqa_val_5334645",
+      "okvqa_val_03149",
+      "okvqa_val_5606265",
+      "okvqa_val_512035",
+      "okvqa_val_3608785"
+    ],
+    "claim_boundary": "Stage 2M manifest selects existing localized samples for cross-model replication. It does not establish replication by itself."
+  },
+  "tier1_table": [
+    {
+      "model_family": "qwen",
+      "tier1_status": "tier1_hidden_mostly_supported",
+      "matched_control_status": "matched_specificity_partial",
+      "matched_control_note": "4/4 positive or weak-positive",
+      "wrong_target_status": "wrong_target_control_supported",
+      "wrong_target_note": "{\"corrupt\": \"stable_correct_gt_wrong\", \"restore\": \"stable_correct_gt_wrong\"}",
+      "mask_shuffled_status": "mask_shuffled_control_supported",
+      "mask_shuffled_note": "{\"corrupt\": \"stable_real_gt_shuffled\", \"restore\": \"stable_real_gt_shuffled\"}",
+      "hidden_patch_decision": "{}"
+    },
+    {
+      "model_family": "llava",
+      "tier1_status": "tier1_hidden_full_supported",
+      "matched_control_status": "matched_specificity_supported",
+      "matched_control_note": "3/4 stable positive",
+      "wrong_target_status": "wrong_target_control_supported",
+      "wrong_target_note": "{\"corrupt\": \"stable_correct_gt_wrong\", \"restore\": \"stable_correct_gt_wrong\"}",
+      "mask_shuffled_status": "mask_shuffled_control_supported",
+      "mask_shuffled_note": "{\"corrupt\": \"stable_real_gt_shuffled\", \"restore\": \"stable_real_gt_shuffled\"}",
+      "hidden_patch_decision": "{}"
+    }
+  ],
+  "overall_status": "cross_model_hidden_replication_supported_qwen_stronger_llava_smaller",
+  "claim_boundary": "Stage 2M Tier 1 can establish expanded hidden-state bridge replication. It cannot establish feature-level or Gemma-style source-control route replication."
+}

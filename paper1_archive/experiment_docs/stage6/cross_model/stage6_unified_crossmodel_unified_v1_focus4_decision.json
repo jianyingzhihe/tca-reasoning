@@ -1,0 +1,65 @@
+{
+  "updated_at": "2026-06-01 11:57:56",
+  "tag": "unified_v1_focus4",
+  "mode": "full",
+  "status": "partial_or_full_unified_analysis",
+  "old_qwen_reanalysis": {
+    "source": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_prompt_text_cot_full_prompttext_v1_candidate_metrics.csv",
+    "rows": 2304,
+    "summary_by_prompt": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_unified_crossmodel_unified_v1_focus4_old_qwen_summary_by_prompt.csv",
+    "interpretation": "Old Qwen Stage6 reanalysis reports fixed-node causal metrics and pos234; evidence_specificity is not used as the primary stability claim."
+  },
+  "old_gemma_reanalysis": {
+    "source_prefix": "stage6_gemma_prompt_text_cot_full_gemmaprompt_v1_mf8_sharded",
+    "rows": 143,
+    "aligned_rows": 119,
+    "prefix_fail_rows": 24,
+    "target_mismatch_rows": 24,
+    "summary_by_prompt_aligned": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_unified_crossmodel_unified_v1_focus4_old_gemma_summary_by_prompt_aligned.csv",
+    "interpretation": "Old Gemma graph-overlap results are split into aligned and format/target-token failure rows before any mechanism interpretation."
+  },
+  "qwen_routeidentity": {
+    "mode": "full",
+    "candidate_metrics": 4608,
+    "topk_overlap_rows": 576,
+    "candidate_metrics_csv": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_unified_routeidentity_full_unified_v1_focus4_candidate_metrics.csv",
+    "topk_overlap_csv": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_unified_routeidentity_full_unified_v1_focus4_topk_overlap.csv"
+  },
+  "gemma_fixednode": {
+    "mode": "full",
+    "planned_rows": 524,
+    "rows": 524,
+    "aligned_rows": 428,
+    "usable_exact_rows": 414,
+    "planned_aligned_rows": 428,
+    "source_pos_out_of_range_rows": 14,
+    "source_pos_out_of_range_over_attempted": 0.026717557251908396,
+    "usable_exact_over_planned": 0.7900763358778626,
+    "usable_exact_over_planned_aligned": 0.9672897196261683,
+    "raw_csv": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_unified_fixednode_full_unified_v1_focus4_raw.csv",
+    "aligned_csv": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_unified_fixednode_full_unified_v1_focus4_aligned_rows.csv",
+    "usable_exact_csv": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_unified_fixednode_full_unified_v1_focus4_usable_exact_rows.csv",
+    "coverage_rows_csv": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_unified_fixednode_full_unified_v1_focus4_coverage_rows.csv",
+    "coverage_summary_overall_csv": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_unified_fixednode_full_unified_v1_focus4_coverage_summary_overall.csv"
+  },
+  "unified_fixednode": {
+    "rows": 2718,
+    "models": [
+      "gemma",
+      "qwen"
+    ],
+    "rows_csv": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_unified_crossmodel_unified_v1_focus4_fixednode_unified_rows.csv",
+    "summary_by_model_prompt": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_unified_crossmodel_unified_v1_focus4_fixednode_unified_summary_by_model_prompt.csv",
+    "summary_by_model_variant": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_unified_crossmodel_unified_v1_focus4_fixednode_unified_summary_by_model_variant.csv",
+    "interpretation": "Fixed-node rows are comparable by direction, positive fraction, and within-model delta/retention; raw logit magnitudes are not compared across models."
+  },
+  "unified_routeidentity": {
+    "rows": 1390,
+    "main_rows": 1102,
+    "rows_csv": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_unified_crossmodel_unified_v1_focus4_routeidentity_unified_rows.csv",
+    "summary_by_model_prompt": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_unified_crossmodel_unified_v1_focus4_routeidentity_unified_summary_by_model_prompt.csv",
+    "summary_by_model_metric": "E:\\Bridging\\doc\\experiments\\stage6\\cross_model\\stage6_unified_crossmodel_unified_v1_focus4_routeidentity_unified_summary_by_model_metric.csv",
+    "interpretation": "Route-identity rows use Jaccard-style overlap. Qwen focus4 Top32 is marked constructed_full_pool and excluded from main identity claims."
+  },
+  "claim_boundary": "Stage6 unified analysis separates fixed-node causal strength from route identity/topology stability. Format failures and target-token mismatches are diagnostics, not mechanism failures."
+}

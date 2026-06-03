@@ -1,0 +1,3 @@
+bucket,count,node_overlap_jaccard,edge_overlap_jaccard,a_target_top3_concentration,b_target_top3_concentration,delta_target_top3_concentration,a_target_error_ratio,b_target_error_ratio,delta_target_error_ratio,a_traced_max_depth,b_traced_max_depth,delta_traced_max_depth,a_traced_nodes,b_traced_nodes,delta_traced_nodes,a_traced_edges,b_traced_edges,delta_traced_edges
+paperpack_stage4_qwen_source_tracing_primary_smoke_hookfix_L24,3,1.0,1.0,0.2357868279687673,0.23577285509538023,1.3972873387060417e-05,0.0,0.0,0.0,2.0,2.0,0.0,6.666666666666667,6.666666666666667,0.0,6.0,6.0,0.0
+__all__,3,1.0,1.0,0.2357868279687673,0.23577285509538023,1.3972873387060417e-05,0.0,0.0,0.0,2.0,2.0,0.0,6.666666666666667,6.666666666666667,0.0,6.0,6.0,0.0

@@ -1,0 +1,9 @@
+base_candidate_overlap_ci_low_sem,base_candidate_overlap_mean,base_candidate_overlap_positive_frac,feature_id_overlap_ci_low_sem,feature_id_overlap_mean,feature_id_overlap_positive_frac,layer_pos_feature_overlap_ci_low_sem,layer_pos_feature_overlap_mean,layer_pos_feature_overlap_positive_frac,rows,stage6_prompt_family,topk,unique_samples
+1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,4,A_step_visual,16,2
+1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,4,A_step_visual,32,2
+0.4132666736096647,0.7333333333333333,1.0,0.556,0.85,1.0,0.4132666736096647,0.7333333333333333,1.0,4,A_step_visual,4,2
+1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,4,A_step_visual,8,2
+1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,4,B_direct,16,2
+1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,4,B_direct,32,2
+0.5736786944776667,0.8,1.0,0.63,0.875,1.0,0.5736786944776667,0.8,1.0,4,B_direct,4,2
+1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,4,B_direct,8,2
