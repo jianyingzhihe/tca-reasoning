@@ -1,0 +1,46 @@
+\subsection{Localized visual evidence has region-specific answer effects in all three models}
+\label{sec:shared-dependence}
+
+The first question is whether removing the annotated answer region lowers target-answer scores more than removing a comparable non-evidence region in all three models. A second requirement connects that regional loss to internal computation: restoring the aligned clean hidden state must recover more score under answer-region corruption than under matched random corruption. The first comparison establishes regional specificity, the second connects the regional loss to an internal state, and a frozen control set tests whether the recovered content, direction, and location are specific.
+
+\subsubsection{The annotated region matters beyond generic occlusion}
+
+Figure~\ref{fig:behavior-region-specificity} compares answer-region corruption with same-area random corruption on the same image--question examples. Positive values mean that the annotated region causes greater damage to the target rank or complete-answer score. In the expanded 61-example evaluation, the rank intervals lie above zero for all three models, and the complete-answer intervals lie above zero for Qwen and LLaVA; the remaining Gemma interval includes zero. Thus, five of the six model-by-metric estimates lie strictly above zero. In the independently selected 52-example evaluation, both outcomes have intervals above zero in all three models. Removing the annotated answer region therefore causes more damage than removing an equally sized arbitrary region.
+
+\subsubsection{Hidden restoration connects the regional loss to internal computation}
+
+Output damage alone does not show whether the target-score loss can be recovered from an internal model state. We therefore restore clean residual states during the answer-region-corrupted and same-area-random-corrupted runs. For each predefined position group, we compare the restoration benefit under answer-region corruption with that under matched same-area random corruption. The main comparison reports answer-adjacent positions and all visual positions pooled together, so neither position group is selected by improvement in the target answer.
+
+Table~\ref{tab:hidden-position-grid} reports the 61-example comparison. Gemma and Qwen are clearest when all visual positions are restored together, whereas LLaVA is clearest at the predefined answer-adjacent positions. Under those model-specific position groups, both the target-rank and target-logit intervals lie above zero. For LLaVA, the all-visual intervals instead cross zero. Thus, the same region-specific answer-score pattern need not be recovered most strongly at the same type of position in every model.
+
+\begin{center}
+\begin{minipage}{\linewidth}
+\captionsetup{type=table,hypcap=false}
+\centering
+\caption{\textbf{Hidden restoration recovers target-answer scores at different position groups.} Entries report the restoration benefit under answer-region corruption minus that under matched same-area random corruption on 61 examples. $\Delta s$ is the mean score change, $\pi$ the positive-sample fraction, and brackets the 95\% sample-bootstrap interval. AV denotes all visual positions pooled together and AA denotes answer-adjacent positions. Rank changes are interpreted within model because vocabulary sizes differ.}
+\label{tab:hidden-position-grid}
+\normalsize
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcccc@{}}
+\toprule
+Model--position & $\Delta s_{\mathrm{rank}}\uparrow$ [95\% CI] & $\pi_{\mathrm{rank}}$ & $\Delta s_{\mathrm{logit}}\uparrow$ [95\% CI] & $\pi_{\mathrm{logit}}$ \\
+\midrule
+Gemma (AV) & $14{,}444.7\ [7{,}248.8,23{,}404.2]$ & .738 & $4.818\ [2.421,7.249]$ & .656 \\
+Qwen (AV) & $2{,}711.5\ [549.4,6{,}147.1]$ & .869 & $2.073\ [1.473,2.722]$ & .902 \\
+LLaVA (AV) & $1.23\ [-.25,2.96]$ & .393 & $.001\ [-.005,.007]$ & .459 \\
+LLaVA (AA) & $500.2\ [124.9,1{,}017.9]$ & .836 & $1.563\ [1.106,2.072]$ & .869 \\
+\bottomrule
+\end{tabular*}
+\end{minipage}
+\end{center}
+
+The independently selected 52-example position grid reproduces the same position-group preference. The mean logit restoration benefit under answer-region corruption exceeds that under same-area-random corruption in all three models, with all-visual positions preferred for Gemma and Qwen and answer-adjacent positions for LLaVA. This replication establishes that the position difference is not specific to the expanded 61-example set.
+
+\subsubsection{Frozen answer-position controls confirm content, direction, and location}
+
+The position-grid result identifies where restoration is clearest, but it does not by itself show that the restored content and direction are specific. We therefore use a separate 60-image development set to choose, for each model, the earliest layer whose mean answer-position restoration reaches at least 90\% of that model's development-set maximum. The selected layers are then frozen and evaluated on the same 240 confirmation images without changing the layer, target answer, four answer-adjacent positions, or control count. Table~\ref{tab:answer-position-confirmation} reports the confirmation results for the restoration itself and the three specificity controls.
+
+\input{generated_tables/answer_position_confirmation}
+
+Correct restoration is compared with the corrupted baseline, four equal-norm random directions, the reverse of the clean-state difference, and the same difference inserted at the wrong text positions. All four comparisons pass for each model after the 12 tests are corrected together. Randomizing the restored vector, reversing its direction, or inserting it at the wrong positions each reduces the recovery; the consistent reduction ties the restoration gain to the correct internal content, direction, and location. Combined with the regional comparison, the four specificity controls establish the same operational pattern in all three models: answer-region corruption causes greater score loss than matched random corruption, and the aligned clean hidden state selectively recovers that additional loss. The next question is whether a fitted sparse reconstruction preserves the internal change caused by masking the annotated region and produces the corresponding target-score change at its tested feed-forward output.
+
+\FloatBarrier

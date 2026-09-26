@@ -15,6 +15,10 @@ Todo:
 
 ---
 
+## Additional manuscript
+
+*Same Causal Question, Different Lenses: Localized Visual Evidence and Answer-Side Computation in Vision-Language Models* is available as a [PDF](paper/main_iclr2026.pdf), with its [LaTeX source and figures](paper/).
+
 ### State of circuit tracing in VLMs
 
 Currently, our code supports the entire circuit tracing workflow for VLMs. Our code and experiments were conducted using Gemma3-4B-IT, and we believe the current framework can be extended to all models in the Gemma3 family.

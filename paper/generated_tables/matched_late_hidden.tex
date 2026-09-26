@@ -1,0 +1,21 @@
+\begin{samepage}
+\begin{center}
+\begin{minipage}{\linewidth}
+\captionsetup{type=table,hypcap=false}
+\caption{\textbf{Only the evaluated LLaVA late-answer interface passes the matched bidirectional test.} All three models use the same 60 reviewed image--question examples, the zero-based penultimate language layer, four answer-adjacent positions, the same complete-answer score, and the same restored/replaced-state protocol in one runtime. $n_+$ counts examples with a positive clean-minus-masked sequence-score change. $V$ is the mean of that change; $R/V$ and $C/V$ are ratios of within-model means in percent for restoration and corrupted-state replacement. R-L and C-L are raw sequence-score 95\% bootstrap lower bounds for the respective effects minus $0.8V$; the upper bounds must also be nonnegative for Gate=1. Negative ratios denote reversed mean effects. Different models' raw score magnitudes are not compared.}
+\label{tab:matched-late-hidden}
+\centering
+\small
+\setlength{\tabcolsep}{2.2pt}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lrrrrrrrr@{}}
+\toprule
+Model & Layer & $n_+$ & $V$ & $R/V$ & $C/V$ & R-L & C-L & Gate \\
+\midrule
+Gemma & 32 & 29/60 & 0.407 & -85.0 & -152.8 & -1.837 & -2.196 & 0 \\
+Qwen & 26 & 36/60 & 1.463 & 74.3 & 45.3 & -0.483 & -1.017 & 0 \\
+LLaVA & 30 & 41/60 & 0.930 & 95.2 & 95.7 & 0.046 & 0.050 & 1 \\
+\bottomrule
+\end{tabular*}
+\end{minipage}
+\end{center}
+\end{samepage}

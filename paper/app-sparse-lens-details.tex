@@ -1,0 +1,32 @@
+\section{Sparse-lens implementation and reconstruction details}
+\label{app:sparse-lens-details}
+
+The sparse analyses use frozen, model-specific PLT and CLT transcoders as post-hoc measurement interfaces; none is trained or updated on the compact-evidence evaluation samples. At read layer $\ell$, a top-$K$ reconstruction selects the $K$ largest nonnegative activations independently at each position and under each image condition, then writes their decoded sum to target layer $m$. The superscript $\ell\rightarrow m$ identifies the read and target layers, while subscript $i$ identifies the sequence position; $m=\ell$ for a PLT, whereas a CLT can use $m>\ell$. The resulting reconstruction residual is
+\[
+\vec{r}_{\mathrm{err},i}^{m}(x,c;\theta,\phi)
+=\Delta\vec{u}_{i}^{m}(x,c;\theta)
+-\widehat{\Delta\vec{u}}_{K,i}^{\ell\rightarrow m}(x,c;\theta,\phi).
+\]
+The decomposition experiments intervene separately with the full dense difference, its selected-feature reconstruction, and the reconstruction residual under the same answer target and mask/control setting.
+
+The final same-object comparison uses $K\in\{16,32,64,128\}$ active features per token for all three interfaces and treats $K=128$ as the primary setting. These budgets are fixed before the 240-image confirmation results and are not selected separately for favorable answer effects. Because PLT and CLT are different fitted interfaces over different model streams, the main text compares normalized within-interface summaries rather than raw feature identities or raw cross-model effect magnitudes. Table~\ref{tab:same-object-components} reports the primary answer effects, and Table~\ref{tab:sparse-structure-summary} reports the normalized structural summaries.
+
+The base-model identifiers are \nolinkurl{google/gemma-3-4b-it}, \nolinkurl{Qwen/Qwen2.5-VL-7B-Instruct}, and \nolinkurl{llava-hf/llava-1.5-7b-hf}. The supplementary package records these identifiers together with the lens identifiers, checkpoint hashes, layer settings, and feature metadata paths. Table~\ref{tab:sparse-lens-repro} reports the runnable settings directly. The dictionary column gives the total number of fitted sparse features; the fixed budgets select at most 16, 32, 64, or 128 active features per token. A zero in the evaluation-training column means that no evaluation row was used to fit the lens.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{\textbf{Sparse-tool settings for the final same-object comparison.} The layer column gives the zero-based middle language layer at which the complete feed-forward change, sparse reconstruction, and reconstruction residual are written back. No evaluation image is used to train the sparse tools.}
+\label{tab:sparse-lens-repro}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcccccc@{}}
+\toprule
+Model & Tool & Layer & Dictionary & Budgets & Images & Evaluation training \\
+\midrule
+Gemma & PLT & 17 & 10,240 & 16, 32, 64, 128 & 240 & 0 \\
+Qwen & PLT & 14 & 14,336 & 16, 32, 64, 128 & 240 & 0 \\
+LLaVA & CLT & 16 & 16,384 & 16, 32, 64, 128 & 240 & 0 \\
+\bottomrule
+\end{tabular*}
+\end{table}
+
+Earlier source-tracing exports provide graph and feature-node diagnostics under different model-specific interfaces. We retain those diagnostics in the supplementary record, but they do not determine the final cross-model path conclusion. The main text instead uses the same-object sparse comparison to measure tool visibility and the native-channel experiment to test path closure without sparse-tool reconstruction error.

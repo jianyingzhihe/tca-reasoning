@@ -1,0 +1,21 @@
+\begin{samepage}
+\begin{center}
+\begin{minipage}{\linewidth}
+\captionsetup{type=table,hypcap=false}
+\caption{\textbf{Frozen answer-position restoration is specific in all three models.} The Restore column reports the mean increase in complete-answer log probability over the corrupted baseline; the three control columns are paired contrasts between correct restoration and the named intervention, not additional restoration magnitudes. A control contrast can exceed Restore when that control lowers complete-answer log probability below the corrupted baseline. Brackets are 95\% cluster-bootstrap intervals on the same 240 confirmation images. Layers were selected on a separate 60-image development set. All 12 comparisons remain positive after joint correction.}
+\label{tab:answer-position-confirmation}
+\centering
+\small
+\setlength{\tabcolsep}{2.4pt}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lccccc@{}}
+\toprule
+Model & Layer & Restore & vs. random & vs. reverse & vs. wrong pos. \\
+\midrule
+Gemma & 28 & \shortstack{$3.956$\\$[2.150,5.781]$} & \shortstack{$3.743$\\$[1.970,5.587]$} & \shortstack{$9.778$\\$[6.960,12.611]$} & \shortstack{$3.135$\\$[1.444,4.924]$} \\
+Qwen & 23 & \shortstack{$1.831$\\$[1.086,2.628]$} & \shortstack{$2.108$\\$[1.327,2.949]$} & \shortstack{$5.179$\\$[3.947,6.432]$} & \shortstack{$1.823$\\$[1.082,2.613]$} \\
+LLaVA & 20 & \shortstack{$1.060$\\$[0.779,1.359]$} & \shortstack{$1.105$\\$[0.825,1.409]$} & \shortstack{$2.367$\\$[1.833,2.946]$} & \shortstack{$0.987$\\$[0.720,1.274]$} \\
+\bottomrule
+\end{tabular*}
+\end{minipage}
+\end{center}
+\end{samepage}

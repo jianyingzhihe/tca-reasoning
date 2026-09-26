@@ -1,0 +1,37 @@
+\section{Detailed intervention results and numerical tables}
+\label{app:detailed-results}
+
+This appendix retains the full numerical comparisons behind the three main-text findings. It reports the region-specific behavior and hidden-position grids, the same-object sparse effects and descriptive summaries, native-channel path tests, and the shared-subspace and complete-state comparisons. The main text states the scientific result of each contrast; the tables here preserve all means, intervals, controls, and selection boundaries.
+
+\input{sec-result1-shared-dependence}
+\input{sec-result2-sparse-effect}
+\input{sec-result3-sparse-structure}
+\input{sec-result4-native-path}
+\input{sec-result5-subspace-bottleneck}
+
+\subsection{Sensitivity to the effect-matching tolerance}
+\label{app:gate-tolerance}
+
+The primary complete-effect rule uses the frozen 80--120\% mean interval. As a post-hoc robustness check, we recompute the same four paired sample-bootstrap margins on the same 60 independently reviewed LLaVA examples at symmetric tolerances of 10, 15, 20, 25, and 30\%. The 20\% bootstrap lower bounds reproduce the original confirmation exactly. The low-rank column below rechecks only the two selection-set means for the eight ranks in each model; the Qwen column rechecks only the two means of the later matched-interface diagnostic. These auxiliary columns do not constitute independent confirmations.
+
+\begin{center}
+\begin{minipage}{\linewidth}
+\captionsetup{type=table,hypcap=false}
+\caption{\textbf{Bidirectional decisions across tolerance widths.} The LLaVA minimum is the smallest of four 95\% paired-bootstrap lower bounds on the independent 60-example set, in sequence-log-probability units. The low-rank count is the number of 24 model--rank candidates passing both selection means; Qwen is the later same-sample, same-relative-layer mean decision. The latter two columns do not use the independent LLaVA bootstrap gate.}
+\label{tab:gate-tolerance}
+\centering
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}ccccc@{}}
+\toprule
+Tol. & LLaVA min. bound & LLaVA 4/4 & Low-rank / 24 & Qwen both means \\
+\midrule
+10\% & $-.023$ & 0 & 0 & 0 \\
+15\% & $+.015$ & 1 & 0 & 0 \\
+20\% & $+.047$ & 1 & 0 & 0 \\
+25\% & $+.076$ & 1 & 0 & 0 \\
+30\% & $+.102$ & 1 & 0 & 0 \\
+\bottomrule
+\end{tabular*}
+\end{minipage}
+\end{center}
+
+The independent LLaVA point estimates satisfy the 10\% mean gate, but the tighter paired-bootstrap bounds cross zero. Its four-bound decision is positive from 15\% through 30\%. None of the 24 low-rank selection candidates passes both mean gates in this range, and the matched Qwen interface remains outside the mean gate because masked-state writeback retains only 45.3\% of its natural score change. This analysis checks the sensitivity of the original decision; it does not replace the predeclared 20\% criterion.

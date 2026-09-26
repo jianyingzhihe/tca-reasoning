@@ -1,0 +1,29 @@
+\section{Experimental Setup}
+\label{sec:experimental-setup}
+
+We evaluate three frozen vision--language models with model-specific sparse measurement tools: Gemma3 and Qwen2.5-VL use per-layer transcoders, and LLaVA1.5 uses a cross-layer transcoder \citep{gemma3,qwen25vl,llava,dunefsky2024transcoders,ameisen2025circuittracing}. The tools are fitted separately from the base models. The regional evaluations draw from compact-evidence questions in the OK-VQA validation split \citep{okvqa}; Appendix~\ref{app:detailed-setup} specifies each evaluation set and its selection rule. Cross-model comparisons align the image--question examples, visual corruption, fixed answer target, intervention direction, and statistical interpretation, not raw feature identities or score magnitudes.
+
+\begin{center}
+\begin{minipage}{\linewidth}
+\captionsetup{type=table,hypcap=false}
+\caption{\textbf{Evaluation roles and independent units.} Dash: no interface selection; 61+52: separate evaluations; 60/61: accepted/reviewed masks.}
+\label{tab:evaluation-roles}
+\centering
+\small
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lccc@{}}
+\toprule
+Comparison & Selection & Evaluation & Inference unit \\
+\midrule
+Regional and hidden-position & -- & 61 + 52 & image--question \\
+Answer-position, sparse, native & 60 & 240 & 48 clusters \\
+Shared-subspace rank & 40 fit + 20 select & 40 & image--question \\
+LLaVA full-hidden confirmation & frozen interface & 60 / 61 masks & image--question \\
+Matched late-answer diagnostic & rule from LLaVA & same 60 & image--question \\
+\bottomrule
+\end{tabular*}
+\end{minipage}
+\end{center}
+
+Table~\ref{tab:evaluation-roles} separates groups that answer different questions. The 61-example expanded set and 52-example set selected without model results test whether regional damage and hidden-position preferences repeat. The 240-image set reuses previously analyzed images to compare internal candidates under stronger intervention controls; it is not a fresh confirmation set. Forty, twenty, and forty disjoint images respectively fit, select, and replicate the shared-subspace candidates. Only the final LLaVA full-hidden test uses newly reviewed evidence masks after freezing its interface and decision rule. The same 60 masks are subsequently reused in a three-model comparison whose relative-layer rule was chosen after the LLaVA finding.
+
+Every paired comparison uses the same fixed short-answer tokenization across clean, evidence-masked, control-masked, and internally intervened runs. The 61- and 52-example regional analyses resample image--question examples; their individual 95\% intervals are unadjusted across panel cells and describe the direction and recurrence of the matched contrasts. The 240-image tests resample 48 entity--relation clusters and jointly correct their comparison families. Shared-subspace and complete hidden-state candidates must restore and remove 80--120\% of the mean clean-minus-evidence-mask sequence-score change. For independent confirmation, we resample image--question examples while keeping each example's clean, masked, and intervened scores together. In each of the two write directions, the 95\% lower bound must be nonnegative both for the candidate effect minus 80\% of the natural loss and for 120\% of that loss minus the candidate effect: four bounds in total. The later three-model result is diagnostic rather than jointly prospective. Appendix~\ref{app:detailed-setup} gives all splits, target rules, reconstruction diagnostics, exact resampling counts, and model-specific layer settings.

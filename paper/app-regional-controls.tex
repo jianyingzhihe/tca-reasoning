@@ -1,0 +1,22 @@
+\section{Additional controls for localized visual evidence}
+\label{app:regional-controls}
+
+The main input comparison contrasts answer-region corruption with same-area random corruption on the same image. Additional operators test whether the rank pattern depends on one gray-mask implementation. Table~\ref{tab:stronger-mask-controls} reports target-rank damage relative to the clean image; larger values indicate a larger loss of target support. The expanded answer entry ranges over gray, blur, inpainting, and patch-shuffle corruptions, whereas the random entry uses a same-area region. The independently selected columns summarize the separate 52-example gray-mask comparison. These controls support the regional answer-score finding rather than the internal path result.
+
+\begin{table}[htbp]
+\centering
+\normalsize
+\caption{\textbf{Answer-region versus matched-random rank damage.} Expanded answer entries give the range across four answer-region operators; other entries are mean damage for the named condition. Values are interpreted within model because target-rank scales differ.}
+\label{tab:stronger-mask-controls}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lrrrr@{}}
+\toprule
+Model & Expanded answer & Expanded random & Independent answer & Independent random \\
+\midrule
+Gemma & $9613$--$16342$ & $951$ & $5028$ & $-120$ \\
+Qwen & $2795$--$3131$ & $50$ & $297$ & $-39$ \\
+LLaVA & $73$--$98$ & $-2.5$ & $46$ & $0$ \\
+\bottomrule
+\end{tabular*}
+\end{table}
+
+Mask morphology supplies a complementary localized check. Dilation and erosion preserve the direction of the earlier Gemma hidden-state diagnostic and Qwen sparse-feature diagnostic. These model-specific checks address sensitivity to one exact polygon boundary; the shared three-model, same-area comparison remains the primary regional control.
